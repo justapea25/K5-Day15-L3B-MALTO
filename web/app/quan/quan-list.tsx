@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import QuanCover from "../quan-cover";
 import { useEffect, useRef, useState } from "react";
 import { READ, vnd } from "../lib";
 import type { DuLieu, Mon, Quan } from "../types";
@@ -18,7 +18,7 @@ function Tags({ m }: { m: Mon }) {
   );
 }
 
-// Ảnh bìa minh hoạ theo loại quán (AI tạo, web/public/img/loai) — không phải ảnh quán thật
+// Loại quán (để chọn biểu tượng khi quán chưa có ảnh). Ảnh quán: web/public/img/quan/<id>.webp (gpt-image-2)
 // quán chay: không dùng ảnh (ảnh có sẵn đều có thịt) → biểu tượng
 const COVER: [RegExp, string][] = [[/chay/i, ""], [/^bếp/i, "com"], [/phở/i, "pho"], [/bún/i, "bun"], [/cơm/i, "com"], [/bánh mì/i, "banh_mi"], [/lẩu/i, "lau"]];
 const coverOf = (q: Quan) => COVER.find(([re]) => re.test(q.ten) || re.test(q.am_thuc))?.[1] || undefined;
@@ -35,12 +35,8 @@ function QuanCard({ q, active, chosen, onClick }: { q: Quan; active: boolean; ch
         active ? "border-accent ring-2 ring-accent/30" : "border-line hover:border-accent/60"
       }`}
     >
-      <div className="relative h-24 overflow-hidden bg-soft">
-        {coverOf(q) ? (
-          <Image src={`/img/loai/${coverOf(q)}.webp`} alt="" fill sizes="(min-width: 1024px) 360px, 50vw" className="object-cover transition duration-300 group-hover:scale-105" />
-        ) : (
-          <span className="flex h-full items-center justify-center bg-gradient-to-br from-ok/20 to-soft text-4xl">{iconOf(q)}</span>
-        )}
+      <div className="relative h-32 overflow-hidden bg-soft">
+        <QuanCover id={q.id} fallback={coverOf(q)} icon={iconOf(q)} sizes="(min-width: 1024px) 360px, 50vw" className="transition duration-300 group-hover:scale-105" />
         <span className="absolute inset-0 bg-gradient-to-t from-black/35 to-transparent" />
       </div>
       <div className="p-3">
@@ -49,7 +45,7 @@ function QuanCard({ q, active, chosen, onClick }: { q: Quan; active: boolean; ch
         {chosen && <span className="shrink-0 rounded-full bg-ok px-2 py-0.5 text-[10px] font-semibold text-white">Đang gợi ý</span>}
       </div>
       <p className="mt-1 text-xs text-muted">
-        {q.am_thuc} · {q.khoang_cach_km} km{q.danh_gia ? ` · ★ ${q.danh_gia}` : ""} · {q.mon.length} món
+        {q.am_thuc} · {q.khoang_cach_km} km{q.muc_gia ? ` · ${q.muc_gia}` : ""}{q.danh_gia ? ` · ★ ${q.danh_gia} (${q.so_danh_gia ?? 0} đánh giá)` : ""} · {q.mon.length} món
       </p>
       <div className="mt-2 flex flex-wrap gap-1">
         {veg > 0 && <span className="rounded bg-ok/15 px-1.5 text-[11px] font-medium text-ok">🌱 {veg} món chay</span>}

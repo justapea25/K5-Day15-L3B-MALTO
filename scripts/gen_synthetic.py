@@ -16,6 +16,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from build_data import ALLERGEN, THIT, LOAI, tags  # noqa: E402
+from diverse_shops import SHOPS as EXTRA, EXTRA_WEIGHTS, LOAI_MOI, DISH_WORDS, grab_name  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -126,16 +127,90 @@ def main():
                     "danh_gia": round(tri(rng, *STATS["danh_gia"]), 1) if rng.random() < STATS["ti_le_co_danh_gia"] else None,
                     "gio_mo": rng.choice(HOURS) if rng.random() < STATS["ti_le_co_gio_mo"] * 2 else None,
                     "freeship": rng.random() < 0.1, "khuyen_mai": None, "mon": mons})
+    # Bổ sung đánh giá + giờ mở cửa cho MỌI quán (data thật chỉ 25/60 quán có sao, 7/60 ghi giờ) — dùng RNG riêng để không đổi các trường khác
+    rng2 = random.Random(a.seed + 1)
+    for q in out:
+        if q["danh_gia"] is None:
+            q["danh_gia"] = round(tri(rng2, *STATS["danh_gia"]), 1)
+        q["so_danh_gia"] = int(tri(rng2, 15, 120, 900))
+        if q["gio_mo"] is None:  # data thật chỉ ~12% quán ghi giờ; bổ sung cho mọi quán, có quán chỉ bán tối
+            q["gio_mo"] = rng2.choices(HOURS + ["16:30-23:00", "17:00-22:30"], [3, 3, 3, 3, 1, 1])[0]
     out.sort(key=lambda q: q["khoang_cach_km"])
     for i, q in enumerate(out, 1):  # đánh lại mã theo khoảng cách
         old = q["id"]
         q["id"] = "Q%02d" % i
         for m in q["mon"]:
             m["id"] = m["id"].replace(old + "-", q["id"] + "-", 1)
+    # Đổi tên 40 quán gốc theo kiểu đặt tên thật trên Grab (RNG riêng, không đổi các trường khác)
+    rng_n = random.Random(a.seed + 3)
+    used = set()
+    for q in out:
+        kind = "Món chay" if q["am_thuc"] == "Món chay" else q["am_thuc"]
+        words = DISH_WORDS.get(kind, [kind])
+        if kind == "Món chay":
+            words = ["Quán Chay", "Cơm Chay", "Bún Chay"]
+        while True:
+            nm = grab_name(rng_n, words)
+            if nm not in used:
+                used.add(nm)
+                break
+        q["ten"] = nm
+
+    # Bỏ bớt quán Việt bị lặp kiểu (3 cơm, 4 bún, 3 chay) — giữ nguyên mã các quán còn lại
+    DROP = {"Q24", "Q26", "Q32", "Q28", "Q29", "Q31", "Q36", "Q19", "Q25", "Q30"}
+    out = [q for q in out if q["id"] not in DROP]
+
+    # Thêm 30 quán đa dạng (Nhật, Hàn, Hoa, gà rán, pizza…) — RNG riêng, mã Q41…
+    rng3 = random.Random(a.seed + 2)
+    kinds = list(EXTRA) + rng3.choices(list(EXTRA_WEIGHTS), list(EXTRA_WEIGHTS.values()), k=30 - len(EXTRA))
+    extra = []
+    for kind in kinds:
+        label, bases, dishes = EXTRA[kind]
+        words = [label.split(",")[0]] + [d[0].split(" (")[0] for d in dishes[:3]]
+        while True:
+            nm = grab_name(rng3, words, base=rng3.choice(bases) if rng3.random() < 0.6 else None)
+            if nm not in used:
+                used.add(nm)
+                break
+        mons = []
+        for nm_d, desc, loai, (lo, mid, hi) in dishes:
+            for variant in ([""] + ([" đặc biệt"] if rng3.random() < 0.4 else [])):
+                has_desc = rng3.random() < STATS["ti_le_co_mo_ta"]
+                chay = True if "chay" in nm_d.lower() else None
+                full = nm_d + variant
+                shown = full + " " + (desc if has_desc else "")
+                gia = int(round(tri(rng3, lo, mid, hi) * 1000 / 1000)) * 1000 + (5000 if variant else 0)
+                mons.append({"id": "", "ten": full, "gia": gia, "loai": loai, "nhom": "Món chính",
+                             "mo_ta": desc if has_desc else "", "chay": chay,
+                             "co_nhac": tags(shown, ALLERGEN), "thit": [] if chay else tags(shown, THIT),
+                             "ghi_thanh_phan": has_desc})
+        extra.append({"id": "", "ten": nm, "khu_vuc": None, "am_thuc": label,
+                      "khoang_cach_km": round(tri(rng3, *STATS["km"]), 1),
+                      "danh_gia": round(tri(rng3, *STATS["danh_gia"]), 1), "so_danh_gia": int(tri(rng3, 15, 120, 900)),
+                      "gio_mo": rng3.choice(HOURS + ["16:30-23:00", "17:00-22:30"]),
+                      "freeship": rng3.random() < 0.1, "khuyen_mai": None, "mon": mons})
+    extra.sort(key=lambda q: q["khoang_cach_km"])
+    for i, q in enumerate(extra, 41):  # quán mới luôn từ Q41
+        q["id"] = "Q%02d" % i
+        for k, m in enumerate(q["mon"], 1):
+            m["id"] = "%s-%d" % (q["id"], k)
+    # Đa dạng giá + khoảng cách cho 30 quán mới (RNG riêng, SAU khi đánh mã → mã và ảnh không đổi)
+    rng4 = random.Random(a.seed + 4)
+    for q in extra:
+        tier = rng4.choices([0.75, 1.0, 1.35, 1.8], [3, 4, 2, 1])[0]   # bình dân · vừa · khá · cao cấp
+        for m in q["mon"]:
+            m["gia"] = int(round(m["gia"] * tier / 1000)) * 1000
+        q["khoang_cach_km"] = round(tri(rng4, 0.2, 1.5, 6.0), 1)
+    out += extra
+    # Mức giá ($ → $$$$) theo giá trung vị món của quán
+    for q in out:
+        med = sorted(m["gia"] for m in q["mon"])[len(q["mon"]) // 2]
+        q["muc_gia"] = "$" if med < 50000 else "$$" if med < 90000 else "$$$" if med < 150000 else "$$$$"
+
     data = {"_ghi_chu": ("synthetic — quán DỰNG GIẢ, tên dựng, sinh bằng scripts/gen_synthetic.py (seed %d) theo phân bố "
                          "giá, khoảng cách, đánh giá, tỉ lệ có mô tả, tỉ lệ món chay đo từ menu GrabFood nhóm crawl. "
                          "Không phải quán thật. Không có phí ship. Xem data/DATA_CARD.md." % a.seed),
-            "seed": a.seed, "ma_di_ung": list(ALLERGEN), "ma_thit": list(THIT), "ma_loai": [c for c, _ in LOAI] + ["khac"],
+            "seed": a.seed, "ma_di_ung": list(ALLERGEN), "ma_thit": list(THIT), "ma_loai": [c for c, _ in LOAI] + LOAI_MOI + ["khac"],
             "quan": out}
     path = os.path.join(ROOT, "data", "restaurants.json")
     with open(path, "w", encoding="utf-8") as f:

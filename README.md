@@ -17,7 +17,7 @@
 | Giao diện dự phòng (không cần Node) | `python codebase/web.py`, rồi mở http://localhost:8010 |
 | Chạy bộ câu thử | `python run.py eval` |
 
-- **Dữ liệu quán là dựng giả có seed** (`data/restaurants.json`, 40 quán, tên dựng, sinh bằng `scripts/gen_synthetic.py`) theo số liệu đo từ menu GrabFood thật. Mô tả: [data/DATA_CARD.md](data/DATA_CARD.md).
+- **Dữ liệu quán là dựng giả có seed** (`data/restaurants.json`, 60 quán, tên dựng, sinh bằng `scripts/gen_synthetic.py`) theo số liệu đo từ menu GrabFood thật. Mô tả: [data/DATA_CARD.md](data/DATA_CARD.md).
 - **Chế độ giả** (chưa nối model): bỏ qua tin nhắn, dùng một yêu cầu mẫu cố định để luồng chạy hết. Output ghi rõ `[chế độ giả …]`.
 - Khoảng cách là số sinh giả, không tính theo vị trí thật. Không có phí ship.
 
