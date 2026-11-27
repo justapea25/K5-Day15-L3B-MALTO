@@ -1,8 +1,10 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import type { AnswerResponse, Buoc, DuLieu, KetQua, Loai, Mon, Quan } from "./types";
+import { vnd } from "./lib";
+import type { AnswerResponse, Buoc, KetQua, Loai } from "./types";
 
 const EXAMPLES: [string, string][] = [
   ["Mỗi người một ý", "Nhóm 4 người: Lan muốn ăn gì có nước, Hùng thèm cơm, Mai không ăn đồ chiên, Nam ăn gì cũng được. Mỗi người tầm 70k, dưới 1km"],
@@ -20,12 +22,6 @@ const BADGE: Record<Loai, string> = {
   khong_co: "bg-bad/15 text-bad",
   tu_choi: "bg-bad/15 text-bad",
 };
-const READ: Record<string, string> = {
-  hai_san: "hải sản", dau_phong: "đậu phộng", sua: "sữa", trung: "trứng", gluten: "gluten", dau_nanh: "đậu nành",
-};
-
-const vnd = (n?: number | null) => (n == null ? "" : `${Math.round(n).toLocaleString("vi-VN")}đ`);
-
 // ---------- Luồng 6 bước (khớp codebase/agent.py) ----------
 
 const STEPS = [
@@ -147,6 +143,9 @@ function Suggestion({ k }: { k: KetQua }) {
           <span className="rounded-full bg-black/15 px-2 py-0.5">📍 {k.quan.khoang_cach_km} km</span>
           {k.quan.danh_gia ? <span className="rounded-full bg-black/15 px-2 py-0.5">★ {k.quan.danh_gia}</span> : null}
           <span className="rounded-full bg-black/15 px-2 py-0.5">🕒 {k.quan.gio_mo ?? "chưa rõ giờ mở"}</span>
+          <Link href={`/quan?open=${k.quan.id}`} className="rounded-full bg-white/90 px-2.5 py-0.5 font-semibold text-accent hover:bg-white">
+            Xem menu quán →
+          </Link>
         </div>
       </div>
 
@@ -307,109 +306,15 @@ function Welcome({ onPick, disabled }: { onPick: (t: string) => void; disabled: 
   );
 }
 
-// ---------- Dữ liệu quán ----------
-
-function Tags({ m }: { m: Mon }) {
-  return (
-    <span className="flex flex-wrap gap-1">
-      {m.chay === true && <span className="rounded bg-ok/15 px-1.5 text-[11px] font-medium text-ok">🌱 chay</span>}
-      {m.co_nhac.length > 0 && (
-        <span className="rounded bg-soft px-1.5 text-[11px] text-muted">có {m.co_nhac.map((c) => READ[c] ?? c).join(", ")}</span>
-      )}
-      {!m.ghi_thanh_phan && <span className="rounded bg-warn/15 px-1.5 text-[11px] text-warn">không ghi mô tả</span>}
-    </span>
-  );
-}
-
-function QuanCard({ q, active, chosen, onClick }: { q: Quan; active: boolean; chosen: boolean; onClick: () => void }) {
-  const veg = q.mon.filter((m) => m.chay === true).length;
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-pressed={active}
-      className={`rounded-xl border bg-panel p-3 text-left transition ${
-        active ? "border-accent ring-2 ring-accent/30" : "border-line hover:border-accent/60"
-      }`}
-    >
-      <div className="flex items-start justify-between gap-2">
-        <p className="line-clamp-2 font-semibold leading-snug">{q.ten}</p>
-        {chosen && <span className="shrink-0 rounded-full bg-ok px-2 py-0.5 text-[10px] font-semibold text-white">Đang gợi ý</span>}
-      </div>
-      <p className="mt-1 text-xs text-muted">
-        {q.am_thuc} · {q.khoang_cach_km} km{q.danh_gia ? ` · ★ ${q.danh_gia}` : ""} · {q.mon.length} món
-      </p>
-      <div className="mt-2 flex flex-wrap gap-1">
-        {veg > 0 && <span className="rounded bg-ok/15 px-1.5 text-[11px] font-medium text-ok">🌱 {veg} món chay</span>}
-        {q.freeship && <span className="rounded bg-accent/15 px-1.5 text-[11px] text-accent">freeship</span>}
-        {q.gio_mo && <span className="rounded bg-soft px-1.5 text-[11px] text-muted">🕒 {q.gio_mo}</span>}
-      </div>
-    </button>
-  );
-}
-
-function DataPanel({ data, chosenId }: { data: DuLieu | null; chosenId?: string }) {
-  const [open, setOpen] = useState<string | null>(null);
-  const [query, setQuery] = useState("");
-  if (!data) return <p className="text-sm text-muted">Đang tải dữ liệu quán…</p>;
-  const ql = query.trim().toLowerCase();
-  const list = ql
-    ? data.quan.filter((q) => q.ten.toLowerCase().includes(ql) || q.am_thuc.toLowerCase().includes(ql) || q.mon.some((m) => m.ten.toLowerCase().includes(ql)))
-    : data.quan;
-  const sel = data.quan.find((q) => q.id === open);
-  return (
-    <>
-      <input
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        placeholder="Tìm quán hoặc món (vd: bún, phở, chay)…"
-        className="mb-3 w-full rounded-lg border border-line bg-bg px-3 py-2 text-sm outline-none focus:border-accent"
-      />
-      <p className="mb-3 text-xs text-muted">{list.length} quán</p>
-      <div className="grid max-h-[520px] gap-3 overflow-y-auto pr-1 sm:grid-cols-2 lg:grid-cols-3">
-        {list.map((q) => (
-          <QuanCard key={q.id} q={q} active={open === q.id} chosen={chosenId === q.id} onClick={() => setOpen(open === q.id ? null : q.id)} />
-        ))}
-      </div>
-      {sel && (
-        <div className="mt-4 rounded-xl border border-line bg-bg/60 p-4">
-          <div className="mb-3 flex items-baseline justify-between gap-2">
-            <h3 className="text-lg font-semibold">Menu · {sel.ten}</h3>
-            <button type="button" onClick={() => setOpen(null)} className="text-sm text-muted hover:text-ink">
-              Đóng ✕
-            </button>
-          </div>
-          {sel.khuyen_mai && <p className="mb-3 text-xs text-accent">🎁 {sel.khuyen_mai}</p>}
-          <ul className="grid gap-x-6 sm:grid-cols-2">
-            {sel.mon.map((m) => (
-              <li key={m.id} className="border-t border-line py-2">
-                <div className="flex items-baseline justify-between gap-2">
-                  <p className="text-sm font-medium leading-snug">{m.ten}</p>
-                  <p className="shrink-0 text-sm tabular-nums text-accent">{vnd(m.gia)}</p>
-                </div>
-                {m.mo_ta && <p className="mt-0.5 line-clamp-2 text-xs text-muted">{m.mo_ta}</p>}
-                <div className="mt-1">
-                  <Tags m={m} />
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-    </>
-  );
-}
-
 // ---------- Trang ----------
+
+const CHAT_KEY = "malto-chat";
 
 export default function App() {
   const [msgs, setMsgs] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState<string | null>(null);
-  const [model, setModel] = useState<{ provider: string; model: string } | null>(null);
-  const [quan, setQuan] = useState<DuLieu | null>(null);
-  const [backendDown, setBackendDown] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const autoRan = useRef(false);
@@ -417,7 +322,6 @@ export default function App() {
   const bots = msgs.filter((m) => m.role === "bot");
   const lastBot = bots[bots.length - 1];
   const shown = msgs.find((m) => m.id === selected) ?? lastBot;
-  const lastPick = [...bots].reverse().find((m) => m.data?.ket_qua?.loai === "goi_y")?.data?.ket_qua?.quan?.id;
   const waitingAnswer = lastBot?.data?.ket_qua?.loai === "hoi_lai";
 
   async function send(raw: string) {
@@ -451,6 +355,9 @@ export default function App() {
   }
 
   function reset() {
+    try {
+      sessionStorage.removeItem(CHAT_KEY);
+    } catch {}
     setMsgs([]);
     setSelected(null);
     setInput("");
@@ -458,14 +365,11 @@ export default function App() {
   }
 
   useEffect(() => {
-    fetch("/api/info")
-      .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
-      .then(setModel)
-      .catch(() => setBackendDown(true));
-    fetch("/api/quan")
-      .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
-      .then(setQuan)
-      .catch(() => setBackendDown(true));
+    // khôi phục hội thoại khi quay lại từ tab "Danh sách quán"
+    try {
+      const saved = sessionStorage.getItem(CHAT_KEY);
+      if (saved) setTimeout(() => setMsgs(JSON.parse(saved)), 0);
+    } catch {}
     // ?q=... → gửi luôn câu đó (tiện khi demo: gửi link có sẵn câu hỏi)
     const q = new URLSearchParams(window.location.search).get("q");
     // React dev chạy effect 2 lần → chặn gửi trùng bằng cờ
@@ -475,6 +379,12 @@ export default function App() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(CHAT_KEY, JSON.stringify(msgs));
+    } catch {}
+  }, [msgs]);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
@@ -489,24 +399,7 @@ export default function App() {
   }, [input]);
 
   return (
-    <main className="mx-auto max-w-6xl px-4 pb-16 pt-6">
-      <header className="mb-5 flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">MALTO · Track D</p>
-          <h1 className="text-3xl font-semibold tracking-tight">🍜 Chọn quán cho nhóm</h1>
-        </div>
-        <div className="rounded-full border border-line bg-panel px-3 py-1 text-xs text-muted">
-          model: <b className="font-semibold text-ink">{model?.model ?? "…"}</b>
-          {model?.provider === "fake" && <span className="text-warn"> · chế độ giả</span>}
-        </div>
-      </header>
-
-      {backendDown && (
-        <p className="mb-4 rounded-lg border border-bad/40 bg-bad/10 px-4 py-3 text-sm text-bad">
-          Không kết nối được backend. Chạy <code className="font-mono">python codebase/web.py</code> ở thư mục gốc repo rồi tải lại trang.
-        </p>
-      )}
-
+    <>
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
         {/* Khung chat */}
         <section className="flex h-[min(80vh,780px)] min-h-[520px] flex-col overflow-hidden rounded-2xl border border-line bg-panel">
@@ -597,16 +490,6 @@ export default function App() {
         </section>
       </div>
 
-      <section className="mt-4 rounded-2xl border border-line bg-panel p-5">
-        <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
-          <h2 className="text-xs font-semibold uppercase tracking-wider text-muted">Các quán trong dữ liệu</h2>
-          <p className="text-xs text-muted">Bấm vào quán để xem menu</p>
-        </div>
-        <p className="mb-4 text-xs text-muted">
-          Quán dựng giả (tên dựng), sinh theo số liệu menu thật trên GrabFood · nhãn chay / thành phần gắn theo tên và mô tả món, có thể thiếu.
-        </p>
-        <DataPanel data={quan} chosenId={lastPick} />
-      </section>
-    </main>
+    </>
   );
 }
