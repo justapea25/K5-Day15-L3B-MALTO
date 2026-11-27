@@ -1,6 +1,6 @@
 """Công cụ của bài toán — chọn quán và món hợp với cả nhóm. Phụ trách: Thu (data + công cụ), Minh (bản đầu).
 
-Dữ liệu: data/restaurants.json — menu thật trên GrabFood quanh Vinhomes Ocean Park, dựng bằng scripts/build_data.py.
+Dữ liệu: data/restaurants.json — quán dựng giả (synthetic, seed 42) theo phân bố đo từ menu GrabFood; xem data/DATA_CARD.md.
 Mỗi công cụ ghi đủ: tên · input · output · có tác động ra ngoài không. Khớp bảng ở spec.md §4.
 Tất cả công cụ CHỈ ĐỌC, không tác động ra ngoài (không đặt đơn, không gửi tin).
 
