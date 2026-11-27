@@ -40,6 +40,11 @@ function Suggestion({ k }: { k: KetQua }) {
   if (!k.quan || !k.mon) return null;
   return (
     <>
+      {(k.cau_hoi ?? []).map((q, i) => (
+        <p key={i} className="mb-3 rounded-xl border border-accent/40 bg-accent/10 px-3 py-2 text-[15px] leading-relaxed">
+          ❓ {q}
+        </p>
+      ))}
       <div className="flex gap-3 rounded-xl bg-gradient-to-br from-accent to-accent/70 p-3 text-accent-ink">
         <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-black/10 sm:h-28 sm:w-28">
           <QuanCover id={k.quan.id} icon="🍜" sizes="112px" />
@@ -94,6 +99,7 @@ function Suggestion({ k }: { k: KetQua }) {
         </p>
       )}
       <Alternatives options={(k.lua_chon ?? []).slice(1)} budget={k.ngan_sach} />
+      {k.hoi_them && <p className="mt-3 text-sm text-muted">💬 {k.hoi_them}</p>}
       {(k.canh_bao ?? []).map((w, i) => (
         <p key={i} className="mt-2 rounded-lg border-l-[3px] border-warn bg-soft px-3 py-2 text-sm">
           {w}
@@ -294,13 +300,16 @@ export default function App() {
 
   const bots = msgs.filter((m) => m.role === "bot");
   const lastBot = bots[bots.length - 1];
-  const waitingAnswer = lastBot?.data?.ket_qua?.loai === "hoi_lai";
+  const lkw = lastBot?.data?.ket_qua;
+  const waitingAnswer = Boolean(lkw && (lkw.loai === "hoi_lai" || lkw.loai === "khong_co" || (lkw.cau_hoi?.length ?? 0) > 0 || lkw.hoi_them));
 
   async function send(raw: string) {
     const t = raw.trim();
     if (!t || loading) return;
     // Bot vừa hỏi lại → ghép câu bổ sung với yêu cầu trước (backend xử lý mỗi tin độc lập)
-    const prev = lastBot?.data?.ket_qua?.loai === "hoi_lai" ? lastBot.sent : undefined;
+    const lk = lastBot?.data?.ket_qua;
+    const asking = lk && (lk.loai === "hoi_lai" || lk.loai === "khong_co" || (lk.cau_hoi?.length ?? 0) > 0 || Boolean(lk.hoi_them));
+    const prev = asking ? lastBot?.sent : undefined;
     const sent = prev ? `${prev}\nBổ sung: ${t}` : t;
     const userMsg: Msg = { id: newId(), role: "user", text: t };
     setMsgs((ms) => [...ms, userMsg]);
@@ -412,7 +421,7 @@ export default function App() {
             className="border-t border-line p-3"
           >
             {waitingAnswer && !loading && (
-              <p className="mb-2 text-xs text-muted">↩ Trả lời câu hỏi của trợ lý, mình sẽ ghép với yêu cầu trước.</p>
+              <p className="mb-2 text-xs text-muted">↩ Trả lời / bổ sung cho trợ lý — mình sẽ ghép với yêu cầu trước. Muốn hỏi việc khác thì bấm “Cuộc trò chuyện mới”.</p>
             )}
             <div className="flex items-end gap-2 rounded-xl border border-line bg-bg px-3 py-2 focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/25">
               <textarea

@@ -20,6 +20,8 @@ export type KetQua = {
   ngan_sach?: number | null;
   ly_do?: string;
   canh_bao?: string[];
+  cau_hoi?: string[] | null;
+  hoi_them?: string | null;
   ai_bi_thay?: boolean;
   goi_y_noi?: string[];
 };

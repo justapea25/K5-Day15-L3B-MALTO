@@ -45,19 +45,19 @@ Data BTC cấp đã dùng (nếu có — không commit nguyên file): không dù
 
 ```mermaid
 flowchart TD
-    U[Tin nhắn yêu cầu của nhóm] --> B1["B1 · AI đọc yêu cầu → JSON từng người<br/>(sở thích bằng lời, loại món muốn ăn, chay, dị ứng, kiêng)<br/>+ ngân sách, km, giờ ăn"]
-    B1 -->|ngoài phạm vi| R1[Từ chối + nói rõ phạm vi]
-    B1 -->|thiếu thông tin| R2[Hỏi lại 1 câu]
-    B1 -->|chọn quán| B2{"B2 · CODE chặn:<br/>có chữ 'dị ứng' mà không đọc ra dị ứng nào?"}
-    B2 -->|có| R2
-    B2 -->|không| B3["B3 · CODE: search_restaurants + get_menu<br/>giữ quán mà MỌI người có ≥1 món hợp ràng buộc cứng, tổng ≤ ngân sách<br/>xếp hạng theo mức khớp sở thích + đánh giá + khoảng cách"]
-    B3 -->|không có quán nào| R3["Nói thẳng 'không có quán nào hợp'<br/>+ gợi ý nới ngân sách / khoảng cách / loại món / giờ<br/>(không bao giờ nới chay, dị ứng)"]
-    B3 -->|≤6 quán| B4["B4 · AI đọc sở thích từng người,<br/>XẾP HẠNG ≤3 quán, mỗi quán 1 món / người + lý do + đánh đổi<br/>(chỉ trong phương án đã lọc; đọc hỏng thì thử lại 1 lần)"]
-    B4 --> B5{"B5 · CODE check_constraints<br/>kiểm TỪNG quán AI xếp hạng"}
-    B5 -->|quán sai bị loại; không còn quán nào| F[Dùng phương án rẻ nhất của quán xếp đầu<br/>+ ghi note vào trace]
-    B5 -->|đúng| B6
-    F --> B6["B6 · CODE soạn câu trả lời từ dữ liệu<br/>(tên món, giá, tổng tiền lấy từ data) + cảnh báo"]
+    U[Tin nhắn: đơn có nhiều yêu cầu] --> S1["① AI HIỂU ĐƠN → danh sách suất<br/>(món cụ thể, loại món, sở thích, chay, dị ứng, ngân sách riêng)<br/>+ ngân sách, km, giờ, ưu tiên rẻ / gần / đánh giá / sang"]
+    S1 -->|ngoài phạm vi| R1[Từ chối, nói rõ phạm vi]
+    S1 -->|không có gì để chọn / dị ứng không rõ| R2[Hỏi lại 1 câu]
+    S1 --> S2["② CODE LỌC AN TOÀN + XẾP SƠ BỘ<br/>món không quán nào bán → hỏi lại · quán mà MỌI suất có món an toàn, trong ngân sách / km / giờ<br/>gắn nhãn đúng món / gần giống · xếp: đúng món → ưu tiên người dùng → đánh giá → gần → rẻ"]
+    S2 -->|không quán nào đủ cả đơn| R3["Nói thẳng + gợi ý đặt ở nhiều quán / nới yêu cầu mềm<br/>(không bao giờ nới chay, dị ứng) + hỏi lại"]
+    S2 -->|≤8 quán| S3["③ AI CHỌN & XẾP HẠNG ≤3 quán<br/>giữ thứ tự code, chỉ đổi khi lý do là sở thích; ưu tiên đúng món; lý do + đánh đổi"]
+    S3 --> S4["④ CODE KIỂM & TRẢ LỜI<br/>check_constraints từng quán (sai → loại); giá, tổng từ data<br/>không có đúng món → câu hỏi lại cụ thể ở đầu câu trả lời; data không kiểm được → nói rõ"]
 ```
+
+**Quy tắc xử lý (3 nhóm):**
+- 🔒 **Code luôn chặn, không nới:** chay, dị ứng, kiêng thịt · tổng ≤ ngân sách và món của từng suất ≤ ngân sách riêng · quán ≤ khoảng cách, còn mở · chỉ quán, món có trong data, giá và tổng lấy từ data.
+- 🧠 **AI quyết:** hiểu sở thích ("ăn nhẹ", "món nóng", "không cay", "sang") · chọn món đúng món trước, gần giống sau · xếp hạng theo ưu tiên người dùng nói ra.
+- 💬 **Khi nào bot nói gì:** không nói số người → mặc định 1 suất · không có gì để chọn / dị ứng không rõ → hỏi lại · ngoài phạm vi → từ chối · món không quán nào bán → hỏi đổi món · không có đúng món trong quán đáp ứng được đơn → gợi ý gần giống **và hỏi** (đặt riêng món đó ở quán khác hay nhận món gần giống) · không quán nào đủ cả đơn → gợi ý đặt nhiều quán **và hỏi** · data không ghi (hành, độ cay) → nói rõ, nhắc hỏi quán · tin cụt (không ngân sách, không km) → vẫn gợi ý, kèm 1 câu hỏi thêm.
 
 - **Hình dạng:** [x] workflow cố định · [ ] một agent · [ ] nhiều agent
   - **Lý do:** các bước luôn đi cùng một thứ tự (đọc yêu cầu → lọc → chọn → kiểm), không cần AI tự quyết bước tiếp theo. Workflow cố định giúp đặt được chỗ chặn bằng code **trước và sau** mỗi lần gọi AI.
@@ -150,7 +150,7 @@ flowchart TD
 
 | Thời điểm | Đổi gì | Vì sao (trỏ về câu thử / lỗi / bằng chứng nào) |
 |---|---|---|
-|  |  |  |
+| 28/11 sáng (sau lượt 1) | Luồng 6 bước → 4 bước; thêm món cụ thể (nhãn đúng món / gần giống), ngân sách riêng từng suất, ưu tiên rẻ / gần / đánh giá / sang, thứ tự xếp hạng cố định; bot hỏi lại khi không có đúng món hoặc không quán nào đủ cả đơn; gọi model tự thử lại khi quá 40 giây | Thử 30 câu thực tế ngoài bộ câu thử (`playground/`): "bún chả" ra bún chay, "rẻ nhất / gần nhất" không đúng, ngân sách riêng bị cộng gộp, "ốc với hàu" ra tokbokki, tin cụt bị hỏi lại số người. 20 câu thử chính thức vẫn 20/20 (lượt nháp) |
 
 **Sau CP4 (đến 23:59 Thứ Bảy 28/11)** (sửa theo góp ý — không sửa chuẩn "đạt", câu thử, số bằng chứng, kết quả các lượt đã chạy)
 

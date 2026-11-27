@@ -68,16 +68,22 @@ def call_model(system: str, user: str) -> dict:
             "tokens_in": int(r["tokens_in"]), "tokens_out": int(r["tokens_out"])}
 
 
-def post_json(url, headers, body, timeout=60):
-    """Gửi POST JSON, trả về JSON phản hồi. Chỉ dùng thư viện chuẩn (urllib)."""
+def post_json(url, headers, body, timeout=40, retries=1):
+    """Gửi POST JSON, trả về JSON phản hồi. Chỉ dùng thư viện chuẩn (urllib).
+    Mạng / model chậm quá `timeout` giây → thử lại `retries` lần rồi mới báo lỗi."""
     req = urllib.request.Request(
         url, data=json.dumps(body).encode("utf-8"), method="POST",
         headers=dict({"Content-Type": "application/json"}, **headers))
-    try:
-        with urllib.request.urlopen(req, timeout=timeout) as r:
-            data = json.loads(r.read().decode("utf-8"))
-    except urllib.error.HTTPError as e:
-        raise RuntimeError("HTTP %d: %s" % (e.code, e.read().decode("utf-8", "replace")[:300]))
+    for attempt in range(retries + 1):
+        try:
+            with urllib.request.urlopen(req, timeout=timeout) as r:
+                data = json.loads(r.read().decode("utf-8"))
+            break
+        except urllib.error.HTTPError as e:
+            raise RuntimeError("HTTP %d: %s" % (e.code, e.read().decode("utf-8", "replace")[:300]))
+        except (TimeoutError, urllib.error.URLError) as e:
+            if attempt == retries:
+                raise RuntimeError("Gọi model quá %ds (đã thử %d lần): %s" % (timeout, retries + 1, e))
     if SHOW_RAW:
         print(json.dumps(data, ensure_ascii=False, indent=2)[:3000])
     return data
@@ -109,6 +115,6 @@ def call_claude(system, user):
 
 def call_ollama(system, user):
     messages = ([{"role": "system", "content": system}] if system else []) + [{"role": "user", "content": user}]
-    data = post_json(URL_OLLAMA, {}, {"model": MODEL_NAME, "messages": messages, "stream": False}, timeout=300)
+    data = post_json(URL_OLLAMA, {}, {"model": MODEL_NAME, "messages": messages, "stream": False}, timeout=300, retries=0)
     return {"text": data["message"]["content"],
             "tokens_in": data.get("prompt_eval_count", 0), "tokens_out": data.get("eval_count", 0)}
