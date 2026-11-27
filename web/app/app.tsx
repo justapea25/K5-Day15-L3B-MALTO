@@ -197,7 +197,7 @@ function BotBubble({ m }: { m: Msg }) {
   return (
     <div className="flex items-start gap-2">
       <Avatar />
-      <div className={`min-w-0 ${rich ? "w-full max-w-[600px]" : "max-w-[85%]"}`}>
+      <div className={`min-w-0 ${rich ? "w-full max-w-[880px]" : "max-w-[75%]"}`}>
         <div className={`rounded-2xl rounded-tl-md border bg-panel ${rich ? "p-3" : "px-4 py-3"} ${m.error ? "border-bad/40" : "border-line"}`}>
           {m.error ? (
             <p className="text-sm text-bad">Lỗi: {m.error}</p>
@@ -250,7 +250,7 @@ function Welcome({ onPick, disabled, empty }: { onPick: (t: string) => void; dis
     );
   }
   return (
-    <div className="mx-auto flex max-w-2xl flex-col items-center py-6 text-center">
+    <div className="mx-auto flex max-w-3xl flex-col items-center py-8 text-center">
       <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-accent to-accent/60 text-3xl shadow-lg shadow-accent/20">
         🍜
       </div>
@@ -370,9 +370,9 @@ export default function App() {
 
   return (
     <>
-      <div className="mx-auto max-w-3xl">
+      <div>
         {/* Khung chat */}
-        <section className="flex h-[min(80vh,780px)] min-h-[520px] flex-col overflow-hidden rounded-2xl border border-line bg-panel">
+        <section className="flex h-[calc(100vh-7rem)] min-h-[560px] flex-col overflow-hidden rounded-2xl border border-line bg-panel">
           <div className="flex items-center justify-between gap-2 border-b border-line px-4 py-3">
             <div className="flex items-center gap-2">
               <Avatar />

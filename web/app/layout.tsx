@@ -15,7 +15,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html lang="vi" className={`${font.variable} h-full antialiased`}>
       <body className="min-h-full">
         <Nav />
-        <main className="mx-auto max-w-6xl px-4 pb-16 pt-5">{children}</main>
+        <main className="mx-auto max-w-7xl px-4 pb-10 pt-5">{children}</main>
       </body>
     </html>
   );
