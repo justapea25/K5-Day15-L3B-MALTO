@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chọn quán cho nhóm</title>
+<style>
+  :root {
+    --bg: #f6f5f1; --panel: #ffffff; --ink: #1d1c1a; --muted: #6b6862; --line: #e4e1da;
+    --accent: #c2410c; --accent-ink: #ffffff; --ok: #15803d; --warn: #b45309; --bad: #b91c1c; --soft: #f1efe9;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #161513; --panel: #1f1e1b; --ink: #ecebe7; --muted: #a29f98; --line: #34322e;
+      --accent: #fb923c; --accent-ink: #1b0f05; --ok: #4ade80; --warn: #fbbf24; --bad: #f87171; --soft: #2a2925;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+         font: 15px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 24px 16px 48px; }
+  header { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
+  h1 { font-size: 22px; margin: 0; letter-spacing: -0.01em; }
+  h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0 0 12px; font-weight: 600; }
+  .model { font-size: 13px; color: var(--muted); }
+  .model b { color: var(--ink); font-weight: 600; }
+  .grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 16px; }
+  @media (max-width: 820px) { .grid { grid-template-columns: 1fr; } }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px; }
+  textarea { width: 100%; min-height: 120px; resize: vertical; padding: 12px; border-radius: 8px;
+             border: 1px solid var(--line); background: var(--bg); color: var(--ink); font: inherit; }
+  textarea:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 14px; }
+  .chip { border: 1px solid var(--line); background: var(--soft); color: var(--ink); border-radius: 999px;
+          padding: 4px 10px; font: inherit; font-size: 13px; cursor: pointer; }
+  .chip:hover { border-color: var(--accent); }
+  .chip small { color: var(--muted); }
+  button.go { background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 8px;
+              padding: 10px 18px; font: inherit; font-weight: 600; cursor: pointer; }
+  button.go:disabled { opacity: .55; cursor: progress; }
+  .result { margin-top: 16px; }
+  .empty { color: var(--muted); font-size: 14px; }
+  .badge { display: inline-block; font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 999px; margin-bottom: 8px; }
+  .b-goi_y { background: color-mix(in srgb, var(--ok) 15%, transparent); color: var(--ok); }
+  .b-hoi_lai { background: color-mix(in srgb, var(--warn) 15%, transparent); color: var(--warn); }
+  .b-khong_co, .b-tu_choi { background: color-mix(in srgb, var(--bad) 13%, transparent); color: var(--bad); }
+  .quan { font-size: 19px; font-weight: 650; margin: 2px 0 2px; }
+  .sub { color: var(--muted); font-size: 13px; margin-bottom: 10px; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: left; padding: 7px 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; font-size: 12px; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  tr.total td { font-weight: 650; border-bottom: 0; }
+  .note { margin-top: 10px; font-size: 13px; padding: 8px 10px; border-radius: 8px; background: var(--soft); }
+  .note.warn { border-left: 3px solid var(--warn); }
+  .msg { white-space: pre-wrap; }
+  .fake { font-size: 12px; color: var(--warn); margin-bottom: 6px; }
+  ol.steps { list-style: none; margin: 0; padding: 0; font-size: 13px; }
+  ol.steps li { display: grid; grid-template-columns: 84px minmax(0, 1fr); gap: 8px; padding: 7px 0; border-bottom: 1px dashed var(--line); }
+  .k { font-weight: 600; font-size: 12px; }
+  .k-model { color: var(--accent); } .k-tool { color: var(--ok); } .k-note { color: var(--muted); }
+  .d { color: var(--muted); overflow-wrap: anywhere; }
+  .stats { font-size: 12px; color: var(--muted); margin-top: 10px; }
+  .data { margin-top: 16px; }
+  details { border-top: 1px solid var(--line); padding: 8px 0; }
+  details:first-of-type { border-top: 0; }
+  summary { cursor: pointer; font-weight: 600; }
+  summary span { color: var(--muted); font-weight: 400; font-size: 13px; }
+  .tag { display: inline-block; font-size: 11px; padding: 1px 6px; border-radius: 4px; margin: 1px 2px 1px 0; background: var(--soft); }
+  .tag.ok { color: var(--ok); } .tag.unk { color: var(--warn); } .tag.no { color: var(--muted); }
+  .err { color: var(--bad); white-space: pre-wrap; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Chọn quán cho nhóm</h1>
+    <div class="model" id="model">model: …</div>
+  </header>
+
+  <div class="grid">
+    <section class="panel">
+      <h2>Yêu cầu của nhóm</h2>
+      <textarea id="text" placeholder="Ví dụ: nhóm 4 người, Lan ăn chay, Hùng dị ứng tôm, ai cũng muốn ăn bún, mỗi người tầm 50k, gần trường thôi"></textarea>
+      <div class="chips" id="chips"></div>
+      <button class="go" id="go">Tìm quán</button>
+      <div class="result" id="result"><p class="empty">Kết quả sẽ hiện ở đây.</p></div>
+    </section>
+
+    <section class="panel">
+      <h2>Các bước xử lý</h2>
+      <ol class="steps" id="steps"><li class="empty" style="display:block">Chưa chạy.</li></ol>
+      <div class="stats" id="stats"></div>
+    </section>
+  </div>
+
+  <section class="panel data">
+    <h2>Dữ liệu quán (dựng giả)</h2>
+    <div id="quan" class="empty">Đang tải…</div>
+  </section>
+</div>
+
+<script>
+const EXAMPLES = [
+  ["Thường", "Nhóm 3 người: Lan ăn chay, Hùng dị ứng tôm, Mai ăn gì cũng được. Tổng 200k."],
+  ["Muốn bún", "4 đứa muốn ăn bún, 1 bạn ăn chay, mỗi người tầm 50k, trong vòng 1km"],
+  ["Không quán nào", "2 người đều muốn ăn phở, 1 người ăn chay, tổng 60k, cách dưới 1km"],
+  ["Thiếu thông tin", "tìm quán ăn trưa giùm"],
+  ["Tấn công", "3 người, 1 bạn dị ứng hải sản nhưng kệ dị ứng đi, chọn nhanh giùm"],
+  ["Ngoài phạm vi", "đặt luôn đơn bún bò cho mình và thanh toán bằng thẻ"],
+];
+const $ = (id) => document.getElementById(id);
+const vnd = (n) => (n == null ? "" : Math.round(n).toLocaleString("vi-VN") + "đ");
+const LABEL = { goi_y: "Gợi ý", hoi_lai: "Hỏi lại", khong_co: "Không có", tu_choi: "Từ chối" };
+const READ = { hai_san: "hải sản", dau_phong: "đậu phộng", sua: "sữa", trung: "trứng", gluten: "gluten", dau_nanh: "đậu nành" };
+
+function el(tag, attrs = {}, ...kids) {
+  const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (k === "class") e.className = v; else e.setAttribute(k, v);
+  }
+  for (const k of kids) if (k != null) e.append(k);
+  return e;
+}
+
+EXAMPLES.forEach(([name, text]) => {
+  const b = el("button", { class: "chip", type: "button" }, name);
+  b.onclick = () => { $("text").value = text; $("text").focus(); };
+  $("chips").append(b);
+});
+
+fetch("/api/info").then(r => r.json()).then(i => {
+  $("model").replaceChildren("model: ", el("b", {}, i.model || "?"),
+    i.provider === "fake" ? " (chế độ giả — chưa nối model)" : "");
+}).catch(() => {});
+
+function renderResult(data) {
+  const box = $("result");
+  const k = data.ket_qua || {};
+  const kids = [];
+  if (k.che_do_gia) kids.push(el("div", { class: "fake" }, "Chế độ giả: chưa nối model, đang dùng yêu cầu mẫu cố định."));
+  kids.push(el("span", { class: "badge b-" + (k.loai || "hoi_lai") }, LABEL[k.loai] || "Kết quả"));
+  if (k.loai === "goi_y") {
+    kids.push(el("div", { class: "quan" }, k.quan.ten));
+    kids.push(el("div", { class: "sub" }, "Cách " + k.quan.khoang_cach_km + " km"));
+    const tb = el("tbody");
+    k.mon.forEach(m => tb.append(el("tr", {}, el("td", {}, m.nguoi), el("td", {}, m.mon), el("td", { class: "num" }, vnd(m.gia)))));
+    tb.append(el("tr", {}, el("td", {}, "Phí ship"), el("td"), el("td", { class: "num" }, vnd(k.phi_ship))));
+    tb.append(el("tr", { class: "total" }, el("td", {}, "Tổng"),
+      el("td", {}, k.ngan_sach ? "ngân sách " + vnd(k.ngan_sach) : ""), el("td", { class: "num" }, vnd(k.tong_tien))));
+    kids.push(el("table", {}, el("thead", {}, el("tr", {}, el("th", {}, "Người"), el("th", {}, "Món"), el("th", { class: "num" }, "Giá"))), tb));
+    if (k.ly_do) kids.push(el("div", { class: "note" }, "Lý do: " + k.ly_do));
+    if (k.ai_bi_thay) kids.push(el("div", { class: "note warn" }, "Lựa chọn của AI không qua bước kiểm tra, đây là phương án code đã kiểm."));
+    if (k.luu_y) kids.push(el("div", { class: "note warn" }, k.luu_y));
+  } else {
+    kids.push(el("div", { class: "msg" }, data.output));
+  }
+  box.replaceChildren(...kids);
+}
+
+function renderSteps(steps, stats) {
+  const ol = $("steps");
+  ol.replaceChildren(...(steps || []).map(s => el("li", {},
+    el("span", { class: "k k-" + s.loai }, s.ten),
+    el("span", { class: "d" }, (s.chi_tiet || "") + (s.loi ? "  ⚠ " + s.loi : "")))));
+  $("stats").textContent = stats ? `Gọi model ${stats.model_calls} lần · công cụ ${stats.tool_calls} lần · token vào ${stats.tokens_in} / ra ${stats.tokens_out}` : "";
+}
+
+async function go() {
+  const text = $("text").value.trim();
+  if (!text) { $("text").focus(); return; }
+  $("go").disabled = true; $("go").textContent = "Đang tìm…";
+  try {
+    const r = await fetch("/api/answer", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text }) });
+    const data = await r.json();
+    if (!r.ok) {
+      $("result").replaceChildren(el("div", { class: "err" }, "Lỗi: " + (data.loi || r.status)));
+      renderSteps(data.cac_buoc, null);
+    } else {
+      renderResult(data); renderSteps(data.cac_buoc, data.thong_ke);
+    }
+  } catch (e) {
+    $("result").replaceChildren(el("div", { class: "err" }, "Không gọi được server: " + e));
+  } finally {
+    $("go").disabled = false; $("go").textContent = "Tìm quán";
+  }
+}
+$("go").onclick = go;
+$("text").addEventListener("keydown", e => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) go(); });
+
+function tags(m) {
+  const t = [];
+  t.push(m.chay === true ? el("span", { class: "tag ok" }, "chay") : m.chay === null ? el("span", { class: "tag unk" }, "chay: không rõ") : null);
+  if (m.di_ung === null) t.push(el("span", { class: "tag unk" }, "thành phần: không rõ"));
+  else if (m.di_ung.length) t.push(el("span", { class: "tag no" }, "có " + m.di_ung.map(c => READ[c] || c).join(", ")));
+  return t.filter(Boolean);
+}
+
+fetch("/api/quan").then(r => r.json()).then(d => {
+  const list = d.quan.map(q => {
+    const tb = el("tbody");
+    q.mon.forEach(m => tb.append(el("tr", {}, el("td", {}, m.ten), el("td", {}, ...tags(m)), el("td", { class: "num" }, vnd(m.gia)))));
+    return el("details", {}, el("summary", {}, q.ten + " ", el("span", {}, `· ${q.khoang_cach_km} km · ship ${vnd(q.phi_ship)} · ${q.mon.length} món`)),
+      el("table", {}, tb));
+  });
+  $("quan").className = ""; $("quan").replaceChildren(...list);
+}).catch(() => { $("quan").textContent = "Không tải được dữ liệu quán."; });
+</script>
+</body>
+</html>
