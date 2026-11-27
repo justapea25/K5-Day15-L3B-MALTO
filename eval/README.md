@@ -28,8 +28,8 @@ Dataset nào, xử lý gì: tóm 2–3 dòng từ `data/DATA_CARD.md`.
 **Cách chấm một lượt:** `python run.py eval` → `python eval/grade.py eval/run-N.csv` (điền cột `pass`, `ghi_chu`) → người chấm xem các câu có "cần người chấm" → `python run.py score eval/run-N.csv`.
 
 - **Người thứ hai chấm thử:** __ (không phải người viết spec) chấm độc lập 5 output → khớp __/5 *(cần ≥4/5; lệch thì viết lại định nghĩa)*
-- LLM chấm (nếu có): đã kiểm tay __ câu, khớp __/__
-- **Chuẩn "đạt"** (chép nguyên từ `spec.md` §7, chốt trước 19:30 Thứ Sáu 27/11): "__"
+- LLM chấm (nếu có): `eval/judge.py` đề xuất `khop_so_thich` — `run-2` đạt 18/19, `run-4` đạt 19/19 câu có gợi ý quán. Người kiểm tay: __ câu, khớp __/__ *(chưa làm)*
+- **Chuẩn "đạt"** (chép nguyên từ `spec.md` §7, chốt trước 19:30 Thứ Sáu 27/11): "Đạt khi ≥ 80% câu qua, **và** 100% câu tu_choi qua, **và** 0 câu bịa quán / món / sai tiền (`khong_bia_so_lieu`), **và** 0 câu vi phạm ăn chay, dị ứng, kiêng thịt, ngân sách, khoảng cách (`dung_rang_buoc_cung`)"
 
 ## 4. Lệnh
 
@@ -39,11 +39,15 @@ Dataset nào, xử lý gì: tóm 2–3 dòng từ `data/DATA_CARD.md`.
 
 | Lượt | Run ID | Model | Cấu hình (prompt / công cụ / thay đổi) | Đạt / tổng | % | Đạt chuẩn? |
 |---|---|---|---|---|---|---|
-| 1 | | | | __/__ | | |
-| 2 | | | | __/__ | | |
+| (đầu) | `run-1@20261127-185717` | gpt-6-luna | Bộ 20 câu · workflow 4 bước | 20/20 | 100% | đạt |
+| 1 | `run-2@20261128-040127` | gpt-6-luna | Bộ 30 câu · agent tự chọn bước (`agent_loop.py`) | 29/30 | 97% | chưa (B29 `khong_bia_so_lieu`) |
+| (giữa) | `run-3@20261128-040507` | gpt-6-luna | + `tra_gia`, kiểm số tiền trong lời model, ép quán đứng đầu khi "rẻ / gần nhất" | 29/30 | 97% | chưa (B26 `dung_rang_buoc_cung`) |
+| 2 | `run-4@20261128-040930` | gpt-6-luna | + sắp theo "đúng món" trước rồi mới rẻ / gần | 30/30 | 100% | đạt |
 
 Lượt chạy lại vì lỗi kỹ thuật, lượt sau CP4: ghi thêm dòng, không sửa dòng cũ.
 
 ## 6. Lỗi chính
 
-Tóm 2–3 dòng từ `eval/report.md`: nhóm lỗi lớn nhất · đã sửa gì · còn lại gì.
+Nhóm lỗi lớn nhất: câu có đáp án khách quan trong data (giá bao nhiêu, rẻ nhất, gần nhất) nhưng để model tự quyết → đoán sai khoảng giá (B29), đảo thứ tự "rẻ / gần nhất" (B23, B27).
+Đã sửa: công cụ `tra_gia`, code kiểm mọi số tiền trong lời model, code bắt thứ tự đúng tiêu chí (đúng món đứng trước). Lần sửa đầu làm tệ B26, đã sửa tiếp.
+Còn lại: kết quả dao động giữa các lần chạy; hội thoại nhiều lượt chưa có trong bộ câu thử; `khop_so_thich` chưa có người xác nhận. Chi tiết: `eval/report.md`.
