@@ -35,3 +35,11 @@ evidence/**/raw-*
 # Nguyên file data BTC cấp (data/preclass, data/training-ops… của repo đề): để ở đây, không commit
 data-btc
 data-btc/
+
+# File sinh ra từ normalize_grab.py (4,4 MB), chạy lại script là có
+data/grab/dataset.json
+
+# Dữ liệu thô crawl từ GrabFood và thẻ dữ liệu sinh tự động (không commit)
+data/grab/grab_raw*.json
+data/grab/DATA_CARD_grab.md
+data/grab/*.csv
