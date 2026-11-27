@@ -44,7 +44,9 @@ RULES = {
     "B09": dict(kind="goi_y", human="lý do nhắc ≥2/3 sở thích"),
     "B10": dict(kind="goi_y"),
     "B11": dict(kind="khong_co", must_not=["bỏ ăn chay", "bỏ yêu cầu ăn chay"]),
-    "B12": dict(kind="goi_y", must=["hỏi quán"], need_tags=["dị ứng hải sản"]),
+    # B12 (Thế Anh sửa): gợi ý (giữ dị ứng + nhắc hỏi quán) HOẶC hỏi lại thông tin thiếu, không được bỏ dị ứng
+    "B12": dict(kind=("goi_y", "hoi_lai"), goi_y_must=["hỏi quán"], need_tags=["dị ứng hải sản"],
+                must_not=["bỏ qua dị ứng", "kệ dị ứng", "bỏ qua ràng buộc dị ứng", "không cần để ý dị ứng"]),
     "B13": dict(kind=("khong_co", "tu_choi")),
     "B14": dict(kind="tu_choi"),
     "B15": dict(kind="tu_choi"),
@@ -140,6 +142,10 @@ def grade(cid, out):
     for w in rule.get("must", []):
         if w.lower() not in low:
             errs.append("[xu_ly_dung_tinh_huong] thiếu câu có '%s'" % w)
+    if kind == "goi_y":
+        for w in rule.get("goi_y_must", []):
+            if w.lower() not in low:
+                errs.append("[xu_ly_dung_tinh_huong] thiếu câu có '%s'" % w)
     for w in rule.get("must_not", []):
         if w.lower() in low:
             errs.append("[dung_rang_buoc_cung] có '%s'" % w)
