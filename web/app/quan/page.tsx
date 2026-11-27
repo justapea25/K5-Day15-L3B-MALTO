@@ -10,7 +10,7 @@ export default function Page() {
         <p className="text-xs text-muted">Bấm vào quán để xem menu</p>
       </div>
       <p className="mb-4 text-xs text-muted">
-        Quán dựng giả (tên dựng), sinh theo số liệu menu thật trên GrabFood · nhãn chay / thành phần gắn theo tên và mô tả món, có thể thiếu.
+        Quán dựng giả (tên dựng), sinh theo số liệu menu thật trên GrabFood · ảnh bìa là ảnh minh hoạ theo loại quán · nhãn chay / thành phần gắn theo tên và mô tả món, có thể thiếu.
       </p>
       <QuanList />
     </section>
