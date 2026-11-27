@@ -98,20 +98,147 @@ Câu hỏi về việc tìm nhà hàng có đủ các món mong muốn chưa ph�
 
 **Kết luận:** Có bằng chứng ban đầu về khó khăn trong việc tìm kiếm và so sánh thực đơn nhà hàng. Khảo sát cũng cho thấy một bộ phận người tham gia khó tìm một nhà hàng có đủ các món mong muốn. Tuy nhiên, nhu cầu riêng của người đặt cá nhân muốn ăn nhiều món và pain phối hợp sở thích trong nhóm vẫn cần được kiểm chứng sâu hơn qua phỏng vấn đúng từng phân khúc.
 
-## §2. Impact & quyết định chọn *(guide 1.3)*
+## §2. Impact & quyết định chọn (guide 1.3)
+
+### 2.1. So sánh các hướng sản phẩm
 
 | Hướng | Bao nhiêu người gặp | Bao nhiêu lần / tháng | Mỗi lần tốn gì | Impact / tháng | Làm kịp không | Chọn? |
 |---|---|---|---|---|---|---|
-|  |  |  |  |  |  |  |
-|  |  |  |  |  |  |  |
-|  |  |  |  |  |  |  |
+| A. Group Preference Matching – Tìm quán đáp ứng sở thích nhiều thành viên | 1 người được xác nhận trực tiếp qua phỏng vấn P1. Khảo sát có 16/39 người đặt nhóm từ 3 người với tần suất ít nhất 1–3 lần/tháng, nhưng chưa xác định tất cả đều là người tổ chức hoặc gặp pain. | P1 đặt nhóm khoảng 4 lần/tháng. | Khoảng 15 phút cho toàn bộ quá trình chọn món, tìm quán và đặt hàng trong lần gần nhất. | 1 × 4 × 15 = **60 phút/tháng** thời gian thực hiện quy trình của P1; chưa xác định phần thời gian có thể tiết kiệm. | Cao – có dữ liệu menu và nền tảng matching nhóm. | **Chọn – Primary Persona** |
+| B. Solo Multi-Dish Matching – Tìm một quán có nhiều món mình muốn | 21/39 người (53,8%) đồng ý rằng họ khó tìm một nhà hàng có đủ các món mong muốn trong cùng đơn hàng. Chưa tách riêng người đặt cá nhân. | Chưa đo riêng tần suất gặp tình huống muốn nhiều món nhưng không tìm được quán phù hợp. | Chưa có thời gian đo trực tiếp. P2 mất 15 phút để xem và so sánh 4 nhà hàng, nhưng chưa xác nhận đây là tình huống muốn ăn nhiều món. | Chưa đủ dữ liệu để tính. | Cao – có thể tái sử dụng logic matching menu, cần bổ sung chế độ đặt cá nhân và benchmark. | **Chọn – Secondary Persona** |
+| C. Restaurant Search & Comparison – Tìm kiếm và so sánh nhà hàng | 25/39 người (64,1%) mất nhiều thời gian chọn quán; 23/39 người (59%) thường phải mở nhiều nhà hàng để so sánh. | Chưa đo được tần suất riêng của hành vi gặp pain. | P2 mở 4 nhà hàng và mất khoảng 15 phút trong lần gần nhất. | Chưa đủ dữ liệu về tần suất để tính impact/tháng. | Cao – có thể thực hiện bằng tìm kiếm, lọc và xếp hạng. | Không chọn làm bài toán độc lập; tích hợp vào matching. |
+| D. Voucher Optimization – Tối ưu voucher và giỏ hàng | 21/39 người (53,8%) mất thời gian chọn voucher có lợi nhất; 32/39 người (82,1%) thường sử dụng voucher. | Chưa đo riêng số lần gặp khó khăn trong tháng. | P2 từng thêm topping 8.000đ để đạt ngưỡng voucher, khiến tổng tiền giảm từ 63.000đ xuống 61.000đ. Chưa đo thời gian xử lý. | Chưa đủ dữ liệu để tính. | Thấp hơn – cần dữ liệu điều kiện voucher, khả năng kết hợp và phí thực tế. | Không chọn trong MVP. |
 
-- **Impact / tháng** của hướng chọn = __ người × __ lần × __ phút = __ — nguồn từng thừa số: __ (không có nguồn thì ghi rõ *(tự ước tính)*)
-- Hướng ĐÃ LOẠI + vì sao (giữ lại, đừng xoá):
-- Số lần / tháng của từng kiểu người dùng (dùng cho persona ở §8):
+**Lưu ý về Impact:** Số 60 phút/tháng của P1 là thời gian toàn bộ quy trình được ghi nhận theo tần suất của một người phỏng vấn, không phải 60 phút lãng phí hoặc thời gian chắc chắn MALTO tiết kiệm được. Chưa có phép đo thời gian trước và sau khi sử dụng sản phẩm.
 
-## §3. Giải pháp tương tự *(guide 2.1)*
-- [sản phẩm / tính năng gần giống]: một điều đáng học · một điều đáng né · mình khác gì
+### 2.2. Quyết định chọn bài toán
+
+**Hướng được chọn: Group Preference Matching – tìm một nhà hàng đáp ứng nhiều nhu cầu món ăn trong cùng một đơn hàng.**
+
+Nhóm chọn hướng này vì:
+
+1. **Phù hợp với Track D2:** Bài toán xuất phát từ tình huống một người phải lựa chọn nhà hàng và món ăn cho nhóm có nhiều sở thích, ngân sách và yêu cầu ăn uống khác nhau.
+
+2. **Có bằng chứng về khó khăn tìm kiếm:** 25/39 người (64,1%) mất nhiều thời gian chọn nhà hàng; 23/39 người (59%) thường phải mở nhiều nhà hàng để so sánh.
+
+3. **Có tín hiệu về nhu cầu matching thực đơn:** 21/39 người (53,8%) đồng ý rằng họ khó tìm một nhà hàng có đủ các món mong muốn trong cùng một đơn hàng.
+
+4. **Có tình huống thực tế từ phỏng vấn:** P1 trực tiếp đặt đồ ăn cho nhóm khoảng 4 lần/tháng và mất khoảng 15 phút trong lần gần nhất. P2 phải mở 4 nhà hàng để so sánh menu, khoảng cách và voucher trong lần đặt cá nhân gần nhất.
+
+5. **Khả thi trong thời gian Hackathon:** Nhóm đã có dữ liệu menu synthetic, công cụ tìm kiếm nhà hàng, lấy menu, kiểm tra ràng buộc và workflow AI. Có thể mở rộng cùng một logic matching cho cả người đặt nhóm và người đặt cá nhân muốn nhiều món.
+
+### 2.3. Hướng được giữ lại và hướng bị loại
+
+- **Group Preference Matching:** Giữ làm hướng chính và Primary Persona. Tuy nhiên, bằng chứng phỏng vấn đúng đối tượng hiện mới có P1; lần đặt gần nhất diễn ra khá suôn sẻ. Nhóm cần tiếp tục kiểm chứng mức độ nghiêm trọng của pain.
+
+- **Solo Multi-Dish Matching:** Giữ làm hướng thứ cấp vì có tín hiệu từ khảo sát và có thể dùng chung năng lực matching thực đơn. Chưa đủ bằng chứng riêng để xác nhận đây là một phân khúc có impact lớn.
+
+- **Restaurant Search & Comparison:** Không phát triển thành sản phẩm độc lập vì đây là bước hỗ trợ cho bài toán matching. MALTO vẫn cần tìm kiếm và xếp hạng nhà hàng, nhưng giá trị khác biệt nằm ở khả năng đối chiếu nhiều yêu cầu món trong cùng một quán.
+
+- **Voucher Optimization:** Loại khỏi MVP vì dữ liệu hiện tại chưa có đầy đủ điều kiện voucher, quy tắc kết hợp, phí giao hàng và trạng thái ưu đãi theo thời gian thực. Đây là hướng có tín hiệu nhu cầu nhưng chưa phù hợp với giới hạn dữ liệu và thời gian Hackathon.
+
+### 2.4. Số lần sử dụng/tháng cho các persona
+
+| Persona | Tần suất | Nguồn | Mức độ tin cậy |
+|---|---:|---|---|
+| Group Organizer | Khoảng 4 lần/tháng | Phỏng vấn P1 | Một người được phỏng vấn |
+| Solo Multi-Dish Eater | Chưa xác định | Chưa có câu hỏi đo riêng | Cần khảo sát/phỏng vấn thêm |
+
+**Kết luận:** MALTO chọn bài toán tìm kiếm và matching thực đơn cho nhiều nhu cầu món ăn, lấy người tổ chức đặt đồ ăn nhóm làm persona chính và người đặt cá nhân muốn ăn nhiều món làm persona thứ cấp. Các số liệu hiện tại ủng hộ khó khăn tìm kiếm và so sánh nhà hàng nói chung, nhưng chưa đủ để khẳng định pain phối hợp sở thích nhóm hoặc pain của người ăn cá nhân nhiều món là nghiêm trọng nhất. Nhóm sẽ tiếp tục kiểm chứng hai phân khúc trong các bước tiếp theo.
+
+## §3. Giải pháp tương tự (guide 2.1)
+
+### 3.1. GrabFood – Nền tảng tìm kiếm và đặt đồ ăn
+
+**Cách giải quyết hiện tại:**
+
+GrabFood cho phép người dùng nhập địa chỉ giao hàng, lựa chọn nhà hàng, xem menu, chọn món, nhập voucher và hoàn tất đơn hàng. Danh sách nhà hàng được sắp xếp dựa trên khoảng cách và thời gian giao hàng dự kiến.
+
+Nguồn: [GrabFood Vietnam – Hướng dẫn đặt món](https://www.grab.com/vn/food/) và [GrabFood FAQ](https://food.grab.com/vn/vi/).
+
+**Một điều đáng học:**
+- Quy trình từ tìm kiếm nhà hàng, xem menu đến đặt món được tích hợp trong cùng một ứng dụng.
+- Cung cấp thông tin về món ăn, giá, đánh giá và ưu đãi để hỗ trợ quyết định.
+- Cho phép người dùng lựa chọn món và kiểm tra tổng tiền trước khi đặt.
+
+**Một điều cần tránh:**
+- Trong các luồng nhóm đã audit, người dùng phải mở từng nhà hàng để kiểm tra menu và tự đối chiếu thông tin.
+- Khi đổi voucher, số tiền tiết kiệm và tổng thanh toán cập nhật nhưng không phải lúc nào ứng dụng cũng giải thích rõ lý do voucher khác bị khóa.
+- Chưa có luồng audit nào cho thấy ứng dụng tự tìm và xếp hạng nhà hàng dựa trên toàn bộ danh sách món mà người dùng muốn ăn.
+
+**MALTO khác gì:**
+
+MALTO tập trung vào giai đoạn trước khi đặt hàng. Người dùng nhập nhiều nhu cầu món ăn bằng ngôn ngữ tự nhiên; hệ thống tìm một nhà hàng có thể đáp ứng nhiều yêu cầu nhất, ưu tiên Full Match và cho phép Partial Match khi cần. Kết quả hiển thị món tìm thấy, món còn thiếu, tổng giá các món tìm thấy và lý do đề xuất. Người dùng vẫn tự đặt hàng trên ứng dụng giao đồ ăn.
+
+### 3.2. ShopeeFood – Nền tảng giao đồ ăn và đặt nhóm
+
+**Cách giải quyết hiện tại:**
+
+ShopeeFood cung cấp danh sách nhà hàng, thực đơn, nhiều loại món ăn và ưu đãi. Thông tin giới thiệu ứng dụng có đề cập chức năng đặt nhóm với voucher. Quy trình đặt món được mô tả gồm lựa chọn nhà hàng và món, chọn giao hàng, áp dụng voucher/Shopee Xu, chọn phương thức thanh toán và đặt đơn.
+
+Nguồn:
+- [ShopeeFood – App Store](https://apps.apple.com/vn/app/shopeefood-food-delivery/id1137866760).
+- [ShopeeFood – Trung tâm trợ giúp](https://help.shopee.vn/portal/4/article/79563-).
+
+**Một điều đáng học:**
+- Hỗ trợ đặt đồ ăn nhóm và có nhiều ưu đãi, phù hợp với hành vi đặt chung của nhiều người.
+- Tích hợp việc chọn món, voucher và thanh toán trong cùng quy trình.
+- Có danh mục món ăn và nhà hàng đa dạng.
+
+**Một điều cần tránh:**
+- Không nên để người tổ chức phải tự tổng hợp và đối chiếu toàn bộ danh sách món của các thành viên nếu có thể hỗ trợ bằng matching thực đơn.
+- Tài liệu công khai được nhóm kiểm tra chưa mô tả một chức năng matching toàn bộ sở thích của từng thành viên với menu nhà hàng, hoặc hiển thị rõ món nào còn thiếu khi không tìm được đủ món. Đây là khoảng trống nhóm cần tiếp tục audit, không khẳng định ShopeeFood hoàn toàn không có chức năng này.
+
+**MALTO khác gì:**
+
+ShopeeFood tập trung vào việc cung cấp nền tảng tìm kiếm và thực hiện đơn hàng. MALTO tập trung vào quyết định chọn nhà hàng trước khi đặt: hiểu danh sách nhu cầu, tìm một quán có nhiều món phù hợp và minh bạch mức độ đáp ứng. Sau khi lựa chọn, người dùng có thể chuyển sang ShopeeFood để đặt món.
+
+### 3.3. TikTok kết hợp nhóm chat – Cách tìm quán và thống nhất lựa chọn thủ công
+
+**Cách giải quyết hiện tại:**
+
+Theo phỏng vấn P3, khi đến khu vực lạ, người dùng thường tìm nhà hàng trên TikTok rồi gửi các lựa chọn vào nhóm chat để mọi người cùng xem và thống nhất. Trong những trường hợp khác, họ ưu tiên chọn quán quen.
+
+Đây là một cách giải quyết thay thế được ghi nhận trong phỏng vấn, không phải nền tảng giao đồ ăn trực tiếp.
+
+**Một điều đáng học:**
+- Nội dung hình ảnh và video giúp người dùng khám phá món ăn và nhà hàng mới.
+- Việc chia sẻ qua nhóm chat giúp nhiều thành viên cùng tham gia vào quyết định.
+- Người dùng có thể tham khảo trải nghiệm và nhận xét của cộng đồng.
+
+**Một điều cần tránh:**
+- Thông tin về món, giá và nhà hàng có thể nằm rải rác ở nhiều bài đăng và cuộc trò chuyện.
+- Người tổ chức vẫn phải tự tổng hợp lựa chọn và đối chiếu menu.
+- Nội dung giới thiệu món ăn không nhất thiết phản ánh menu, giá và tình trạng kinh doanh tại thời điểm đặt hàng.
+
+**MALTO khác gì:**
+
+MALTO chuyển các nhu cầu ăn uống thành danh sách có cấu trúc, đối chiếu với dữ liệu menu của từng nhà hàng và đưa ra kết quả có thể kiểm tra. Thay vì chỉ chia sẻ các quán để mọi người tự xem, MALTO giải thích quán đáp ứng được món nào và còn thiếu món nào.
+
+### 3.4. Tổng kết – Định vị khác biệt của MALTO
+
+| Tiêu chí | GrabFood | ShopeeFood | TikTok + nhóm chat | MALTO |
+|---|---|---|---|---|
+| Tìm kiếm nhà hàng | Có | Có | Có, qua nội dung | Có |
+| Xem thực đơn | Có | Có | Không có menu chuẩn hóa trong cùng quy trình | Có, từ dataset |
+| Đặt món | Có | Có | Không trực tiếp | Không |
+| Voucher và thanh toán | Có | Có | Không trực tiếp | Ngoài MVP |
+| Hỗ trợ đặt nhóm | Có thể đặt nhiều món; ShopeeFood công bố tính năng đặt nhóm | Có tính năng đặt nhóm được giới thiệu công khai | Trao đổi qua nhóm chat | Có chế độ Group |
+| Một người muốn nhiều món | Có thể thêm nhiều món trong một đơn | Có thể thêm nhiều món trong một đơn | Tự tìm và chia sẻ | Có chế độ Individual Multi-Dish |
+| Matching nhiều yêu cầu với cùng một menu | Chưa được chứng minh qua audit | Chưa được xác nhận qua tài liệu đã kiểm tra | Người dùng tự thực hiện | Năng lực cốt lõi dự kiến |
+| Hiển thị món còn thiếu | Chưa ghi nhận trong audit | Chưa xác nhận | Không có | Có, theo quy tắc Partial Match |
+
+**Khác biệt cốt lõi của MALTO:**
+
+MALTO không cạnh tranh bằng việc thay thế nền tảng giao đồ ăn, cung cấp thêm voucher hoặc thực hiện giao hàng. Sản phẩm tập trung giải quyết bước ra quyết định trước khi đặt: tìm một nhà hàng có thể đáp ứng nhiều nhu cầu món ăn trong cùng một đơn hàng.
+
+Hai chế độ sử dụng:
+- Group Mode: tìm một quán có món phù hợp với nhiều thành viên.
+- Individual Multi-Dish Mode: tìm một quán có nhiều món mà một người muốn ăn.
+
+Kết quả ưu tiên Full Match. Nếu không có lựa chọn đầy đủ, hệ thống có thể hiển thị Partial Match, phải liệt kê chính xác món còn thiếu và không được khiến người dùng hiểu nhầm rằng quán đã đáp ứng toàn bộ yêu cầu.
+
+**Giới hạn cạnh tranh hiện tại:** MALTO sử dụng dataset synthetic cho bản chạy thử, chưa có dữ liệu menu, giá, tồn món và trạng thái nhà hàng theo thời gian thực. Vì vậy, MALTO hiện là công cụ hỗ trợ quyết định và chưa thay thế được nền tảng đặt đồ ăn.
 
 ## §4. Thiết kế *(guide 2.2, 3.2)*
 - **Lát cắt MỘT CÂU:** Một người chọn quán cho nhóm 2–6 người **mỗi người một ý** (muốn ăn gì, không ăn gì, ngân sách, khoảng cách, giờ ăn; ăn chay hay dị ứng là phần phụ), nhắn bằng lời thường · AI hiểu sở thích của từng người và **xếp hạng tối đa 3 quán**, mỗi quán kèm **một món cho từng người**, lý do và điểm đánh đổi, chỉ trong các phương án code đã lọc · cả nhóm so sánh rồi tự chốt, hoặc nghe nói thẳng "không có quán nào hợp" kèm gợi ý nên nới yêu cầu nào.
