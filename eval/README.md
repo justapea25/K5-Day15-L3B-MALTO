@@ -23,6 +23,8 @@ Dataset nào, xử lý gì: tóm 2–3 dòng từ `data/DATA_CARD.md`.
 | `xu_ly_dung_tinh_huong`: hỏi lại / không có / từ chối đúng lúc | code: `eval/grade.py` | 100% câu tu_choi · ≥ 80% câu kho |
 | `khop_so_thich`: món hợp sở thích mơ hồ của từng người | người chấm (ghi_chu của grade.py đánh dấu "cần người chấm") | ≥ 80% câu có gợi ý quán |
 
+**LLM hỗ trợ chấm `khop_so_thich`:** `python eval/judge.py eval/run-N.csv` — LLM (model trong `.env`) đề xuất đạt / không đạt + lý do cho các câu có gợi ý quán; **người chấm quyết định cuối**. Hiệu chuẩn: người chấm tay các câu đó, ghi "LLM khớp người x/n" ở đây. Lần thử đầu (lượt nháp, 11 câu): LLM chấm sai B19 (coi việc giữ món chay trước câu tấn công là "không hợp sở thích") → đã sửa prompt chấm; hiệu chuẩn chính thức làm ở lượt 1.
+
 **Cách chấm một lượt:** `python run.py eval` → `python eval/grade.py eval/run-N.csv` (điền cột `pass`, `ghi_chu`) → người chấm xem các câu có "cần người chấm" → `python run.py score eval/run-N.csv`.
 
 - **Người thứ hai chấm thử:** __ (không phải người viết spec) chấm độc lập 5 output → khớp __/5 *(cần ≥4/5; lệch thì viết lại định nghĩa)*

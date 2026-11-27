@@ -21,7 +21,7 @@
 | | |
 |---|---|
 | Dùng để làm gì | Đào bằng chứng pain (đếm x/N, ghi ở `evidence/data-mining.md`) · đo phân bố để sinh Dataset 1. **Không đưa cho agent** |
-| Từ đâu | Nhóm (Thu) crawl trang quán công khai trên GrabFood. Ngày crawl: __ · cách lấy danh sách quán: __ · có cần đăng nhập không: __ *(Thu điền)* |
+| Từ đâu | Nhóm (Thu) crawl trang quán công khai trên GrabFood. Ngày crawl: 2026-11-27 (một lần, khoảng 08:40 sáng) · cách lấy danh sách quán: mở trang danh sách quán của GrabFood VN (`food.grab.com/vn/vi/restaurants`) với vị trí giao hàng đặt tại VinUni (Sảnh Thư Viện, Gia Lâm, Hà Nội), rồi mở từng quán để đọc menu và khuyến mãi, có nghỉ giữa các lần; không dùng API nội bộ · có cần đăng nhập không: không, chỉ đọc nội dung công khai |
 | Quy mô | 258 quán · 11.322 món · 100 khuyến mãi (3 file CSV) |
 | Lưu ở đâu | **Ngoài repo, không commit** (dữ liệu crawl của quán thật). Repo chỉ giữ số đã tổng hợp và vài ví dụ ngắn |
 | Xử lý | `scripts/build_data.py` lọc món chính và gắn nhãn từ khoá, dùng để đo các số trong `STATS` của `scripts/gen_synthetic.py` |
