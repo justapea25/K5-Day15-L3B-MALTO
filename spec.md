@@ -61,7 +61,7 @@ flowchart TD
 
 - **Hình dạng:** [x] workflow cố định · [ ] một agent · [ ] nhiều agent
   - **Lý do:** các bước luôn đi cùng một thứ tự (đọc yêu cầu → lọc → chọn → kiểm), không cần AI tự quyết bước tiếp theo. Workflow cố định giúp đặt được chỗ chặn bằng code **trước và sau** mỗi lần gọi AI.
-  - **Vì sao không chọn agent tự lặp:** 40 quán và khoảng 1.200 món. Nếu để agent tự gọi công cụ thì dễ tự nhẩm tiền, bỏ sót người trong nhóm, hoặc gọi công cụ lan man rất tốn token. Lọc bằng code trước rồi mới đưa khoảng 6 quán cho AI thì rẻ hơn và kiểm soát được. Nhiều agent lại càng không cần: không có hai vai nào thật sự khác nhau.
+  - **Vì sao không chọn agent tự lặp:** 60 quán và khoảng 1.100 món. Nếu để agent tự gọi công cụ thì dễ tự nhẩm tiền, bỏ sót người trong nhóm, hoặc gọi công cụ lan man rất tốn token. Lọc bằng code trước rồi mới đưa khoảng 6 quán cho AI thì rẻ hơn và kiểm soát được. Nhiều agent lại càng không cần: không có hai vai nào thật sự khác nhau.
 - **AI dựa vào đâu** (khớp `codebase/tools.py`):
 
   | Công cụ | Input | Output | Tác động ra ngoài? |
@@ -90,7 +90,7 @@ flowchart TD
   | Không bao giờ nới ràng buộc an toàn | `_relax_hint` chỉ gợi ý nới ngân sách, khoảng cách, loại món, giờ ăn, không bao giờ gợi ý bỏ chay hay dị ứng |
 
 - **Phần còn giả hoặc giới hạn:**
-  - `data/restaurants.json` là **dữ liệu dựng giả có seed** (40 quán, 1.207 món, tên quán dựng), sinh bằng `scripts/gen_synthetic.py` theo phân bố giá, khoảng cách, đánh giá, tỉ lệ món có mô tả **đo từ menu thật trên GrabFood** do nhóm crawl. Data crawl chỉ dùng làm bằng chứng và để đo số liệu, không commit. Nhãn chay, dị ứng, loại món gắn bằng từ khoá. Xem `data/DATA_CARD.md`.
+  - `data/restaurants.json` là **dữ liệu dựng giả có seed** (60 quán, 1.142 món, tên quán dựng theo kiểu đặt tên trên Grab), sinh bằng `scripts/gen_synthetic.py` theo phân bố giá, khoảng cách, đánh giá, tỉ lệ món có mô tả **đo từ menu thật trên GrabFood** do nhóm crawl. Data crawl chỉ dùng làm bằng chứng và để đo số liệu, không commit. Nhãn chay, dị ứng, loại món gắn bằng từ khoá. Xem `data/DATA_CARD.md`.
   - Khoảng cách là số sinh theo phân bố của data thật, không tính theo vị trí người dùng. Không có phí ship.
   - **Chế độ giả** (chưa có `MODEL_PROVIDER` trong `.env`): B1 dùng ràng buộc mẫu cố định `FAKE_PARSE`, bỏ qua tin nhắn. Output ghi rõ `[chế độ giả …]`. Lượt eval chạy ở chế độ này không được tính.
 
