@@ -18,7 +18,7 @@
 **Lưu ý dùng lại:** dữ liệu lấy từ trang của bên thứ ba. File thô `grab_raw*.json` không commit (đã thêm vào `.gitignore`). Trong slide và báo cáo, ghi nguồn và ngày lấy; số trong slide truy về `restaurants.csv`, `menu_items.csv`, `promotions.csv`.
 
 **Phạm vi lọc ăn chay / dị ứng (đo bằng `MEAT_KEYWORDS` trong `codebase/tools.py` trên `menu_items.csv`):** khoảng 37% món có
-từ khoá thịt / cá / hải sản trong tên hoặc mô tả, khoảng 29% món không có mô tả (công cụ coi là "không rõ thành phần", không an toàn),
+từ khoá thịt / cá / hải sản trong tên hoặc mô tả, 41% món (4589/11322) không có mô tả (công cụ coi là "không rõ thành phần", không an toàn),
 khoảng 33% món qua được bộ lọc chay. Code chỉ bắt được thành phần được nêu trong tên và mô tả; món có mô tả nhưng không liệt kê
 thành phần vẫn có thể chứa thứ cần tránh, nên `check_constraints` luôn kèm cảnh báo "chưa xác nhận với quán".
 
