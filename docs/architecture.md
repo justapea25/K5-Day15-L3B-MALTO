@@ -4,7 +4,7 @@
 
 ## 1. Tổng quan
 
-Một người nhắn yêu cầu của cả nhóm bằng lời thường. Hệ thống trả về **một quán và một món cho từng người**, hoặc nói thẳng "không có quán nào thoả", hoặc hỏi lại.
+Một người nhắn yêu cầu của cả nhóm bằng lời thường. Hệ thống trả về **tối đa 3 quán xếp hạng**, mỗi quán kèm **một món cho từng người**, lý do và điểm đánh đổi, hoặc nói thẳng "không có quán nào thoả", hoặc hỏi lại.
 
 **Hình dạng: workflow cố định.** Có 2 lần gọi AI, mọi bước còn lại là code. AI không tự chọn bước tiếp theo, không tự gọi công cụ.
 

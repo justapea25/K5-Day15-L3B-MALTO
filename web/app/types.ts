@@ -2,7 +2,16 @@
 
 export type Loai = "goi_y" | "hoi_lai" | "khong_co" | "tu_choi";
 
+export type LuaChon = {
+  quan: { id: string; ten: string; khoang_cach_km: number; danh_gia: number | null; gio_mo: string | null };
+  mon: { nguoi: string; mon_id: string; mon: string; gia: number; loai: string }[];
+  tong_tien: number;
+  ly_do: string;
+  danh_doi: string;
+};
+
 export type KetQua = {
+  lua_chon?: LuaChon[];
   loai: Loai;
   che_do_gia?: boolean;
   quan?: { id: string; ten: string; khoang_cach_km: number; danh_gia: number | null; gio_mo: string | null };

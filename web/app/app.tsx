@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { vnd } from "./lib";
-import type { AnswerResponse, Buoc, KetQua, Loai } from "./types";
+import type { AnswerResponse, Buoc, KetQua, Loai, LuaChon } from "./types";
 
 const EXAMPLES: [string, string][] = [
   ["Mỗi người một ý", "Nhóm 4 người: Lan muốn ăn gì có nước, Hùng thèm cơm, Mai không ăn đồ chiên, Nam ăn gì cũng được. Mỗi người tầm 70k, dưới 1km"],
@@ -177,12 +177,61 @@ function Suggestion({ k }: { k: KetQua }) {
           Lựa chọn của AI không qua bước kiểm tra, đây là phương án code đã kiểm.
         </p>
       )}
+      <Alternatives options={(k.lua_chon ?? []).slice(1)} budget={k.ngan_sach} />
       {(k.canh_bao ?? []).map((w, i) => (
         <p key={i} className="mt-2 rounded-lg border-l-[3px] border-warn bg-soft px-3 py-2 text-sm">
           {w}
         </p>
       ))}
     </>
+  );
+}
+
+function Alternatives({ options, budget }: { options: LuaChon[]; budget?: number | null }) {
+  if (options.length === 0) return null;
+  return (
+    <div className="mt-4">
+      <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted">Lựa chọn khác</p>
+      <div className="grid gap-2">
+        {options.map((o, i) => (
+          <details key={o.quan.id} className="group rounded-xl border border-line bg-panel">
+            <summary className="flex cursor-pointer list-none items-start gap-3 p-3">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-soft text-sm font-bold text-muted">{i + 2}</span>
+              <span className="min-w-0 flex-1">
+                <span className="flex flex-wrap items-baseline justify-between gap-x-3">
+                  <span className="font-semibold">{o.quan.ten}</span>
+                  <span className="text-sm font-semibold tabular-nums">
+                    {vnd(o.tong_tien)}
+                    {budget ? <span className="font-normal text-muted"> / {vnd(budget)}</span> : null}
+                  </span>
+                </span>
+                <span className="block text-xs text-muted">
+                  📍 {o.quan.khoang_cach_km} km{o.quan.danh_gia ? ` · ★ ${o.quan.danh_gia}` : ""} · {o.mon.map((m) => m.mon).join(", ")}
+                </span>
+                {o.danh_doi && <span className="mt-1 block text-xs text-warn">↔ {o.danh_doi}</span>}
+              </span>
+              <span className="text-muted transition group-open:rotate-180">▾</span>
+            </summary>
+            <div className="border-t border-line px-3 pb-3 pt-2">
+              <ul className="grid gap-1 text-sm">
+                {o.mon.map((m, j) => (
+                  <li key={j} className="flex justify-between gap-2">
+                    <span className="min-w-0 truncate">
+                      <span className="text-muted">{m.nguoi}:</span> {m.mon}
+                    </span>
+                    <span className="shrink-0 tabular-nums text-accent">{vnd(m.gia)}</span>
+                  </li>
+                ))}
+              </ul>
+              {o.ly_do && <p className="mt-2 text-xs leading-relaxed text-muted">💬 {o.ly_do}</p>}
+              <Link href={`/quan?open=${o.quan.id}`} className="mt-2 inline-block text-xs font-semibold text-accent hover:underline">
+                Xem menu quán →
+              </Link>
+            </div>
+          </details>
+        ))}
+      </div>
+    </div>
   );
 }
 

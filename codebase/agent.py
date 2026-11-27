@@ -23,6 +23,7 @@ from tracing import note
 MAX_PEOPLE = 15
 MAX_OPTIONS = 6      # số quán tối đa đưa cho model ở B4
 MAX_DISHES = 12      # số món tối đa mỗi người mỗi quán đưa cho model
+TOP_K = 3            # số quán tối đa trả cho người dùng (xếp hạng)
 
 CODES = known_codes()
 
@@ -58,15 +59,20 @@ Quy tắc:
 
 SYSTEM_CHOOSE = """Bạn là trợ lý chọn quán cho nhóm, mỗi người một ý. Bạn nhận các PHƯƠNG ÁN đã được code lọc sẵn:
 mỗi quán kèm danh sách món hợp ràng buộc của từng người. Chỉ được chọn quán và món có trong danh sách đó. Không bịa.
-Cách chọn:
+Việc của bạn: XẾP HẠNG tối đa %(k)d quán hợp nhất với cả nhóm, quán hợp nhất đứng đầu.
+Cách đánh giá một quán:
 1. Đọc "so_thich" của từng người và chọn món khớp nhất (ví dụ "đồ có nước" → bún, phở, mì nước; "không muốn chiên" → tránh món chiên, rán).
-2. Chọn quán mà CẢ NHÓM đều có món khớp sở thích, không chỉ một người.
+2. Quán tốt là quán mà CẢ NHÓM đều có món khớp sở thích, không chỉ một người.
 3. Không bắt cả nhóm ăn cùng một món nếu có món khác cũng hợp.
 4. Nếu ngang nhau: đánh giá cao hơn, gần hơn, tổng tiền hợp lý.
+Các quán trong danh sách nên KHÁC NHAU thật sự (khác kiểu món, khác giá, khác khoảng cách) để nhóm có lựa chọn.
 Trả về DUY NHẤT một object JSON:
-{"quan_id": "...", "chon": [{"nguoi": số thứ tự bắt đầu từ 1, "mon_id": "..."}], "ly_do": "1–2 câu tiếng Việt"}
-Trong "ly_do": nói vì sao quán và món hợp với từng người (theo sở thích). Gọi quán bằng tên. Không nhắc mã (Q01, Q01-3…), không nhắc số tiền.
-"""
+{"xep_hang": [{"quan_id": "...", "chon": [{"nguoi": số thứ tự bắt đầu từ 1, "mon_id": "..."}],
+               "ly_do": "1–2 câu: vì sao quán và món hợp với từng người",
+               "danh_doi": "quán 1: để rỗng; quán 2, 3: 1 câu ngắn so với quán 1 (vd 'gần hơn nhưng Mai ít món hợp')"}]}
+"quan_id" và "mon_id" BẮT BUỘC là MÃ đúng như trong dữ liệu (vd "Q07", "Q07-12"), KHÔNG phải tên.
+Chỉ trong "ly_do" và "danh_doi": gọi quán bằng tên, không nhắc mã, không nhắc số tiền.
+""" % {"k": TOP_K}
 
 OUT_OF_SCOPE = ("Mình chỉ giúp chọn quán và món cho nhóm từ danh sách quán có sẵn "
                 "(theo sở thích từng người, ngân sách, khoảng cách, giờ ăn). "
@@ -184,6 +190,29 @@ def _shortlist(dishes, person):
     return sorted(dishes, key=lambda m: (-len(want & _words(m["ten"] + " " + m["mo_ta"])), m["gia"]))[:MAX_DISHES]
 
 
+def _resolve(plan, shown):
+    """Chịu lỗi khi model ghi TÊN thay vì MÃ: đổi tên → mã nếu khớp đúng 1 quán / 1 món trong phương án đã lọc.
+    Không khớp thì trả None (quán bị bỏ). B5 vẫn kiểm lại mọi thứ."""
+    if not isinstance(plan, dict):
+        return None
+    key = str(plan.get("quan_id") or "").strip()
+    opt = next((o for o in shown if o["id"] == key), None) or next(
+        (o for o in shown if o["ten"].strip().lower() == key.lower()), None)
+    if not opt:
+        return None
+    menu = {m["id"]: m for d in opt["mon_theo_nguoi"] for m in d}
+    by_name = {}
+    for m in menu.values():
+        by_name.setdefault(m["ten"].strip().lower(), []).append(m["id"])
+    chon = []
+    for c in plan.get("chon") or []:
+        mid = str((c or {}).get("mon_id") or "").strip()
+        if mid not in menu and len(by_name.get(mid.lower(), [])) == 1:
+            mid = by_name[mid.lower()][0]
+        chon.append({"nguoi": (c or {}).get("nguoi"), "mon_id": mid})
+    return dict(plan, quan_id=opt["id"], chon=chon)
+
+
 def _cheapest_plan(opt):
     return {"quan_id": opt["id"],
             "chon": [{"nguoi": i, "mon_id": min(d, key=lambda m: m["gia"])["id"]}
@@ -197,38 +226,50 @@ def _reply(output, loai, **data):
     return {"output": output, "ket_qua": dict(loai=loai, **data)}
 
 
-def _render(opt, plan, people, check, budget, at_time, ai_bi_thay=False):
+def _option(opt, plan, people, check):
+    """Một lựa chọn đã qua kiểm tra → dict cho giao diện. Tên món, giá lấy từ data."""
     menu = {m["id"]: m for m in get_menu(opt["id"])}
     picks = {c["nguoi"]: c["mon_id"] for c in plan["chon"]}
     items = [{"nguoi": _label(i, p), "mon_id": picks[i], "mon": menu[picks[i]]["ten"],
               "gia": menu[picks[i]]["gia"], "loai": menu[picks[i]]["loai"]}
              for i, p in enumerate(people, 1)]
-    meta = ["cách %.1f km" % opt["khoang_cach_km"]]
-    if opt.get("danh_gia"):
-        meta.append("★ %.1f" % opt["danh_gia"])
-    meta.append("mở %s" % opt["gio_mo"] if opt.get("gio_mo") else "chưa rõ giờ mở cửa")
-    lines = ["Gợi ý: %s — %s" % (opt["ten"], " · ".join(meta))]
-    lines += ["- %s: %s — %s" % (it["nguoi"], it["mon"], _vnd(it["gia"])) for it in items]
-    total = "Tổng tiền món %s (chưa gồm phí ship)" % _vnd(check["tong_tien"])
-    if budget is not None:
-        total += " / ngân sách %s" % _vnd(budget)
-    lines.append(total)
-    reason = str(plan.get("ly_do") or "").strip()
-    if reason:
-        lines.append("Lý do: " + reason)
+    return {"quan": {"id": opt["id"], "ten": opt["ten"], "khoang_cach_km": opt["khoang_cach_km"],
+                     "danh_gia": opt.get("danh_gia"), "gio_mo": opt.get("gio_mo")},
+            "mon": items, "tong_tien": check["tong_tien"],
+            "ly_do": str(plan.get("ly_do") or "").strip(), "danh_doi": str(plan.get("danh_doi") or "").strip()}
+
+
+def _render(options, people, budget, at_time, ai_bi_thay=False):
+    lines = []
+    for n, o in enumerate(options, 1):
+        q = o["quan"]
+        meta = ["cách %.1f km" % q["khoang_cach_km"]]
+        if q.get("danh_gia"):
+            meta.append("★ %.1f" % q["danh_gia"])
+        meta.append("mở %s" % q["gio_mo"] if q.get("gio_mo") else "chưa rõ giờ mở cửa")
+        lines.append("%s%d. %s — %s" % ("" if n == 1 else "\n", n, q["ten"], " · ".join(meta)))
+        lines += ["- %s: %s — %s" % (it["nguoi"], it["mon"], _vnd(it["gia"])) for it in o["mon"]]
+        total = "Tổng tiền món %s (chưa gồm phí ship)" % _vnd(o["tong_tien"])
+        if budget is not None:
+            total += " / ngân sách %s" % _vnd(budget)
+        lines.append(total)
+        if o["ly_do"]:
+            lines.append("Lý do: " + o["ly_do"])
+        if n > 1 and o["danh_doi"]:
+            lines.append("So với lựa chọn 1: " + o["danh_doi"])
     warns = []
     allergic = [_label(i, p) for i, p in enumerate(people, 1) if p["di_ung"]]
     if allergic:
         warns.append("Thành phần chỉ dựa trên tên và mô tả món trên menu, có thể thiếu. %s nên hỏi quán trước khi đặt."
                      % ", ".join(allergic))
-    if at_time and not opt.get("gio_mo"):
-        warns.append("Quán không ghi giờ mở cửa, nên kiểm tra quán có mở lúc %s không." % at_time)
+    if at_time and any(not o["quan"].get("gio_mo") for o in options):
+        warns.append("Có quán không ghi giờ mở cửa, nên kiểm tra quán có mở lúc %s không." % at_time)
     lines += ["Lưu ý: " + w for w in warns]
-    return _reply("\n".join(lines), "goi_y",
-                  quan={"id": opt["id"], "ten": opt["ten"], "khoang_cach_km": opt["khoang_cach_km"],
-                        "danh_gia": opt.get("danh_gia"), "gio_mo": opt.get("gio_mo")},
-                  mon=items, tong_tien=check["tong_tien"], ngan_sach=budget,
-                  ly_do=reason, canh_bao=warns, ai_bi_thay=ai_bi_thay)
+    top = options[0]
+    return _reply("\n".join(lines), "goi_y", lua_chon=options,
+                  # các khoá dưới = lựa chọn 1, giữ cho tương thích
+                  quan=top["quan"], mon=top["mon"], tong_tien=top["tong_tien"], ly_do=top["ly_do"],
+                  ngan_sach=budget, canh_bao=warns, ai_bi_thay=ai_bi_thay)
 
 
 # Chỉ dùng ở CHẾ ĐỘ GIẢ (chưa nối model): ràng buộc mẫu cố định để luồng đi hết 6 bước. Output ghi rõ [chế độ giả].
@@ -308,23 +349,32 @@ def answer_from(parsed, text):
                             "mon_hop_theo_nguoi": {str(i): [[m["id"], m["ten"], m["gia"]] for m in _shortlist(d, people[i - 1])]
                                                    for i, d in enumerate(o["mon_theo_nguoi"], 1)}}
                            for o in shown]}
-    plan, chosen = None, None
-    for attempt in range(2):  # đọc không được JSON / quán ngoài danh sách → thử lại 1 lần
-        plan = _json(call_model(SYSTEM_CHOOSE, json.dumps(brief, ensure_ascii=False))["text"])
-        chosen = next((o for o in shown if plan and o["id"] == plan.get("quan_id")), None)
-        if chosen:
+    by_id = {o["id"]: o for o in shown}
+    ranked = []
+    for attempt in range(2):  # đọc không được JSON / không có quán nào trong danh sách → thử lại 1 lần
+        out = _json(call_model(SYSTEM_CHOOSE, json.dumps(brief, ensure_ascii=False))["text"]) or {}
+        ranked = [p for p in (_resolve(x, shown) for x in (out.get("xep_hang") or [])) if p]
+        if ranked:
             break
-        note("B4 lần %d: không đọc được phương án hợp lệ" % (attempt + 1))
+        note("B4 lần %d: không đọc được xếp hạng hợp lệ" % (attempt + 1))
 
-    # B5 [code] kiểm lại phương án của AI
-    check = (check_constraints(plan, people, budget, max_km, at_time) if chosen
-             else {"ok": False, "vi_pham": ["không đọc được phương án hoặc quán ngoài danh sách"]})
-    replaced = not check["ok"]
-    if replaced:
-        note("B5 phương án của AI sai: %s → dùng phương án rẻ nhất" % "; ".join(check["vi_pham"]))
-        chosen = shown[0]
-        plan = _cheapest_plan(chosen)
+    # B5 [code] kiểm lại TỪNG quán AI xếp hạng; quán sai bị loại khỏi danh sách
+    options, seen = [], set()
+    for plan in ranked:
+        if plan["quan_id"] in seen or len(options) >= TOP_K:
+            continue
+        seen.add(plan["quan_id"])
         check = check_constraints(plan, people, budget, max_km, at_time)
+        if check["ok"]:
+            options.append(_option(by_id[plan["quan_id"]], plan, people, check))
+        else:
+            note("B5 loại %s: %s" % (plan["quan_id"], "; ".join(check["vi_pham"])))
+    replaced = not options
+    if replaced:
+        note("B5 không còn lựa chọn hợp lệ của AI → dùng phương án rẻ nhất")
+        plan = _cheapest_plan(shown[0])
+        options = [_option(shown[0], plan, people, check_constraints(plan, people, budget, max_km, at_time))]
+    note("B5 giữ %d/%d lựa chọn" % (len(options), len(ranked)))
 
     # B6 [code] soạn câu trả lời từ dữ liệu
-    return _render(chosen, plan, people, check, budget, at_time, ai_bi_thay=replaced)
+    return _render(options, people, budget, at_time, ai_bi_thay=replaced)

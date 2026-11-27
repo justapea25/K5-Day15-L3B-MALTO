@@ -33,7 +33,7 @@ Data BTC cấp đã dùng (nếu có — không commit nguyên file): không dù
 - [sản phẩm / tính năng gần giống]: một điều đáng học · một điều đáng né · mình khác gì
 
 ## §4. Thiết kế *(guide 2.2, 3.2)*
-- **Lát cắt MỘT CÂU:** Một người chọn quán cho nhóm 2–6 người **mỗi người một ý** (muốn ăn gì, không ăn gì, ngân sách, khoảng cách, giờ ăn; ăn chay hay dị ứng là phần phụ), nhắn bằng lời thường · AI hiểu sở thích của từng người và chọn **một quán + một món cho từng người** trong các phương án code đã lọc · người đó nhận quán, món, tổng tiền và lý do, hoặc nghe nói thẳng "không có quán nào hợp" kèm gợi ý nên nới yêu cầu nào.
+- **Lát cắt MỘT CÂU:** Một người chọn quán cho nhóm 2–6 người **mỗi người một ý** (muốn ăn gì, không ăn gì, ngân sách, khoảng cách, giờ ăn; ăn chay hay dị ứng là phần phụ), nhắn bằng lời thường · AI hiểu sở thích của từng người và **xếp hạng tối đa 3 quán**, mỗi quán kèm **một món cho từng người**, lý do và điểm đánh đổi, chỉ trong các phương án code đã lọc · cả nhóm so sánh rồi tự chốt, hoặc nghe nói thẳng "không có quán nào hợp" kèm gợi ý nên nới yêu cầu nào.
 - **Không làm:**
   1. Không đặt đơn, không thanh toán. Người dùng tự đặt.
   2. Không gom đơn, không chia tiền giữa các thành viên.
@@ -52,9 +52,9 @@ flowchart TD
     B2 -->|có| R2
     B2 -->|không| B3["B3 · CODE: search_restaurants + get_menu<br/>giữ quán mà MỌI người có ≥1 món hợp ràng buộc cứng, tổng ≤ ngân sách<br/>xếp hạng theo mức khớp sở thích + đánh giá + khoảng cách"]
     B3 -->|không có quán nào| R3["Nói thẳng 'không có quán nào hợp'<br/>+ gợi ý nới ngân sách / khoảng cách / loại món / giờ<br/>(không bao giờ nới chay, dị ứng)"]
-    B3 -->|≤6 quán| B4["B4 · AI đọc sở thích từng người,<br/>chọn 1 quán + 1 món / người + lý do<br/>(chỉ trong phương án đã lọc; đọc hỏng thì thử lại 1 lần)"]
-    B4 --> B5{"B5 · CODE check_constraints<br/>phương án của AI hợp lệ?"}
-    B5 -->|sai, hoặc bịa quán / món| F[Dùng phương án rẻ nhất của quán xếp đầu<br/>+ ghi note vào trace]
+    B3 -->|≤6 quán| B4["B4 · AI đọc sở thích từng người,<br/>XẾP HẠNG ≤3 quán, mỗi quán 1 món / người + lý do + đánh đổi<br/>(chỉ trong phương án đã lọc; đọc hỏng thì thử lại 1 lần)"]
+    B4 --> B5{"B5 · CODE check_constraints<br/>kiểm TỪNG quán AI xếp hạng"}
+    B5 -->|quán sai bị loại; không còn quán nào| F[Dùng phương án rẻ nhất của quán xếp đầu<br/>+ ghi note vào trace]
     B5 -->|đúng| B6
     F --> B6["B6 · CODE soạn câu trả lời từ dữ liệu<br/>(tên món, giá, tổng tiền lấy từ data) + cảnh báo"]
 ```
@@ -70,7 +70,7 @@ flowchart TD
   | `get_menu` | `restaurant_id` | món chính `{id, ten, gia, loai, nhom, mo_ta, chay, co_nhac, thit, ghi_thanh_phan}` | Không, chỉ đọc |
   | `check_constraints` | phương án `{quan_id, chon[]}` · ràng buộc từng người · ngân sách · km · giờ | `{ok, vi_pham[], tong_tien}` | Không, chỉ tính. **Chạy bằng code, không phải AI** |
 
-  Hai lần gọi AI: **B1** đọc tin nhắn lộn xộn của cả nhóm thành ràng buộc từng người, **B4** hiểu sở thích bằng lời ("đồ có nước", "không muốn đồ chiên") và khớp vào tên món thật để chọn quán và món. Đây là việc bộ lọc của app không làm được.
+  Hai lần gọi AI: **B1** đọc tin nhắn lộn xộn của cả nhóm thành ràng buộc từng người, **B4** hiểu sở thích bằng lời ("đồ có nước", "không muốn đồ chiên"), khớp vào tên món thật và **xếp hạng tối đa 3 quán** kèm điểm đánh đổi, vì ngoài đời cả nhóm thường so vài quán rồi mới chốt. Đây là việc bộ lọc của app không làm được.
 - **Mức tự động:** [x] AI gợi ý, người quyết · [ ] AI tự làm khi chắc, chuyển người khi không · [ ] AI tự làm
   - **Lý do:** AI chỉ gợi ý, người dùng tự quyết có đặt quán đó không. Gợi ý không hợp thì người dùng chọn lại, sửa rẻ. Những chỗ sai đắt (vượt ngân sách, quán không có thật, món có chất người đó dị ứng) do code chặn.
 - **Chỗ chặn rủi ro:** rủi ro lớn nhất là **gợi ý quán hoặc món không có thật, hoặc sai số tiền**, khiến cả nhóm đặt theo một thông tin sai. Phụ hơn là gợi ý món có chất người đó dị ứng. Chặn ở 4 lớp:
