@@ -6,16 +6,97 @@
 Track: [ ] A · [ ] B · [ ] C · [x] D · [ ] E — bài toán: chọn quán và món cho nhóm mỗi người một ý (mở rộng từ gợi ý D2 · đặt đơn nhóm)
 Data BTC cấp đã dùng (nếu có — không commit nguyên file): không dùng
 
-## §0. Hiện tại việc này diễn ra thế nào *(guide 1.1)*
-- Luồng hiện tại của việc này, trong khoá hoặc trên app thật (3–5 bước; ảnh chụp từ tài khoản của mình, đã che thông tin):
-- Công cụ / AI đang được dùng cho việc này (nếu có) + nguồn. Không kiểm được thì ghi "chưa kiểm":
+## §0. Hiện tại việc này diễn ra thế nào
 
-## §1. Người dùng & bằng chứng *(guide 1.1, 1.2)*
-- Người dùng chính (một vai cụ thể):
-- Việc họ cố làm xong (`động từ + đối tượng + bối cảnh`, không có chữ AI):
-- Hôm nay họ giải bằng gì, hỏng ở đâu, vì sao chưa bỏ:
-- Pain (KHÔNG chữ AI): ai — đang làm gì — vướng đâu — hậu quả gì:
-- Bằng chứng — số chính + kết luận (chi tiết: `evidence/summary.md`): __
+### Luồng hiện tại
+
+1. **Thu thập nhu cầu:** Người đứng ra đặt đồ ăn trao đổi với các thành viên để xác định món muốn ăn và các yêu cầu riêng. Theo P1, các thành viên thường trao đổi và thống nhất món trước khi tìm quán.
+
+2. **Tìm kiếm nhà hàng:** Người tổ chức mở ứng dụng giao đồ ăn như ShopeeFood hoặc GrabFood để tìm kiếm nhà hàng và các món phù hợp. P1 sử dụng ShopeeFood; nhóm trực tiếp audit GrabFood.
+
+3. **Kiểm tra từng nhà hàng:** Người dùng phải mở từng nhà hàng để xem thực đơn, giá món, khoảng cách, ưu đãi và đánh giá. P2 cho biết trong lần đặt gần nhất đã mở 4 nhà hàng và phải quay lại nhiều lần để so sánh, đôi khi quên giá của quán đã xem.
+
+4. **So sánh chi phí và ưu đãi:** Người dùng tự kiểm tra voucher, khả năng kết hợp mã và tổng tiền sau giảm giá. Theo audit GrabFood, voucher không tương thích bị làm mờ/khóa mà không giải thích lý do; ứng dụng không tự tìm tổ hợp tiết kiệm nhất. Người dùng cũng phải tự cân nhắc có nên thêm món để đạt ngưỡng ưu đãi.
+
+5. **Chốt quán và đặt món:** Người tổ chức lựa chọn phương án phù hợp và tiến hành đặt hàng trên ứng dụng. P1 mất khoảng 15 phút cho toàn bộ quá trình chọn món, tìm quán và đặt hàng trong lần gần nhất.
+
+### Công cụ / AI đang được sử dụng
+
+- **ShopeeFood:** Được P1 và P2 sử dụng để tìm kiếm nhà hàng, xem thực đơn và đặt đồ ăn.
+- **GrabFood:** Nhóm sử dụng để audit trực tiếp các chức năng tìm kiếm nhà hàng, xem menu, voucher, giỏ hàng và thanh toán.
+- **Nhóm chat / trao đổi trực tiếp:** Được sử dụng để trao đổi và thống nhất nhu cầu khi đi ăn cùng nhau. P3 cho biết thường tìm quán trên TikTok rồi gửi vào nhóm chat khi ở khu vực lạ.
+- **AI:** Không sử dụng trong luồng hiện tại.
+
+## §1. Người dùng & bằng chứng (guide 1.1, 1.2)
+
+### Người dùng chính
+
+Người thường đứng ra chọn nhà hàng hoặc tổ chức đặt đồ ăn cho nhóm 2–6 người, chẳng hạn nhóm bạn cùng lớp hoặc đồng nghiệp. Người này chịu trách nhiệm tổng hợp nhu cầu ăn uống của các thành viên, tìm nhà hàng và đưa ra lựa chọn phù hợp với cả nhóm.
+
+### Phân khúc người dùng thứ cấp
+
+Người đặt đồ ăn cho bản thân nhưng muốn ăn nhiều món khác nhau trong cùng một bữa ăn, ví dụ vừa muốn ăn cá viên chiên vừa muốn ăn khoai tây chiên. Họ muốn tìm một nhà hàng có đầy đủ các món mong muốn trong cùng một đơn hàng thay vì phải tìm kiếm và đặt từ nhiều nơi.
+
+Phân khúc này được bổ sung vào Product Scope nhưng chưa được xác thực độc lập qua phỏng vấn.
+
+### Việc họ cố làm xong
+
+Tìm và lựa chọn một nhà hàng có thực đơn đáp ứng toàn bộ danh sách món ăn và các yêu cầu của bữa ăn, trong phạm vi ngân sách, khoảng cách và thời gian phù hợp.
+
+Công việc này xuất hiện trong hai bối cảnh:
+- Đặt nhóm: Tìm món phù hợp với nhu cầu của từng thành viên.
+- Đặt cá nhân: Tìm một nhà hàng có đủ nhiều món khác nhau mà bản thân muốn ăn trong cùng một đơn hàng.
+
+### Hôm nay họ giải bằng gì, hỏng ở đâu, vì sao chưa bỏ
+
+**Đối với người đặt nhóm:**
+- Trao đổi trực tiếp hoặc qua nhóm chat để thu thập nhu cầu của các thành viên.
+- Sử dụng GrabFood hoặc ShopeeFood để tìm nhà hàng và xem thực đơn.
+- Mở từng nhà hàng để kiểm tra món ăn, giá, khoảng cách và ưu đãi.
+- Phải tự đối chiếu thông tin giữa các nhà hàng trước khi thống nhất lựa chọn.
+
+**Đối với người đặt cá nhân nhiều món:**
+- Tìm kiếm nhà hàng trên ứng dụng giao đồ ăn.
+- Mở thực đơn từng quán để kiểm tra xem có đầy đủ các món mong muốn hay không.
+- Nếu chưa tìm thấy lựa chọn phù hợp, người dùng có thể tiếp tục tìm kiếm hoặc thay đổi lựa chọn món.
+
+Ứng dụng giao đồ ăn và nhóm chat vẫn được sử dụng vì cung cấp chức năng tìm kiếm, xem thực đơn, trao đổi và đặt hàng quen thuộc. Tuy nhiên, việc xác định một nhà hàng có đáp ứng được toàn bộ nhu cầu món ăn hay không vẫn cần người dùng tự kiểm tra.
+
+### Pain (không dùng chữ AI)
+
+Người trực tiếp lựa chọn nhà hàng cho một bữa ăn có nhiều yêu cầu món khác nhau phải tự tìm kiếm và đối chiếu thực đơn của nhiều nhà hàng để xác định một quán có thể đáp ứng toàn bộ nhu cầu trong cùng một đơn hàng. Dù là người tổ chức đặt đồ ăn cho nhóm hay một cá nhân muốn ăn nhiều món, quá trình này đều đòi hỏi phải tự kiểm tra nhiều lựa chọn và thông tin thực đơn, làm tăng thời gian và công sức ra quyết định.
+
+### Bằng chứng – số chính và kết luận
+
+Chi tiết: `evidence/summary.md`.
+
+**Đào dữ liệu GrabFood:**
+- 184 nhà hàng đồ ăn được thu thập, với 7.608 món.
+- Số món trung vị mỗi thực đơn là 33.
+- 101/184 nhà hàng (55%) có từ 30 món trở lên.
+- 4.589/11.322 món (40,5%) không có mô tả.
+
+Kết quả cho thấy người dùng phải đối mặt với lượng thông tin thực đơn tương đối lớn. Tuy nhiên, đây là bằng chứng về đặc điểm dữ liệu, chưa trực tiếp chứng minh người dùng gặp khó khăn khi tìm một nhà hàng có đủ món.
+
+**Khảo sát:**
+- 25/39 người (64,1%) đồng ý rằng họ mất nhiều thời gian chọn nhà hàng.
+- 23/39 người (59%) thường phải mở nhiều nhà hàng để so sánh.
+- 21/39 người (53,8%) khó tìm một nhà hàng có đủ các món mình muốn ăn trong cùng một đơn hàng.
+- 31/39 người (79,5%) muốn tìm nhà hàng vừa có ưu đãi tốt vừa có chất lượng đáng tin cậy.
+
+Câu hỏi về việc tìm nhà hàng có đủ các món mong muốn chưa phân biệt người đặt cá nhân và người đặt nhóm, nên chưa thể xác định mức độ pain riêng của từng phân khúc.
+
+**Phỏng vấn:**
+- P1: Người trực tiếp đặt đồ ăn nhóm khoảng 4 lần/tháng. Lần gần nhất mất khoảng 15 phút cho toàn bộ quá trình chọn món, tìm quán và đặt hàng. Các thành viên thống nhất khá nhanh, chưa ghi nhận mâu thuẫn đáng kể về sở thích.
+- P2: Người đặt đồ ăn cá nhân mất khoảng 15 phút và mở 4 nhà hàng để so sánh menu, khoảng cách và voucher. Đây là bằng chứng bổ sung về khó khăn tìm kiếm và so sánh nhà hàng, chưa xác nhận trực tiếp nhu cầu ăn nhiều món trong cùng một đơn.
+- P3: Người thường đi ăn ngoài cùng bạn bè, ít sử dụng ứng dụng giao đồ ăn. Thường chọn quán quen hoặc tìm kiếm trên TikTok rồi trao đổi qua nhóm chat.
+
+**Audit GrabFood:**
+- Người dùng phải mở từng nhà hàng để xem chi tiết thực đơn.
+- Không có chức năng trực tiếp xác định và so sánh nhà hàng đáp ứng toàn bộ danh sách món mong muốn giữa nhiều quán.
+- Người dùng phải tự đối chiếu giá, ưu đãi và các thông tin liên quan trước khi quyết định.
+
+**Kết luận:** Có bằng chứng ban đầu về khó khăn trong việc tìm kiếm và so sánh thực đơn nhà hàng. Khảo sát cũng cho thấy một bộ phận người tham gia khó tìm một nhà hàng có đủ các món mong muốn. Tuy nhiên, nhu cầu riêng của người đặt cá nhân muốn ăn nhiều món và pain phối hợp sở thích trong nhóm vẫn cần được kiểm chứng sâu hơn qua phỏng vấn đúng từng phân khúc.
 
 ## §2. Impact & quyết định chọn *(guide 1.3)*
 
