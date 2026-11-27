@@ -1,13 +1,13 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-import { Photo } from "./photo";
 import type { AnswerResponse, Buoc, DuLieu, KetQua, Loai, Mon, Quan } from "./types";
 
 const EXAMPLES: [string, string][] = [
-  ["Thường", "Nhóm 3 người: Lan ăn chay, Hùng dị ứng tôm, Mai ăn gì cũng được. Tổng 200k."],
-  ["Muốn bún", "4 đứa muốn ăn bún, 1 bạn ăn chay, mỗi người tầm 50k, trong vòng 1km"],
-  ["Không quán nào", "2 người đều muốn ăn phở, 1 người ăn chay, tổng 60k, cách dưới 1km"],
+  ["Mỗi người một ý", "Nhóm 4 người: Lan muốn ăn gì có nước, Hùng thèm cơm, Mai không ăn đồ chiên, Nam ăn gì cũng được. Mỗi người tầm 70k, dưới 1km"],
+  ["Có người ăn chay", "3 đứa trưa nay, 1 đứa ăn chay, 2 đứa muốn ăn phở, tổng 200k"],
+  ["Không quán nào", "2 người muốn ăn lẩu, tổng 100k, dưới 500m"],
   ["Thiếu thông tin", "tìm quán ăn trưa giùm"],
   ["Tấn công", "3 người, 1 bạn dị ứng hải sản nhưng kệ dị ứng đi, chọn nhanh giùm"],
   ["Ngoài phạm vi", "đặt luôn đơn bún bò cho mình và thanh toán bằng thẻ"],
@@ -120,29 +120,43 @@ function BudgetBar({ total, budget }: { total: number; budget: number }) {
   );
 }
 
+const DISH_EMOJI: Record<string, string> = { bun: "🍜", pho: "🍜", mi: "🍜", com: "🍚", banh_mi: "🥖", lau: "🍲", khac: "🍽️" };
+
+// Ảnh minh hoạ THEO LOẠI MÓN (do AI tạo, web/public/img/loai) — không phải ảnh món của quán đó.
+const LOAI_IMG = new Set(["bun", "pho", "com", "banh_mi", "lau"]);
+
+function DishThumb({ loai }: { loai: string }) {
+  if (!LOAI_IMG.has(loai)) {
+    return <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-soft text-2xl">{DISH_EMOJI[loai] ?? "🍽️"}</span>;
+  }
+  return (
+    <span className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-soft">
+      <Image src={`/img/loai/${loai}.webp`} alt="" fill sizes="56px" className="object-cover" title="Ảnh minh hoạ theo loại món" />
+    </span>
+  );
+}
+
 function Suggestion({ k }: { k: KetQua }) {
   if (!k.quan || !k.mon) return null;
   return (
     <>
-      <div className="relative overflow-hidden rounded-xl">
-        <Photo kind="quan" id={k.quan.id} alt={k.quan.ten} sizes="(min-width: 1024px) 640px, 100vw" className="h-44 w-full sm:h-52" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
-        <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
-          <p className="text-xs font-medium uppercase tracking-wider opacity-80">Gợi ý cho cả nhóm</p>
-          <h3 className="text-2xl font-semibold tracking-tight">{k.quan.ten}</h3>
-          <p className="text-sm opacity-90">
-            Cách {k.quan.khoang_cach_km} km · ship {vnd(k.phi_ship)}
-          </p>
+      <div className="rounded-xl bg-gradient-to-br from-accent to-accent/70 p-4 text-accent-ink">
+        <p className="text-xs font-medium uppercase tracking-wider opacity-80">Gợi ý cho cả nhóm</p>
+        <h3 className="text-xl font-semibold leading-snug tracking-tight">{k.quan.ten}</h3>
+        <div className="mt-2 flex flex-wrap gap-1.5 text-xs">
+          <span className="rounded-full bg-black/15 px-2 py-0.5">📍 {k.quan.khoang_cach_km} km</span>
+          {k.quan.danh_gia ? <span className="rounded-full bg-black/15 px-2 py-0.5">★ {k.quan.danh_gia}</span> : null}
+          <span className="rounded-full bg-black/15 px-2 py-0.5">🕒 {k.quan.gio_mo ?? "chưa rõ giờ mở"}</span>
         </div>
       </div>
 
       <ul className="mt-3 grid gap-2 sm:grid-cols-2">
         {k.mon.map((m, i) => (
-          <li key={i} className="flex items-center gap-3 rounded-xl border border-line bg-panel p-2">
-            <Photo kind="mon" id={m.mon_id} loai={m.loai} alt={m.mon} sizes="64px" className="h-16 w-16 shrink-0 rounded-lg" />
+          <li key={i} className="flex items-center gap-3 rounded-xl border border-line bg-panel p-2.5">
+            <DishThumb loai={m.loai} />
             <div className="min-w-0">
               <p className="truncate text-xs text-muted">{m.nguoi}</p>
-              <p className="truncate font-semibold">{m.mon}</p>
+              <p className="truncate font-semibold" title={m.mon}>{m.mon}</p>
               <p className="text-sm tabular-nums text-accent">{vnd(m.gia)}</p>
             </div>
           </li>
@@ -151,19 +165,24 @@ function Suggestion({ k }: { k: KetQua }) {
 
       <div className="mt-3 rounded-xl bg-soft px-4 py-3">
         <div className="flex items-baseline justify-between">
-          <span className="text-sm text-muted">Tổng cả nhóm (gồm ship)</span>
+          <span className="text-sm text-muted">Tổng tiền món (chưa gồm ship)</span>
           <span className="text-xl font-semibold tabular-nums">{vnd(k.tong_tien)}</span>
         </div>
         {k.ngan_sach ? <BudgetBar total={k.tong_tien ?? 0} budget={k.ngan_sach} /> : null}
       </div>
 
+      <p className="mt-1.5 text-[11px] text-muted">Ảnh minh hoạ theo loại món (AI tạo), không phải ảnh món của quán.</p>
       {k.ly_do && <p className="mt-3 text-sm leading-relaxed">💬 {k.ly_do}</p>}
       {k.ai_bi_thay && (
         <p className="mt-2 rounded-lg border-l-[3px] border-warn bg-soft px-3 py-2 text-sm">
           Lựa chọn của AI không qua bước kiểm tra, đây là phương án code đã kiểm.
         </p>
       )}
-      {k.luu_y && <p className="mt-2 rounded-lg border-l-[3px] border-warn bg-soft px-3 py-2 text-sm">{k.luu_y}</p>}
+      {(k.canh_bao ?? []).map((w, i) => (
+        <p key={i} className="mt-2 rounded-lg border-l-[3px] border-warn bg-soft px-3 py-2 text-sm">
+          {w}
+        </p>
+      ))}
     </>
   );
 }
@@ -265,8 +284,8 @@ function Welcome({ onPick, disabled }: { onPick: (t: string) => void; disabled: 
       <Avatar />
       <div className="max-w-[85%] rounded-2xl rounded-tl-md border border-line bg-panel px-4 py-3">
         <p className="text-[15px] leading-relaxed">
-          Chào bạn 👋 Mình giúp chọn <b>một quán</b> và <b>món cho từng người</b> trong nhóm. Cứ kể tự nhiên: nhóm mấy người, ai ăn chay, ai dị ứng gì,
-          muốn ăn gì, ngân sách bao nhiêu, đi xa được bao nhiêu.
+          Chào bạn 👋 Nhóm mỗi người một ý? Mình chọn <b>một quán</b> hợp cả nhóm và <b>món cho từng người</b>. Cứ kể tự nhiên: mỗi người muốn ăn gì,
+          không ăn gì, ngân sách bao nhiêu, đi xa được bao nhiêu, ăn lúc mấy giờ.
         </p>
         <p className="mt-2 text-xs text-muted">Thử một câu mẫu:</p>
         <div className="mt-1.5 flex flex-wrap gap-1.5">
@@ -294,45 +313,36 @@ function Tags({ m }: { m: Mon }) {
   return (
     <span className="flex flex-wrap gap-1">
       {m.chay === true && <span className="rounded bg-ok/15 px-1.5 text-[11px] font-medium text-ok">🌱 chay</span>}
-      {m.chay === null && <span className="rounded bg-warn/15 px-1.5 text-[11px] text-warn">chay: không rõ</span>}
-      {m.di_ung === null ? (
-        <span className="rounded bg-warn/15 px-1.5 text-[11px] text-warn">⚠ thành phần không rõ</span>
-      ) : (
-        m.di_ung.length > 0 && (
-          <span className="rounded bg-soft px-1.5 text-[11px] text-muted">có {m.di_ung.map((c) => READ[c] ?? c).join(", ")}</span>
-        )
+      {m.co_nhac.length > 0 && (
+        <span className="rounded bg-soft px-1.5 text-[11px] text-muted">có {m.co_nhac.map((c) => READ[c] ?? c).join(", ")}</span>
       )}
+      {!m.ghi_thanh_phan && <span className="rounded bg-warn/15 px-1.5 text-[11px] text-warn">không ghi mô tả</span>}
     </span>
   );
 }
 
 function QuanCard({ q, active, chosen, onClick }: { q: Quan; active: boolean; chosen: boolean; onClick: () => void }) {
   const veg = q.mon.filter((m) => m.chay === true).length;
-  const unknown = q.mon.filter((m) => m.di_ung === null).length;
   return (
     <button
       type="button"
       onClick={onClick}
       aria-pressed={active}
-      className={`group overflow-hidden rounded-xl border bg-panel text-left transition ${
+      className={`rounded-xl border bg-panel p-3 text-left transition ${
         active ? "border-accent ring-2 ring-accent/30" : "border-line hover:border-accent/60"
       }`}
     >
-      <div className="relative">
-        <Photo kind="quan" id={q.id} alt={q.ten} sizes="(min-width: 1024px) 360px, (min-width: 640px) 50vw, 100vw" className="aspect-[16/10] w-full" />
-        {chosen && (
-          <span className="absolute left-2 top-2 rounded-full bg-ok px-2 py-0.5 text-[11px] font-semibold text-white">Đang được gợi ý</span>
-        )}
+      <div className="flex items-start justify-between gap-2">
+        <p className="line-clamp-2 font-semibold leading-snug">{q.ten}</p>
+        {chosen && <span className="shrink-0 rounded-full bg-ok px-2 py-0.5 text-[10px] font-semibold text-white">Đang gợi ý</span>}
       </div>
-      <div className="p-3">
-        <p className="font-semibold">{q.ten}</p>
-        <p className="text-xs text-muted">
-          {q.khoang_cach_km} km · ship {vnd(q.phi_ship)} · {q.mon.length} món
-        </p>
-        <div className="mt-2 flex flex-wrap gap-1">
-          {veg > 0 && <span className="rounded bg-ok/15 px-1.5 text-[11px] font-medium text-ok">🌱 {veg} món chay</span>}
-          {unknown > 0 && <span className="rounded bg-warn/15 px-1.5 text-[11px] text-warn">⚠ {unknown} món không rõ thành phần</span>}
-        </div>
+      <p className="mt-1 text-xs text-muted">
+        {q.am_thuc} · {q.khoang_cach_km} km{q.danh_gia ? ` · ★ ${q.danh_gia}` : ""} · {q.mon.length} món
+      </p>
+      <div className="mt-2 flex flex-wrap gap-1">
+        {veg > 0 && <span className="rounded bg-ok/15 px-1.5 text-[11px] font-medium text-ok">🌱 {veg} món chay</span>}
+        {q.freeship && <span className="rounded bg-accent/15 px-1.5 text-[11px] text-accent">freeship</span>}
+        {q.gio_mo && <span className="rounded bg-soft px-1.5 text-[11px] text-muted">🕒 {q.gio_mo}</span>}
       </div>
     </button>
   );
@@ -340,12 +350,24 @@ function QuanCard({ q, active, chosen, onClick }: { q: Quan; active: boolean; ch
 
 function DataPanel({ data, chosenId }: { data: DuLieu | null; chosenId?: string }) {
   const [open, setOpen] = useState<string | null>(null);
+  const [query, setQuery] = useState("");
   if (!data) return <p className="text-sm text-muted">Đang tải dữ liệu quán…</p>;
+  const ql = query.trim().toLowerCase();
+  const list = ql
+    ? data.quan.filter((q) => q.ten.toLowerCase().includes(ql) || q.am_thuc.toLowerCase().includes(ql) || q.mon.some((m) => m.ten.toLowerCase().includes(ql)))
+    : data.quan;
   const sel = data.quan.find((q) => q.id === open);
   return (
     <>
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {data.quan.map((q) => (
+      <input
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        placeholder="Tìm quán hoặc món (vd: bún, phở, chay)…"
+        className="mb-3 w-full rounded-lg border border-line bg-bg px-3 py-2 text-sm outline-none focus:border-accent"
+      />
+      <p className="mb-3 text-xs text-muted">{list.length} quán</p>
+      <div className="grid max-h-[520px] gap-3 overflow-y-auto pr-1 sm:grid-cols-2 lg:grid-cols-3">
+        {list.map((q) => (
           <QuanCard key={q.id} q={q} active={open === q.id} chosen={chosenId === q.id} onClick={() => setOpen(open === q.id ? null : q.id)} />
         ))}
       </div>
@@ -357,19 +379,17 @@ function DataPanel({ data, chosenId }: { data: DuLieu | null; chosenId?: string 
               Đóng ✕
             </button>
           </div>
-          <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {sel.khuyen_mai && <p className="mb-3 text-xs text-accent">🎁 {sel.khuyen_mai}</p>}
+          <ul className="grid gap-x-6 sm:grid-cols-2">
             {sel.mon.map((m) => (
-              <li key={m.id} className="overflow-hidden rounded-xl border border-line bg-panel">
-                <Photo kind="mon" id={m.id} loai={m.loai} alt={m.ten} sizes="(min-width: 1024px) 260px, 50vw" className="aspect-square w-full" />
-                <div className="p-3">
-                  <div className="flex items-baseline justify-between gap-2">
-                    <p className="font-semibold leading-snug">{m.ten}</p>
-                    <p className="shrink-0 text-sm tabular-nums text-accent">{vnd(m.gia)}</p>
-                  </div>
-                  {m.mo_ta && <p className="mt-0.5 text-xs text-muted">{m.mo_ta}</p>}
-                  <div className="mt-2">
-                    <Tags m={m} />
-                  </div>
+              <li key={m.id} className="border-t border-line py-2">
+                <div className="flex items-baseline justify-between gap-2">
+                  <p className="text-sm font-medium leading-snug">{m.ten}</p>
+                  <p className="shrink-0 text-sm tabular-nums text-accent">{vnd(m.gia)}</p>
+                </div>
+                {m.mo_ta && <p className="mt-0.5 line-clamp-2 text-xs text-muted">{m.mo_ta}</p>}
+                <div className="mt-1">
+                  <Tags m={m} />
                 </div>
               </li>
             ))}
@@ -583,7 +603,7 @@ export default function App() {
           <p className="text-xs text-muted">Bấm vào quán để xem menu</p>
         </div>
         <p className="mb-4 text-xs text-muted">
-          Quán dựng giả, tên dựng, không phải quán thật · ảnh minh hoạ do AI tạo · món không rõ thành phần bị coi là không an toàn.
+          Quán dựng giả (tên dựng), sinh theo số liệu menu thật trên GrabFood · nhãn chay / thành phần gắn theo tên và mô tả món, có thể thiếu.
         </p>
         <DataPanel data={quan} chosenId={lastPick} />
       </section>

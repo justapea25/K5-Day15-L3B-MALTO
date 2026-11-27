@@ -15,9 +15,6 @@ const nextConfig: NextConfig = {
       },
     },
   },
-  // Ảnh minh hoạ quán / món (scripts/gen_images.py) nằm ở web/public/img
-  // search phải khớp IMG_VERSION trong app/photo.tsx
-  images: { localPatterns: [{ pathname: "/img/**", search: "?v=2" }] },
   rewrites() {
     return [{ source: "/api/:path*", destination: `${BACKEND_URL}/api/:path*` }];
   },
