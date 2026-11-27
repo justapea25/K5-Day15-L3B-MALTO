@@ -6,15 +6,15 @@
 
 - Tên nhóm: MALTO
 - Lớp: L3B
-- Track: ____
+- Track: D
 - Link repo: https://github.com/justapea25/K5-Day15-L3B-MALTO
 
 | STT | Họ và tên | Mã học viên | Vai trò | Phần việc chính |
 |---|---|---|---|---|
-| 1 | Đậu Hoàng Minh | 2A202604011 | Đội trưởng | ____ |
-| 2 | Đặng Minh Thu | 2A202604009 | Thành viên | ____ |
-| 3 | Nguyễn Xuân Khánh Linh | 2A202603801 | Thành viên | ____ |
-| 4 | Lê Thế Anh | 2A202603983 | Thành viên | ____ |
+| 1 | Đậu Hoàng Minh | 2A202604011 | Đội trưởng | Thiết kế giải pháp (spec §4), luồng agent + nối model, giao diện web |
+| 2 | Đặng Minh Thu | 2A202604009 | Thành viên | Dữ liệu quán dựng giả + DATA_CARD, công cụ tra cứu (tools.py) |
+| 3 | Nguyễn Xuân Khánh Linh | 2A202603801 | Thành viên | Bằng chứng pain (khảo sát, phỏng vấn), impact (spec §1–§2), người dùng thử |
+| 4 | Lê Thế Anh | 2A202603983 | Thành viên | Bộ câu thử, metric + chuẩn "đạt", chạy eval, mô phỏng chi phí, giao diện web (web/) |
 
 **Quy tắc điền**
 - **Lớp:** `L3A` hoặc `L3B`. **Track:** một chữ `A` (EdTech), `B` (Y tế), `C` (Du lịch), `D` (Thương mại điện tử), `E` (Tài chính) hoặc `F` (Làn khác). **Link repo:** link GitHub công khai của nhóm.

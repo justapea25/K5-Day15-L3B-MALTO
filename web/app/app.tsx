@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Photo } from "./photo";
 import type { AnswerResponse, Buoc, DuLieu, KetQua, Loai, Mon, Quan } from "./types";
 
@@ -124,7 +124,7 @@ function Suggestion({ k }: { k: KetQua }) {
   if (!k.quan || !k.mon) return null;
   return (
     <>
-      <div className="relative mt-3 overflow-hidden rounded-xl">
+      <div className="relative overflow-hidden rounded-xl">
         <Photo kind="quan" id={k.quan.id} alt={k.quan.ten} sizes="(min-width: 1024px) 640px, 100vw" className="h-44 w-full sm:h-52" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
         <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
@@ -170,23 +170,120 @@ function Suggestion({ k }: { k: KetQua }) {
 
 const ICON: Record<Loai, string> = { goi_y: "✅", hoi_lai: "🤔", khong_co: "🚫", tu_choi: "⛔" };
 
-function Result({ data }: { data: AnswerResponse }) {
-  const k = data.ket_qua;
-  const loai: Loai = k?.loai ?? "hoi_lai";
+// ---------- Chat ----------
+
+type Msg = {
+  id: string;
+  role: "user" | "bot";
+  text: string;
+  sent?: string;          // bot: câu thực sự đã gửi backend (có thể đã ghép với yêu cầu trước)
+  merged?: boolean;       // bot: câu gửi đi là bản ghép
+  data?: AnswerResponse;  // bot: phản hồi backend
+  error?: string;
+};
+
+const newId = () => Math.random().toString(36).slice(2);
+
+function Avatar() {
   return (
-    <div className="mt-5">
-      {k?.che_do_gia && (
-        <p className="mb-2 text-xs font-medium text-warn">Chế độ giả: chưa nối model, đang dùng yêu cầu mẫu cố định.</p>
-      )}
-      <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold ${BADGE[loai]}`}>{LABEL[loai]}</span>
-      {k?.loai === "goi_y" ? (
-        <Suggestion k={k} />
-      ) : (
-        <div className="mt-2 flex gap-3 rounded-xl border border-line bg-bg/60 p-4">
-          <span className="text-2xl">{ICON[loai]}</span>
-          <p className="whitespace-pre-wrap text-[15px] leading-relaxed">{data.output}</p>
+    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent/15 text-lg" aria-hidden>
+      🍜
+    </div>
+  );
+}
+
+function Typing() {
+  return (
+    <div className="flex items-end gap-2">
+      <Avatar />
+      <div className="rounded-2xl rounded-bl-md border border-line bg-panel px-4 py-3">
+        <span className="flex gap-1" aria-label="Đang trả lời">
+          {[0, 150, 300].map((d) => (
+            <span key={d} className="h-2 w-2 animate-bounce rounded-full bg-muted" style={{ animationDelay: `${d}ms` }} />
+          ))}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+function BotBubble({ m, selected, onSelect }: { m: Msg; selected: boolean; onSelect: () => void }) {
+  const k = m.data?.ket_qua;
+  const loai: Loai = k?.loai ?? "hoi_lai";
+  const rich = k?.loai === "goi_y";
+  return (
+    <div className="flex items-start gap-2">
+      <Avatar />
+      <div className={`min-w-0 ${rich ? "w-full max-w-[600px]" : "max-w-[85%]"}`}>
+        <div className={`rounded-2xl rounded-tl-md border bg-panel ${rich ? "p-3" : "px-4 py-3"} ${m.error ? "border-bad/40" : "border-line"}`}>
+          {m.error ? (
+            <p className="text-sm text-bad">Lỗi: {m.error}</p>
+          ) : (
+            <>
+              {k?.che_do_gia && <p className="mb-2 text-xs font-medium text-warn">Chế độ giả: chưa nối model, đang dùng yêu cầu mẫu cố định.</p>}
+              {rich && k ? (
+                <Suggestion k={k} />
+              ) : (
+                <p className="whitespace-pre-wrap text-[15px] leading-relaxed">
+                  <span className="mr-1.5">{ICON[loai]}</span>
+                  {m.data?.output ?? m.text}
+                </p>
+              )}
+            </>
+          )}
         </div>
-      )}
+        {m.data && (
+          <div className="mt-1 flex flex-wrap items-center gap-2 pl-1 text-[11px] text-muted">
+            <span className={`rounded-full px-2 py-0.5 font-semibold ${BADGE[loai]}`}>{LABEL[loai]}</span>
+            <span>
+              {m.data.thong_ke.model_calls} lần gọi AI · {m.data.thong_ke.tokens_in + m.data.thong_ke.tokens_out} token
+            </span>
+            {m.merged && <span title={m.sent}>· đã ghép với yêu cầu trước</span>}
+            <button type="button" onClick={onSelect} className={`underline-offset-2 hover:underline ${selected ? "font-semibold text-accent" : ""}`}>
+              {selected ? "● đang xem luồng" : "Xem luồng xử lý"}
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function UserBubble({ m }: { m: Msg }) {
+  return (
+    <div className="flex justify-end">
+      <p className="max-w-[80%] whitespace-pre-wrap rounded-2xl rounded-br-md bg-accent px-4 py-2.5 text-[15px] leading-relaxed text-accent-ink">
+        {m.text}
+      </p>
+    </div>
+  );
+}
+
+function Welcome({ onPick, disabled }: { onPick: (t: string) => void; disabled: boolean }) {
+  return (
+    <div className="flex items-start gap-2">
+      <Avatar />
+      <div className="max-w-[85%] rounded-2xl rounded-tl-md border border-line bg-panel px-4 py-3">
+        <p className="text-[15px] leading-relaxed">
+          Chào bạn 👋 Mình giúp chọn <b>một quán</b> và <b>món cho từng người</b> trong nhóm. Cứ kể tự nhiên: nhóm mấy người, ai ăn chay, ai dị ứng gì,
+          muốn ăn gì, ngân sách bao nhiêu, đi xa được bao nhiêu.
+        </p>
+        <p className="mt-2 text-xs text-muted">Thử một câu mẫu:</p>
+        <div className="mt-1.5 flex flex-wrap gap-1.5">
+          {EXAMPLES.map(([name, t]) => (
+            <button
+              key={name}
+              type="button"
+              disabled={disabled}
+              onClick={() => onPick(t)}
+              title={t}
+              className="rounded-full border border-line bg-soft px-3 py-1 text-xs hover:border-accent disabled:opacity-50"
+            >
+              {name}
+            </button>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
@@ -286,42 +383,58 @@ function DataPanel({ data, chosenId }: { data: DuLieu | null; chosenId?: string 
 // ---------- Trang ----------
 
 export default function App() {
-  const [text, setText] = useState("");
+  const [msgs, setMsgs] = useState<Msg[]>([]);
+  const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const [data, setData] = useState<AnswerResponse | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [selected, setSelected] = useState<string | null>(null);
   const [model, setModel] = useState<{ provider: string; model: string } | null>(null);
   const [quan, setQuan] = useState<DuLieu | null>(null);
   const [backendDown, setBackendDown] = useState(false);
+  const endRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+  const autoRan = useRef(false);
 
-  function submit() {
-    run(text);
-  }
+  const bots = msgs.filter((m) => m.role === "bot");
+  const lastBot = bots[bots.length - 1];
+  const shown = msgs.find((m) => m.id === selected) ?? lastBot;
+  const lastPick = [...bots].reverse().find((m) => m.data?.ket_qua?.loai === "goi_y")?.data?.ket_qua?.quan?.id;
+  const waitingAnswer = lastBot?.data?.ket_qua?.loai === "hoi_lai";
 
-  async function run(raw: string) {
+  async function send(raw: string) {
     const t = raw.trim();
     if (!t || loading) return;
-    setText(t);
+    // Bot vừa hỏi lại → ghép câu bổ sung với yêu cầu trước (backend xử lý mỗi tin độc lập)
+    const prev = lastBot?.data?.ket_qua?.loai === "hoi_lai" ? lastBot.sent : undefined;
+    const sent = prev ? `${prev}\nBổ sung: ${t}` : t;
+    const userMsg: Msg = { id: newId(), role: "user", text: t };
+    setMsgs((ms) => [...ms, userMsg]);
+    setInput("");
     setLoading(true);
-    setError(null);
+    const bot: Msg = { id: newId(), role: "bot", text: "", sent, merged: Boolean(prev) };
     try {
       const r = await fetch("/api/answer", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: t }),
+        body: JSON.stringify({ text: sent }),
       });
       const body = await r.json().catch(() => ({}));
-      if (!r.ok) {
-        setError(body.loi ?? `Lỗi ${r.status}`);
-        setData(null);
-      } else {
-        setData(body as AnswerResponse);
-      }
+      if (r.ok) bot.data = body as AnswerResponse;
+      else bot.error = body.loi ?? `Lỗi ${r.status}`;
     } catch (e) {
-      setError(`Không gọi được backend: ${e}`);
+      bot.error = `Không gọi được backend: ${e}`;
     } finally {
+      setMsgs((ms) => [...ms, bot]);
+      setSelected(null);
       setLoading(false);
+      inputRef.current?.focus();
     }
+  }
+
+  function reset() {
+    setMsgs([]);
+    setSelected(null);
+    setInput("");
+    inputRef.current?.focus();
   }
 
   useEffect(() => {
@@ -333,19 +446,34 @@ export default function App() {
       .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
       .then(setQuan)
       .catch(() => setBackendDown(true));
-    // ?q=... → điền sẵn và chạy luôn (tiện khi demo: gửi link có sẵn câu hỏi)
+    // ?q=... → gửi luôn câu đó (tiện khi demo: gửi link có sẵn câu hỏi)
     const q = new URLSearchParams(window.location.search).get("q");
-    if (q) run(q);
+    // React dev chạy effect 2 lần → chặn gửi trùng bằng cờ
+    if (q && !autoRan.current) {
+      autoRan.current = true;
+      setTimeout(() => send(q), 0);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+  }, [msgs.length, loading]);
+
+  // ô nhập tự giãn theo nội dung (tối đa ~5 dòng)
+  useEffect(() => {
+    const el = inputRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${Math.min(el.scrollHeight, 140)}px`;
+  }, [input]);
+
   return (
-    <main className="mx-auto max-w-6xl px-4 pb-16 pt-8">
-      <header className="mb-6 flex flex-wrap items-end justify-between gap-3">
+    <main className="mx-auto max-w-6xl px-4 pb-16 pt-6">
+      <header className="mb-5 flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">MALTO · Track D</p>
           <h1 className="text-3xl font-semibold tracking-tight">🍜 Chọn quán cho nhóm</h1>
-          <p className="text-sm text-muted">Mỗi người một yêu cầu: ăn chay, dị ứng, muốn ăn gì, ngân sách. AI chọn quán, code kiểm an toàn.</p>
         </div>
         <div className="rounded-full border border-line bg-panel px-3 py-1 text-xs text-muted">
           model: <b className="font-semibold text-ink">{model?.model ?? "…"}</b>
@@ -359,57 +487,91 @@ export default function App() {
         </p>
       )}
 
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,1.45fr)_minmax(0,1fr)]">
-        <section className="rounded-2xl border border-line bg-panel p-5">
-          <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted">Yêu cầu của nhóm</h2>
-          <textarea
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) submit();
-            }}
-            rows={4}
-            placeholder="Ví dụ: nhóm 4 người, Lan ăn chay, Hùng dị ứng tôm, ai cũng muốn ăn bún, mỗi người tầm 50k, gần trường thôi"
-            className="w-full resize-y rounded-lg border border-line bg-bg p-3 text-[15px] outline-none focus:border-accent focus:ring-2 focus:ring-accent/30"
-          />
-          <div className="mb-4 mt-2 flex flex-wrap gap-1.5">
-            {EXAMPLES.map(([name, t]) => (
-              <button
-                key={name}
-                type="button"
-                onClick={() => setText(t)}
-                className="rounded-full border border-line bg-soft px-3 py-1 text-xs hover:border-accent"
-              >
-                {name}
-              </button>
-            ))}
-          </div>
-          <div className="flex items-center gap-3">
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+        {/* Khung chat */}
+        <section className="flex h-[min(80vh,780px)] min-h-[520px] flex-col overflow-hidden rounded-2xl border border-line bg-panel">
+          <div className="flex items-center justify-between gap-2 border-b border-line px-4 py-3">
+            <div className="flex items-center gap-2">
+              <Avatar />
+              <div>
+                <p className="text-sm font-semibold leading-tight">Trợ lý chọn quán</p>
+                <p className="text-xs text-muted">{loading ? "đang trả lời…" : "Chỉ gợi ý từ danh sách quán có sẵn"}</p>
+              </div>
+            </div>
             <button
-              onClick={submit}
-              disabled={loading || !text.trim()}
-              className="rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-accent-ink disabled:cursor-not-allowed disabled:opacity-50"
+              type="button"
+              onClick={reset}
+              disabled={loading || msgs.length === 0}
+              className="rounded-lg border border-line px-3 py-1.5 text-xs hover:border-accent disabled:opacity-40"
             >
-              {loading ? "Đang tìm…" : "Tìm quán"}
+              ＋ Cuộc trò chuyện mới
             </button>
-            <span className="text-xs text-muted">⌘/Ctrl + Enter</span>
           </div>
 
-          {error && <p className="mt-5 whitespace-pre-wrap rounded-lg bg-bad/10 px-4 py-3 text-sm text-bad">Lỗi: {error}</p>}
-          {data && <Result data={data} />}
-          {!data && !error && <p className="mt-5 text-sm text-muted">Kết quả sẽ hiện ở đây.</p>}
+          <div className="flex-1 space-y-4 overflow-y-auto bg-bg/40 px-4 py-5">
+            <Welcome onPick={send} disabled={loading} />
+            {msgs.map((m) =>
+              m.role === "user" ? (
+                <UserBubble key={m.id} m={m} />
+              ) : (
+                <BotBubble key={m.id} m={m} selected={shown?.id === m.id} onSelect={() => setSelected(m.id)} />
+              ),
+            )}
+            {loading && <Typing />}
+            <div ref={endRef} />
+          </div>
+
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              send(input);
+            }}
+            className="border-t border-line p-3"
+          >
+            {waitingAnswer && !loading && (
+              <p className="mb-2 text-xs text-muted">↩ Trả lời câu hỏi của trợ lý, mình sẽ ghép với yêu cầu trước.</p>
+            )}
+            <div className="flex items-end gap-2 rounded-xl border border-line bg-bg px-3 py-2 focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/25">
+              <textarea
+                ref={inputRef}
+                value={input}
+                rows={1}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
+                    e.preventDefault();
+                    send(input);
+                  }
+                }}
+                placeholder={waitingAnswer ? "Trả lời trợ lý…" : "Nhắn yêu cầu của nhóm… (Enter để gửi, Shift+Enter xuống dòng)"}
+                className="max-h-[140px] flex-1 resize-none bg-transparent py-1 text-[15px] outline-none placeholder:text-muted"
+              />
+              <button
+                type="submit"
+                disabled={loading || !input.trim()}
+                aria-label="Gửi"
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-accent text-accent-ink disabled:opacity-40"
+              >
+                ➤
+              </button>
+            </div>
+          </form>
         </section>
 
-        <section className="rounded-2xl border border-line bg-panel p-5">
-          <h2 className="mb-4 text-xs font-semibold uppercase tracking-wider text-muted">Luồng xử lý</h2>
-          <Pipeline data={data} />
-          {data && (
+        {/* Luồng xử lý của tin đang chọn */}
+        <section className="rounded-2xl border border-line bg-panel p-5 lg:sticky lg:top-4 lg:self-start">
+          <h2 className="mb-1 text-xs font-semibold uppercase tracking-wider text-muted">Luồng xử lý</h2>
+          <p className="mb-4 truncate text-xs text-muted" title={shown?.sent}>
+            {shown?.sent ? `Cho tin: “${shown.sent.replace(/\n/g, " · ")}”` : "Gửi một tin để xem AI và code xử lý thế nào."}
+          </p>
+          <Pipeline data={shown?.data ?? null} />
+          {shown?.data && (
             <>
               <p className="mt-4 text-xs text-muted">
-                Gọi model {data.thong_ke.model_calls} lần · công cụ {data.thong_ke.tool_calls} lần · token vào{" "}
-                {data.thong_ke.tokens_in} / ra {data.thong_ke.tokens_out}
+                Gọi model {shown.data.thong_ke.model_calls} lần · công cụ {shown.data.thong_ke.tool_calls} lần · token vào{" "}
+                {shown.data.thong_ke.tokens_in} / ra {shown.data.thong_ke.tokens_out}
               </p>
-              <Trace buoc={data.cac_buoc} />
+              <Trace buoc={shown.data.cac_buoc} />
             </>
           )}
         </section>
@@ -423,7 +585,7 @@ export default function App() {
         <p className="mb-4 text-xs text-muted">
           Quán dựng giả, tên dựng, không phải quán thật · ảnh minh hoạ do AI tạo · món không rõ thành phần bị coi là không an toàn.
         </p>
-        <DataPanel data={quan} chosenId={data?.ket_qua?.loai === "goi_y" ? data.ket_qua.quan?.id : undefined} />
+        <DataPanel data={quan} chosenId={lastPick} />
       </section>
     </main>
   );
