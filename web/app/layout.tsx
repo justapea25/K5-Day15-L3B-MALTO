@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import Nav from "./nav";
 
 export const metadata: Metadata = {
   title: "Chọn quán cho nhóm · MALTO",
@@ -9,7 +10,12 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="vi" className="h-full antialiased">
-      <body className="min-h-full">{children}</body>
+      <body className="min-h-full">
+        <main className="mx-auto max-w-6xl px-4 pb-16 pt-6">
+          <Nav />
+          {children}
+        </main>
+      </body>
     </html>
   );
 }
