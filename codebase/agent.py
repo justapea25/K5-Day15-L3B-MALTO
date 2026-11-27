@@ -88,7 +88,9 @@ ASK_BASIC = ("Bạn cho mình biết thêm: nhóm mấy người, mỗi người
 ALLERGY_WORDS = re.compile(r"d[iị]\s*[uứ]ng|allerg", re.I)
 READABLE = {"hai_san": "hải sản", "dau_phong": "đậu phộng", "sua": "sữa", "trung": "trứng", "dau_nanh": "đậu nành",
             "bo": "bò", "heo": "heo", "ga": "gà", "vit": "vịt", "ca": "cá",
-            "bun": "bún", "pho": "phở", "com": "cơm", "mi": "mì", "banh_mi": "bánh mì", "lau": "lẩu"}
+            "bun": "bún", "pho": "phở", "com": "cơm", "mi": "mì", "banh_mi": "bánh mì", "lau": "lẩu",
+            "chao": "cháo", "xoi": "xôi", "sushi": "sushi", "ga_ran": "gà rán", "pizza": "pizza", "nuong": "đồ nướng",
+            "an_vat": "ăn vặt"}
 STOP = set("ăn muốn thích không đồ món cho với và hay gì được nhé thôi cũng một ít nhiều hơn".split())
 
 
