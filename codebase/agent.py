@@ -191,7 +191,9 @@ def _rank_key(o, uu_tien):
     """Thứ tự cố định: đúng món → ưu tiên người dùng → đánh giá → gần → rẻ (chênh nhỏ coi như ngang)."""
     rating = (o.get("danh_gia") or 0) - (0.3 if (o.get("so_danh_gia") or 0) < 30 else 0)
     km_b, price_b, rate_b = round(o["khoang_cach_km"] / 0.3), round(o["tong_re_nhat"] / 20000), -round(rating / 0.2)
-    prio = {"re": price_b, "gan": km_b, "danh_gia": rate_b, "sang": -len(o.get("muc_gia") or "")}.get(uu_tien, 0)
+    # người dùng nói rõ "rẻ nhất / gần nhất / đánh giá cao nhất" → so đúng giá trị, không làm tròn
+    prio = {"re": o["tong_re_nhat"], "gan": o["khoang_cach_km"], "danh_gia": -rating,
+            "sang": -len(o.get("muc_gia") or "")}.get(uu_tien, 0)
     return (-o["dung_mon"], prio, rate_b, km_b, price_b)
 
 

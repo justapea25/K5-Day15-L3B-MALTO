@@ -55,6 +55,17 @@ RULES = {
     "B18": dict(kind="khong_co"),
     "B19": dict(kind="goi_y", who={"Lan": "chay"}),
     "B20": dict(kind="goi_y", only="Bún Cá Bà Tư"),
+    # B21–B30: câu hỏi người dùng (thêm 28/11)
+    "B21": dict(kind=("goi_y", "khong_co"), mon_has="bún chả"),
+    "B22": dict(kind="goi_y", all_loai="pho"),
+    "B23": dict(kind="goi_y", all_loai="bun", first_price=51000),
+    "B24": dict(kind=("goi_y", "khong_co"), max_total=90000, not_loai=["lau"]),
+    "B25": dict(kind="goi_y", all_loai="com", max_item=50000),
+    "B26": dict(kind=("goi_y", "khong_co"), km=0.5, mon_has="cơm tấm"),
+    "B27": dict(kind="goi_y", first_km=0.5, first_has_loai="pho"),
+    "B28": dict(kind=("khong_co", "hoi_lai")),
+    "B29": dict(kind=("goi_y", "hoi_lai"), must_num=[65000, 95000, 51000, 85000]),
+    "B30": dict(kind="khong_co", must=["ngân sách"]),
 }
 
 
@@ -146,6 +157,10 @@ def grade(cid, out):
         for w in rule.get("goi_y_must", []):
             if w.lower() not in low:
                 errs.append("[xu_ly_dung_tinh_huong] thiếu câu có '%s'" % w)
+    for x in rule.get("must_num", []):  # số tiền phải xuất hiện (65.000đ / 65k / 65 nghìn)
+        k = x // 1000
+        if not re.search(r"(?<![\d.])(%d\.000|%dk|%d nghìn)" % (k, k, k), low):
+            errs.append("[khong_bia_so_lieu] thiếu giá đúng theo data %s" % "{:,}đ".format(x).replace(",", "."))
     for w in rule.get("must_not", []):
         if w.lower() in low:
             errs.append("[dung_rang_buoc_cung] có '%s'" % w)
@@ -186,6 +201,20 @@ def grade(cid, out):
                     errs.append("[dung_rang_buoc_cung] quán %d: món của %s không chay" % (n, who))
                 elif cond.startswith("loai=") and d["loai"] != cond[5:]:
                     errs.append("[dung_rang_buoc_cung] quán %d: món của %s không phải %s" % (n, who, cond[5:]))
+            if "mon_has" in rule and any(rule["mon_has"] not in d["ten"].lower() for _, d in dishes):
+                errs.append("[dung_rang_buoc_cung] quán %d có món không phải %s" % (n, rule["mon_has"]))
+            if "not_loai" in rule and any(d["loai"] in rule["not_loai"] for _, d in dishes):
+                errs.append("[dung_rang_buoc_cung] quán %d có món loại %s" % (n, "/".join(rule["not_loai"])))
+            if "max_item" in rule and any(d["gia"] > rule["max_item"] for _, d in dishes):
+                errs.append("[dung_rang_buoc_cung] quán %d có món > %d" % (n, rule["max_item"]))
+            if "max_total" in rule and o["tong"] and o["tong"] > rule["max_total"]:
+                errs.append("[dung_rang_buoc_cung] quán %d tổng > %d" % (n, rule["max_total"]))
+            if n == 1 and "first_price" in rule and not any(d["gia"] == rule["first_price"] for _, d in dishes):
+                errs.append("[dung_rang_buoc_cung] quán xếp 1 không có món giá %d (rẻ nhất trong data)" % rule["first_price"])
+            if n == 1 and "first_km" in rule and q["khoang_cach_km"] > rule["first_km"]:
+                errs.append("[dung_rang_buoc_cung] quán xếp 1 cách %.1f km, gần nhất là %s km" % (q["khoang_cach_km"], rule["first_km"]))
+            if n == 1 and "first_has_loai" in rule and not any(d["loai"] == rule["first_has_loai"] for _, d in dishes):
+                errs.append("[dung_rang_buoc_cung] quán xếp 1 không có món %s" % rule["first_has_loai"])
             if "only" in rule and o["ten"] != rule["only"]:
                 errs.append("[dung_rang_buoc_cung] quán %d không phải %s" % (n, rule["only"]))
             if n == 1 and "first" in rule and o["ten"] != rule["first"]:
