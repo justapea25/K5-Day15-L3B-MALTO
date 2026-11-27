@@ -277,30 +277,45 @@ function UserBubble({ m }: { m: Msg }) {
   );
 }
 
-function Welcome({ onPick, disabled }: { onPick: (t: string) => void; disabled: boolean }) {
-  return (
-    <div className="flex items-start gap-2">
-      <Avatar />
-      <div className="max-w-[85%] rounded-2xl rounded-tl-md border border-line bg-panel px-4 py-3">
-        <p className="text-[15px] leading-relaxed">
-          Chào bạn 👋 Nhóm mỗi người một ý? Mình chọn <b>một quán</b> hợp cả nhóm và <b>món cho từng người</b>. Cứ kể tự nhiên: mỗi người muốn ăn gì,
-          không ăn gì, ngân sách bao nhiêu, đi xa được bao nhiêu, ăn lúc mấy giờ.
+const EX_ICON = ["🍜", "🌱", "💸", "🤔", "🛡️", "⛔"];
+
+function Welcome({ onPick, disabled, empty }: { onPick: (t: string) => void; disabled: boolean; empty: boolean }) {
+  if (!empty) {
+    return (
+      <div className="flex items-start gap-2">
+        <Avatar />
+        <p className="rounded-2xl rounded-tl-md border border-line bg-panel px-4 py-3 text-[15px]">
+          Chào bạn 👋 Kể yêu cầu của cả nhóm, mình chọn một quán hợp tất cả.
         </p>
-        <p className="mt-2 text-xs text-muted">Thử một câu mẫu:</p>
-        <div className="mt-1.5 flex flex-wrap gap-1.5">
-          {EXAMPLES.map(([name, t]) => (
-            <button
-              key={name}
-              type="button"
-              disabled={disabled}
-              onClick={() => onPick(t)}
-              title={t}
-              className="rounded-full border border-line bg-soft px-3 py-1 text-xs hover:border-accent disabled:opacity-50"
-            >
-              {name}
-            </button>
-          ))}
-        </div>
+      </div>
+    );
+  }
+  return (
+    <div className="mx-auto flex max-w-2xl flex-col items-center py-6 text-center">
+      <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-accent to-accent/60 text-3xl shadow-lg shadow-accent/20">
+        🍜
+      </div>
+      <h2 className="mt-4 text-2xl font-bold tracking-tight">Nhóm mỗi người một ý?</h2>
+      <p className="mt-2 max-w-md text-[15px] leading-relaxed text-muted">
+        Kể tự nhiên: ai muốn ăn gì, không ăn gì, ngân sách, đi xa được bao nhiêu. Mình chọn <b className="text-ink">một quán</b> hợp cả nhóm và{" "}
+        <b className="text-ink">món cho từng người</b>.
+      </p>
+      <div className="mt-6 grid w-full gap-2.5 text-left sm:grid-cols-2">
+        {EXAMPLES.map(([name, t], i) => (
+          <button
+            key={name}
+            type="button"
+            disabled={disabled}
+            onClick={() => onPick(t)}
+            className="group flex gap-3 rounded-xl border border-line bg-panel p-3 text-left transition hover:-translate-y-0.5 hover:border-accent/60 hover:shadow-md disabled:opacity-50"
+          >
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-soft text-lg group-hover:bg-accent/15">{EX_ICON[i]}</span>
+            <span className="min-w-0">
+              <span className="block text-sm font-semibold">{name}</span>
+              <span className="line-clamp-2 text-xs leading-snug text-muted">{t}</span>
+            </span>
+          </button>
+        ))}
       </div>
     </div>
   );
@@ -422,7 +437,7 @@ export default function App() {
           </div>
 
           <div className="flex-1 space-y-4 overflow-y-auto bg-bg/40 px-4 py-5">
-            <Welcome onPick={send} disabled={loading} />
+            <Welcome onPick={send} disabled={loading} empty={msgs.length === 0} />
             {msgs.map((m) =>
               m.role === "user" ? (
                 <UserBubble key={m.id} m={m} />

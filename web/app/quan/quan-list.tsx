@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { READ, vnd } from "../lib";
 import type { DuLieu, Mon, Quan } from "../types";
@@ -17,6 +18,12 @@ function Tags({ m }: { m: Mon }) {
   );
 }
 
+// Ảnh bìa minh hoạ theo loại quán (AI tạo, web/public/img/loai) — không phải ảnh quán thật
+// quán chay: không dùng ảnh (ảnh có sẵn đều có thịt) → biểu tượng
+const COVER: [RegExp, string][] = [[/chay/i, ""], [/^bếp/i, "com"], [/phở/i, "pho"], [/bún/i, "bun"], [/cơm/i, "com"], [/bánh mì/i, "banh_mi"], [/lẩu/i, "lau"]];
+const coverOf = (q: Quan) => COVER.find(([re]) => re.test(q.ten) || re.test(q.am_thuc))?.[1] || undefined;
+const iconOf = (q: Quan) => (/chay/i.test(q.am_thuc) ? "🌱" : /mì|miến/i.test(q.am_thuc) ? "🍜" : "🍽️");
+
 function QuanCard({ q, active, chosen, onClick }: { q: Quan; active: boolean; chosen: boolean; onClick: () => void }) {
   const veg = q.mon.filter((m) => m.chay === true).length;
   return (
@@ -24,10 +31,19 @@ function QuanCard({ q, active, chosen, onClick }: { q: Quan; active: boolean; ch
       type="button"
       onClick={onClick}
       aria-pressed={active}
-      className={`rounded-xl border bg-panel p-3 text-left transition ${
+      className={`group overflow-hidden rounded-xl border bg-panel text-left transition hover:-translate-y-0.5 hover:shadow-md ${
         active ? "border-accent ring-2 ring-accent/30" : "border-line hover:border-accent/60"
       }`}
     >
+      <div className="relative h-24 overflow-hidden bg-soft">
+        {coverOf(q) ? (
+          <Image src={`/img/loai/${coverOf(q)}.webp`} alt="" fill sizes="(min-width: 1024px) 360px, 50vw" className="object-cover transition duration-300 group-hover:scale-105" />
+        ) : (
+          <span className="flex h-full items-center justify-center bg-gradient-to-br from-ok/20 to-soft text-4xl">{iconOf(q)}</span>
+        )}
+        <span className="absolute inset-0 bg-gradient-to-t from-black/35 to-transparent" />
+      </div>
+      <div className="p-3">
       <div className="flex items-start justify-between gap-2">
         <p className="line-clamp-2 font-semibold leading-snug">{q.ten}</p>
         {chosen && <span className="shrink-0 rounded-full bg-ok px-2 py-0.5 text-[10px] font-semibold text-white">Đang gợi ý</span>}
@@ -39,6 +55,7 @@ function QuanCard({ q, active, chosen, onClick }: { q: Quan; active: boolean; ch
         {veg > 0 && <span className="rounded bg-ok/15 px-1.5 text-[11px] font-medium text-ok">🌱 {veg} món chay</span>}
         {q.freeship && <span className="rounded bg-accent/15 px-1.5 text-[11px] text-accent">freeship</span>}
         {q.gio_mo && <span className="rounded bg-soft px-1.5 text-[11px] text-muted">🕒 {q.gio_mo}</span>}
+      </div>
       </div>
     </button>
   );
@@ -87,7 +104,7 @@ export default function QuanList() {
         className="mb-3 w-full rounded-lg border border-line bg-bg px-3 py-2 text-sm outline-none focus:border-accent"
       />
       <p className="mb-3 text-xs text-muted">{list.length} quán</p>
-      <div className="grid max-h-[520px] gap-3 overflow-y-auto pr-1 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {list.map((q) => (
           <QuanCard key={q.id} q={q} active={open === q.id} chosen={chosenId === q.id} onClick={() => setOpen(open === q.id ? null : q.id)} />
         ))}
