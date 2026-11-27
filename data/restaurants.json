@@ -1,0 +1,58 @@
+{
+  "_ghi_chu": "synthetic — dữ liệu quán DỰNG GIẢ, tên dựng, không phải quán thật. Bản mẫu 6 quán để luồng chạy được; Thu mở rộng lên 15–30 quán và ghi cách dựng vào data/DATA_CARD.md. Giá VND. chay: true/false/null (null = không rõ). di_ung: danh sách mã chất gây dị ứng, null = quán không ghi thành phần. thit: loại thịt trong món, null = không rõ.",
+  "ma_di_ung": ["hai_san", "dau_phong", "sua", "trung", "gluten", "dau_nanh"],
+  "ma_thit": ["bo", "heo", "ga", "vit", "ca", "hai_san"],
+  "ma_loai": ["bun", "pho", "com", "mi", "banh_mi", "lau", "khac"],
+  "quan": [
+    {
+      "id": "Q01", "ten": "Bún Cô Ba", "khu_vuc": "cau_giay", "khoang_cach_km": 0.8, "phi_ship": 15000,
+      "mon": [
+        {"id": "Q01-1", "ten": "Bún bò đặc biệt", "gia": 50000, "loai": "bun", "mo_ta": "bún bò, chả cua, giò heo", "chay": false, "di_ung": ["hai_san"], "thit": ["bo", "heo", "hai_san"]},
+        {"id": "Q01-2", "ten": "Bún riêu", "gia": 40000, "loai": "bun", "mo_ta": "riêu cua, đậu phụ, cà chua", "chay": false, "di_ung": ["hai_san", "dau_nanh"], "thit": ["hai_san"]},
+        {"id": "Q01-3", "ten": "Bún chả", "gia": 45000, "loai": "bun", "mo_ta": "chả nướng, nước mắm chua ngọt", "chay": false, "di_ung": [], "thit": ["heo"]},
+        {"id": "Q01-4", "ten": "Bún nấm chay", "gia": 40000, "loai": "bun", "mo_ta": "nước dùng rau củ, nấm, đậu phụ", "chay": true, "di_ung": ["dau_nanh"], "thit": []}
+      ]
+    },
+    {
+      "id": "Q02", "ten": "Cơm Nhà 36", "khu_vuc": "cau_giay", "khoang_cach_km": 1.2, "phi_ship": 10000,
+      "mon": [
+        {"id": "Q02-1", "ten": "Cơm gà xối mỡ", "gia": 45000, "loai": "com", "mo_ta": "gà chiên giòn", "chay": false, "di_ung": ["gluten"], "thit": ["ga"]},
+        {"id": "Q02-2", "ten": "Cơm sườn", "gia": 45000, "loai": "com", "mo_ta": "sườn nướng, trứng ốp", "chay": false, "di_ung": ["trung"], "thit": ["heo"]},
+        {"id": "Q02-3", "ten": "Cơm rang dưa bò", "gia": 50000, "loai": "com", "mo_ta": "", "chay": false, "di_ung": null, "thit": ["bo"]},
+        {"id": "Q02-4", "ten": "Cơm đậu sốt cà", "gia": 35000, "loai": "com", "mo_ta": "đậu phụ sốt cà chua", "chay": null, "di_ung": null, "thit": null}
+      ]
+    },
+    {
+      "id": "Q03", "ten": "Chay Tâm An", "khu_vuc": "cau_giay", "khoang_cach_km": 2.5, "phi_ship": 20000,
+      "mon": [
+        {"id": "Q03-1", "ten": "Cơm chay thập cẩm", "gia": 45000, "loai": "com", "mo_ta": "rau củ, đậu, nấm, chả chay", "chay": true, "di_ung": ["dau_nanh", "gluten"], "thit": []},
+        {"id": "Q03-2", "ten": "Bún chay Huế", "gia": 40000, "loai": "bun", "mo_ta": "sả, nấm, đậu phụ", "chay": true, "di_ung": ["dau_nanh"], "thit": []},
+        {"id": "Q03-3", "ten": "Phở chay", "gia": 45000, "loai": "pho", "mo_ta": "nước dùng rau củ", "chay": true, "di_ung": [], "thit": []},
+        {"id": "Q03-4", "ten": "Gỏi cuốn chay sốt đậu phộng", "gia": 30000, "loai": "khac", "mo_ta": "cuốn rau, chấm sốt đậu phộng", "chay": true, "di_ung": ["dau_phong"], "thit": []}
+      ]
+    },
+    {
+      "id": "Q04", "ten": "Phở Bếp Nhà", "khu_vuc": "cau_giay", "khoang_cach_km": 1.5, "phi_ship": 15000,
+      "mon": [
+        {"id": "Q04-1", "ten": "Phở bò tái", "gia": 55000, "loai": "pho", "mo_ta": "bò tái, hành", "chay": false, "di_ung": [], "thit": ["bo"]},
+        {"id": "Q04-2", "ten": "Phở gà", "gia": 50000, "loai": "pho", "mo_ta": "gà ta xé", "chay": false, "di_ung": [], "thit": ["ga"]},
+        {"id": "Q04-3", "ten": "Bún bò Nam Bộ", "gia": 55000, "loai": "bun", "mo_ta": "bò xào, lạc rang", "chay": false, "di_ung": ["dau_phong"], "thit": ["bo"]}
+      ]
+    },
+    {
+      "id": "Q05", "ten": "Lẩu Biển Xanh", "khu_vuc": "cau_giay", "khoang_cach_km": 3.8, "phi_ship": 30000,
+      "mon": [
+        {"id": "Q05-1", "ten": "Lẩu hải sản (suất 1 người)", "gia": 120000, "loai": "lau", "mo_ta": "tôm, mực, nghêu", "chay": false, "di_ung": ["hai_san"], "thit": ["hai_san"]},
+        {"id": "Q05-2", "ten": "Lẩu nấm (suất 1 người)", "gia": 100000, "loai": "lau", "mo_ta": "nấm các loại", "chay": null, "di_ung": null, "thit": null}
+      ]
+    },
+    {
+      "id": "Q06", "ten": "Bánh Mì Góc Phố", "khu_vuc": "cau_giay", "khoang_cach_km": 0.5, "phi_ship": 5000,
+      "mon": [
+        {"id": "Q06-1", "ten": "Bánh mì pate thịt", "gia": 25000, "loai": "banh_mi", "mo_ta": "pate, chả, thịt nguội", "chay": false, "di_ung": ["gluten"], "thit": ["heo"]},
+        {"id": "Q06-2", "ten": "Bánh mì trứng", "gia": 20000, "loai": "banh_mi", "mo_ta": "trứng ốp, dưa góp", "chay": false, "di_ung": ["gluten", "trung"], "thit": []},
+        {"id": "Q06-3", "ten": "Bánh mì chay", "gia": 20000, "loai": "banh_mi", "mo_ta": "đậu phụ, nấm", "chay": true, "di_ung": ["gluten", "dau_nanh"], "thit": []}
+      ]
+    }
+  ]
+}

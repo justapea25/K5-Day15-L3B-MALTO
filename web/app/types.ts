@@ -1,0 +1,43 @@
+// Kiểu dữ liệu khớp với codebase/web.py và ket_qua trong codebase/agent.py.
+
+export type Loai = "goi_y" | "hoi_lai" | "khong_co" | "tu_choi";
+
+export type KetQua = {
+  loai: Loai;
+  che_do_gia?: boolean;
+  quan?: { id: string; ten: string; khoang_cach_km: number };
+  mon?: { nguoi: string; mon_id: string; mon: string; gia: number; loai: string }[];
+  phi_ship?: number;
+  tong_tien?: number;
+  ngan_sach?: number | null;
+  ly_do?: string;
+  luu_y?: string;
+  ai_bi_thay?: boolean;
+  goi_y_noi?: string[];
+};
+
+export type Buoc = { loai: "model" | "tool" | "note"; ten: string; chi_tiet?: string; loi?: string; t?: number };
+
+export type ThongKe = { model_calls: number; tool_calls: number; tokens_in: number; tokens_out: number; models: string[] };
+
+export type AnswerResponse = {
+  output: string;
+  ket_qua: KetQua | null;
+  thong_ke: ThongKe;
+  cac_buoc: Buoc[];
+};
+
+export type Mon = {
+  id: string;
+  ten: string;
+  gia: number;
+  loai: string;
+  mo_ta: string;
+  chay: boolean | null;
+  di_ung: string[] | null;
+  thit: string[] | null;
+};
+
+export type Quan = { id: string; ten: string; khoang_cach_km: number; phi_ship: number; mon: Mon[] };
+
+export type DuLieu = { _ghi_chu: string; quan: Quan[] };
