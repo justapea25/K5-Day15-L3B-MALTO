@@ -79,7 +79,7 @@ def search_restaurants(max_distance_km=None, name=None, at_time=None) -> list:
     """search_restaurants — tìm quán trong dữ liệu.
     Input: max_distance_km (km tối đa, None = không giới hạn) · name (tên quán người dùng nhắc, None = mọi quán)
            · at_time ("HH:MM", None = không lọc giờ).
-    Output: danh sách {"id", "ten", "khoang_cach_km", "danh_gia", "gio_mo", "mo_cua"} — mo_cua True/False/None (không rõ).
+    Output: danh sách {"id", "ten", "khoang_cach_km", "danh_gia", "so_danh_gia", "gio_mo", "mo_cua"} — mo_cua True/False/None (không rõ).
             Quán chắc chắn đóng cửa lúc at_time bị loại. Không có quán nào thì [].
     Tác động ra ngoài: không (chỉ đọc)."""
     out = []
@@ -92,7 +92,7 @@ def search_restaurants(max_distance_km=None, name=None, at_time=None) -> list:
         if is_open is False:
             continue
         out.append({"id": q["id"], "ten": q["ten"], "khoang_cach_km": q["khoang_cach_km"],
-                    "danh_gia": q.get("danh_gia"), "gio_mo": q.get("gio_mo"), "mo_cua": is_open})
+                    "danh_gia": q.get("danh_gia"), "so_danh_gia": q.get("so_danh_gia"), "gio_mo": q.get("gio_mo"), "mo_cua": is_open})
     return out
 
 
