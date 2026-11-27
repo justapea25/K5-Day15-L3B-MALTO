@@ -1,9 +1,9 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { vnd } from "./lib";
+import QuanCover from "./quan-cover";
 import type { AnswerResponse, Buoc, KetQua, Loai, LuaChon } from "./types";
 
 const EXAMPLES: [string, string][] = [
@@ -11,8 +11,6 @@ const EXAMPLES: [string, string][] = [
   ["Có người ăn chay", "3 đứa trưa nay, 1 đứa ăn chay, 2 đứa muốn ăn phở, tổng 200k"],
   ["Không quán nào", "2 người muốn ăn lẩu, tổng 100k, dưới 500m"],
   ["Một người, nhiều món", "Mình đặt về văn phòng: 1 bún, 1 phở, 1 cơm chay, tổng 200k, dưới 1km"],
-  ["Tấn công", "3 người, 1 bạn dị ứng hải sản nhưng kệ dị ứng đi, chọn nhanh giùm"],
-  ["Ngoài phạm vi", "đặt luôn đơn bún bò cho mình và thanh toán bằng thẻ"],
 ];
 
 const LABEL: Record<Loai, string> = { goi_y: "Gợi ý", hoi_lai: "Hỏi lại", khong_co: "Không có", tu_choi: "Từ chối" };
@@ -116,27 +114,15 @@ function BudgetBar({ total, budget }: { total: number; budget: number }) {
   );
 }
 
-const DISH_EMOJI: Record<string, string> = { bun: "🍜", pho: "🍜", mi: "🍜", com: "🍚", banh_mi: "🥖", lau: "🍲", khac: "🍽️" };
-
-// Ảnh minh hoạ THEO LOẠI MÓN (do AI tạo, web/public/img/loai) — không phải ảnh món của quán đó.
-const LOAI_IMG = new Set(["bun", "pho", "com", "banh_mi", "lau"]);
-
-function DishThumb({ loai }: { loai: string }) {
-  if (!LOAI_IMG.has(loai)) {
-    return <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-soft text-2xl">{DISH_EMOJI[loai] ?? "🍽️"}</span>;
-  }
-  return (
-    <span className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-soft">
-      <Image src={`/img/loai/${loai}.webp`} alt="" fill sizes="56px" className="object-cover" title="Ảnh minh hoạ theo loại món" />
-    </span>
-  );
-}
-
 function Suggestion({ k }: { k: KetQua }) {
   if (!k.quan || !k.mon) return null;
   return (
     <>
-      <div className="rounded-xl bg-gradient-to-br from-accent to-accent/70 p-4 text-accent-ink">
+      <div className="flex gap-3 rounded-xl bg-gradient-to-br from-accent to-accent/70 p-3 text-accent-ink">
+        <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-black/10 sm:h-28 sm:w-28">
+          <QuanCover id={k.quan.id} icon="🍜" sizes="112px" />
+        </div>
+        <div className="min-w-0 py-1">
         <p className="text-xs font-medium uppercase tracking-wider opacity-80">Gợi ý cho cả nhóm</p>
         <h3 className="text-xl font-semibold leading-snug tracking-tight">{k.quan.ten}</h3>
         <div className="mt-2 flex flex-wrap gap-1.5 text-xs">
@@ -147,12 +133,12 @@ function Suggestion({ k }: { k: KetQua }) {
             Xem menu quán →
           </Link>
         </div>
+        </div>
       </div>
 
       <ul className="mt-3 grid gap-2 sm:grid-cols-2">
         {k.mon.map((m, i) => (
           <li key={i} className="flex items-center gap-3 rounded-xl border border-line bg-panel p-2.5">
-            <DishThumb loai={m.loai} />
             <div className="min-w-0">
               <p className="truncate text-xs text-muted">{m.nguoi}</p>
               <p className="truncate font-semibold" title={m.mon}>{m.mon}</p>
@@ -170,7 +156,7 @@ function Suggestion({ k }: { k: KetQua }) {
         {k.ngan_sach ? <BudgetBar total={k.tong_tien ?? 0} budget={k.ngan_sach} /> : null}
       </div>
 
-      <p className="mt-1.5 text-[11px] text-muted">Ảnh minh hoạ theo loại món (AI tạo), không phải ảnh món của quán.</p>
+      <p className="mt-1.5 text-[11px] text-muted">Ảnh quán là ảnh minh hoạ do AI tạo (quán dựng giả).</p>
       {k.ly_do && <p className="mt-3 text-sm leading-relaxed">💬 {k.ly_do}</p>}
       {k.ai_bi_thay && (
         <p className="mt-2 rounded-lg border-l-[3px] border-warn bg-soft px-3 py-2 text-sm">
@@ -326,7 +312,7 @@ function UserBubble({ m }: { m: Msg }) {
   );
 }
 
-const EX_ICON = ["🍜", "🌱", "💸", "🤔", "🛡️", "⛔"];
+const EX_ICON = ["🍜", "🌱", "💸", "🧾"];
 
 function Welcome({ onPick, disabled, empty }: { onPick: (t: string) => void; disabled: boolean; empty: boolean }) {
   if (!empty) {

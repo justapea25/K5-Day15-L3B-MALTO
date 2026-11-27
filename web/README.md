@@ -22,7 +22,7 @@ npm run dev                           # mở http://localhost:3010
 
 ## Ảnh
 
-`public/img/loai/<loại món>.webp` là **ảnh minh hoạ theo loại món** (bún, phở, cơm, bánh mì, lẩu) do AI tạo, không phải ảnh món của quán nào. Loại chưa có ảnh thì hiện emoji. Giao diện ghi rõ "ảnh minh hoạ".
+`public/img/quan/<mã quán>.webp` là **ảnh minh hoạ mặt tiền quán** do AI tạo (gpt-image-2, `scripts/gen_quan_images.py`), vì quán trong data là dựng giả. Q21–Q40 đang dùng tạm ảnh của quán cùng kiểu. Giao diện ghi rõ "ảnh minh hoạ".
 
 ## File
 
