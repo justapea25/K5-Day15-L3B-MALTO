@@ -1,55 +1,57 @@
 # Đào data — cách đếm và kết quả
 
-> Nhóm MALTO · Track D. Script đếm: `evidence/count.py` (chạy ở thư mục gốc repo: `python evidence/count.py`, người khác chạy lại ra cùng số).
-> Repo chỉ chứa số đã tổng hợp — không chép lại nguyên file data. File thô `grab_raw*.json` không commit.
+> Nguồn: menu quán trên GrabFood do nhóm (Thu) crawl. Script: `evidence/count_menu.py`. Data crawl **không commit** (quán thật); repo chỉ giữ số đã tổng hợp và vài ví dụ ngắn.
 
 ## 1. Cách đếm — viết TRƯỚC khi chạy
 
-- Data dùng: `data/grab/restaurants.csv`, `menu_items.csv`, `promotions.csv` — lấy từ GrabFood VN (`food.grab.com/vn/vi/restaurants`), vị trí giao hàng đặt tại VinUni, **một lần lấy ngày 2026-11-27** (giá và khuyến mãi đổi theo ngày). Lấy từ nội dung hiển thị công khai trên trang, **không cần đăng nhập**, không dùng API nội bộ; danh sách quán lấy từ trang danh sách của Grab với vị trí VinUni, sau đó mở từng quán để đọc menu và khuyến mãi, có nghỉ giữa các lần.
-- Đếm gì: các đặc điểm của quán và món mà một nhóm bạn có nhiều yêu cầu khác nhau (ngân sách, ăn chay / dị ứng, giao nhanh, đang mở cửa, có ưu đãi) sẽ vướng khi tự chọn quán trên Grab · trên tập nào: quán và món trong 3 CSV · lọc gì: bỏ 12 quán `no_menu` (không có menu, bỏ khỏi tìm kiếm).
-- **Mẫu số là gì:** với số đếm theo quán: **246 quán có menu** (258 − 12 `no_menu`). Với số đếm theo món: **11.322 món** (toàn bộ `menu_items.csv`).
-- Script / công thức: `python evidence/count.py`. Kiểm tra chất lượng data: `python data/grab/check_data.py` (không có lỗi nặng).
+- **Data dùng:** `restaurants.csv` (258 quán) + `menu_items.csv` (11.322 món) crawl từ trang quán công khai trên GrabFood, khu vực quanh Vinhomes Ocean Park (Gia Lâm, Hà Nội). Ngày crawl: 2026-11-27 (một lần, ~08:40 sáng) · cách lấy danh sách quán: trang danh sách GrabFood VN với vị trí giao hàng đặt tại VinUni, rồi mở từng quán đọc menu và khuyến mãi · không cần đăng nhập, không dùng API nội bộ
+- **Đếm gì · trên tập nào · lọc gì:** đếm trên **mọi món, mọi quán đã crawl**, không lọc:
+  1. Món không có mô tả (cột `description` rỗng) — mẫu số: **mọi món** (11.322)
+  2. Món có chữ "dị ứng" trong mô tả — mẫu số: **mọi món** (11.322)
+  3. Quán có ≥1 món mà tên hoặc nhóm món có chữ "chay" — mẫu số: **mọi quán** (258)
+- **Script:** `python evidence/count_menu.py <thư mục CSV>`
 
 ## 2. Đọc trước, đếm sau
 
-Đã đọc dòng đầu của 3 CSV và từ điển cột (`data/SCHEMA.md`). Các *kiểu* thấy được trước khi định nghĩa thứ cần đếm:
-- Hơn một nửa quán hiện "Closed" lúc lấy, nên không có lịch mở cửa — người chọn quán dễ chọn trúng quán đang đóng.
-- Nhiều món không có mô tả nên không biết thành phần; ai ăn chay / dị ứng không tự kiểm được bằng cách đọc menu.
-- Ưu đãi nằm rải rác ở từng quán (giảm món, giảm theo đơn, giảm phí giao), mỗi loại có điều kiện riêng; chỉ một số ít quán có.
+Đã xem vài dòng đầu mỗi file, tên các cột và thống kê nhanh từng cột (Thu đã đọc thêm và bổ sung ở mục 3 và 4). Các kiểu thấy được:
+- Menu dài (trung bình 11.322 / 258 ≈ 44 món / quán), lẫn nhiều đồ uống, topping, món thêm.
+- Nhiều món chỉ có tên, không có mô tả; món có mô tả thì thường ghi phần ăn kèm, ít khi ghi đủ nguyên liệu.
+- Không quán nào có trường "chay" hay "thành phần" riêng; muốn biết phải đọc tên món.
+- Hơn nửa số quán không ghi giờ mở cửa lúc crawl.
 
 ## 3. Kết quả
 
 | Đếm gì | x / N | % | Ghi chú |
 |---|---|---|---|
-| Quán hiện "Closed" lúc lấy | 136/246 | 55% | không có lịch mở cửa (`closed_at_crawl`); lấy lúc ~08:40 sáng, nên tỉ lệ này chịu ảnh hưởng giờ lấy |
-| Quán giao nhanh (ETA ≤ 20 phút) | 11/246 | 4% | ETA là ước tính của Grab lúc lấy |
-| Quán có giảm phí giao | 16/246 | 7% | |
-| Quán có voucher còn hạn | 86/246 | 35% | 100 khuyến mãi, 0 cái hết hạn |
-| Quán mức giá cheap / mid / high | 53 / 140 / 53 trên 246 | 22% / 57% / 22% | theo giá món trung vị: < 40k / 40–80k / > 80k |
-| Quán đồ uống | 73/246 | 30% | còn lại là quán ăn |
-| Quán không đoán được khu vực | 116/246 | 47% | `area` đoán từ tên quán |
-| Món không có mô tả (không biết thành phần) | 4.589/11.322 | 41% | xử lý như không an toàn khi lọc chay / dị ứng |
-| Món qua được bộ lọc chay | 2.882/11.322 | 25% | có mô tả và không chứa từ khoá thịt/cá trong `MEAT_KEYWORDS`; xấp xỉ, bộ lọc trong công cụ so khớp có dấu nên có thể lệch vài điểm % |
-| Quán có ≥ 1 món qua bộ lọc chay | 198/246 | 80% | nhưng chỉ 25% món, nên chọn được quán chưa chắc chọn được món |
-| Món đang giảm giá | 299/11.322 | 3% | |
-| Món không có giá dùng được | 21/11.322 | 0,2% | thường là món chọn size |
+| Món không có mô tả | 4.589 / 11.322 | 40,5% | Người chọn quán không biết món đó có gì |
+| Mô tả có chữ "dị ứng" | 0 / 11.322 | 0% | Không quán nào cảnh báo dị ứng trên menu |
+| Quán có ≥1 món ghi chữ "chay" | 19 / 258 | 7,4% | Người ăn chay phải lục nhiều quán mới thấy |
 
-## 4. ≥5 ví dụ cụ thể (mã quán, tên như hiển thị công khai trên Grab)
+Số bổ sung đếm bằng `evidence/count.py` (mẫu số: 246 quán có menu, bỏ 12 quán không có menu; hoặc 11.322 món):
 
-Chạy `python evidence/count.py` rồi lấy các dòng thật trong `restaurants.csv` / `menu_items.csv` — mỗi ví dụ ghi `restaurant_id` hoặc `item_id`:
+| Đếm gì | x / N | % | Ghi chú |
+|---|---|---|---|
+| Quán hiện "Closed" lúc crawl | 136 / 246 | 55% | không có lịch mở cửa; crawl lúc ~08:40 sáng nên tỉ lệ chịu ảnh hưởng giờ lấy |
+| Quán có voucher còn hạn | 86 / 246 | 35% | 100 khuyến mãi, 0 cái hết hạn |
+| Quán có giảm phí giao | 16 / 246 | 7% | |
+| Quán giao nhanh (ETA ≤ 20 phút) | 11 / 246 | 4% | ETA ước tính của Grab |
+| Món qua được bộ lọc chay | 2.882 / 11.322 | 25% | có mô tả và không chứa từ khoá thịt/cá; xấp xỉ |
 
-1. Quán `closed_at_crawl`: Cơm Tấm Mẹ Sóc - Cơm Văn Phòng Vinhomes Ocean Park (`5-C4LUTRNKVCJCV6`)
-2. Món không có mô tả, không biết thành phần: "Bò Húc Thái" (`5-C763NRAVVYBCR2#034`)
-3. Món không có giá vì phải chọn size: "Phê Latte (hạt Colom, Ethi) - Đá" — `price_flag = missing`
-4. Voucher kèm điều kiện đơn tối thiểu: "Giảm 1.000₫ phí giao hàng khi đặt đơn tối thiểu 99.000₫" (`5-C763NRAVVYBCR2`, `promotions.csv`)
-5. Quán `no_menu` bị loại khỏi tìm kiếm: `5-C8CFJKBHUAJEFE`, `5-C8KZVUA3SAABBA` (Arirang và LA'NUT - Pizza & Steak - Ocean Park 1 nằm trong 12 quán này)
+## 4. ≥5 ví dụ cụ thể (tên món trên menu công khai, không có mô tả)
+
+1. Combo Cơm Thố Xá Xíu + Coca
+2. Combo Cơm Thố Gà + Xá Xíu + Coca
+3. Cocacola Lon
+4. Combo Cơm Thố Đặc Biệt + Coca
+5. Cam Ép Splash
+
+*(5 món đầu theo thứ tự file trong số món không có mô tả, in ra từ script.)*
+
+Ví dụ món chính, không mô tả: "Bò Húc Thái" (`5-C763NRAVVYBCR2#034`) · quán đang Closed lúc crawl: Cơm Tấm Mẹ Sóc - Cơm Văn Phòng Vinhomes Ocean Park (`5-C4LUTRNKVCJCV6`) · món không có giá vì phải chọn size: "Phê Latte (hạt Colom, Ethi) - Đá".
 
 ## 5. Giới hạn của data
 
-Data cho biết quán và món **có gì**, không cho biết **vì sao** nhóm bạn khó chọn, hay họ có thực sự gặp các vướng mắc trên. Thiếu / lệch:
-- Một lần lấy (2026-11-27, buổi sáng): trạng thái mở cửa, giá, khuyến mãi chỉ đúng thời điểm đó.
-- Chỉ quán Grab giao tới VinUni (xa nhất 4.6 km), lệch về khu Vinhomes Ocean Park.
-- Không có phí giao thực tế, không có dữ liệu hành vi đặt món của nhóm nhiều người.
-- Không phải bằng chứng pain: pain phải kiểm bằng khảo sát / phỏng vấn của Linh.
-
-→ Kiểm lại bằng: khảo sát ≥ 20 người và phỏng vấn 3 người (`evidence/survey/`, `evidence/interviews/`, Linh phụ trách).
+- Chỉ một khu vực, một app, tại một thời điểm. Không đại diện cho mọi quán.
+- Đếm "chay" theo chữ trong tên món, nên có thể sót món chay không ghi chữ "chay".
+- Data cho biết **menu ghi gì**, không cho biết người chọn quán có thật sự gặp khó hay không, và **vì sao**.
+- → Kiểm lại bằng khảo sát ≥20 người và phỏng vấn 3 người hay đứng ra chọn quán cho nhóm (Linh): chọn quán mất bao lâu, có ai không ăn được món của quán đã chọn không.

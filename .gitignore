@@ -43,3 +43,4 @@ data/grab/dataset.json
 data/grab/grab_raw*.json
 data/grab/DATA_CARD_grab.md
 data/grab/*.csv
+/playground
