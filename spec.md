@@ -40,18 +40,26 @@ Data BTC cấp đã dùng (nếu có — không commit nguyên file): không dù
   3. Không gợi ý quán hay món ngoài dữ liệu `data/restaurants.json`.
   4. Không tư vấn dinh dưỡng, không chẩn đoán dị ứng, không khẳng định món "an toàn" với người dị ứng.
   5. Không tính phí ship (data không có), không theo dõi quán mở hay đóng theo thời gian thực.
-  6. Backend xử lý mỗi tin độc lập. Bot hỏi lại thì giao diện ghép câu bổ sung với yêu cầu trước rồi gửi lại.
-- **Sơ đồ** (khớp `codebase/agent.py`, B1–B6):
+  6. Không lưu hội thoại phía máy chủ: giao diện gửi kèm 8 lượt gần nhất để agent hiểu câu bổ sung / sửa đơn.
+- **Sơ đồ** (khớp `codebase/agent_loop.py`; luồng 4 bước cũ ở `codebase/agent.py` giữ làm dự phòng):
 
 ```mermaid
 flowchart TD
-    U[Tin nhắn: đơn có nhiều yêu cầu] --> S1["① AI HIỂU ĐƠN → danh sách suất<br/>(món cụ thể, loại món, sở thích, chay, dị ứng, ngân sách riêng)<br/>+ ngân sách, km, giờ, ưu tiên rẻ / gần / đánh giá / sang"]
-    S1 -->|ngoài phạm vi| R1[Từ chối, nói rõ phạm vi]
-    S1 -->|không có gì để chọn / dị ứng không rõ| R2[Hỏi lại 1 câu]
-    S1 --> S2["② CODE LỌC AN TOÀN + XẾP SƠ BỘ<br/>món không quán nào bán → hỏi lại · quán mà MỌI suất có món an toàn, trong ngân sách / km / giờ<br/>gắn nhãn đúng món / gần giống · xếp: đúng món → ưu tiên người dùng → đánh giá → gần → rẻ"]
-    S2 -->|không quán nào đủ cả đơn| R3["Nói thẳng + gợi ý đặt ở nhiều quán / nới yêu cầu mềm<br/>(không bao giờ nới chay, dị ứng) + hỏi lại"]
-    S2 -->|≤8 quán| S3["③ AI CHỌN & XẾP HẠNG ≤3 quán<br/>giữ thứ tự code, chỉ đổi khi lý do là sở thích; ưu tiên đúng món; lý do + đánh đổi"]
-    S3 --> S4["④ CODE KIỂM & TRẢ LỜI<br/>check_constraints từng quán (sai → loại); giá, tổng từ data<br/>không có đúng món → câu hỏi lại cụ thể ở đầu câu trả lời; data không kiểm được → nói rõ"]
+    U["Tin nhắn mới + lịch sử hội thoại (≤8 lượt)"] --> M{"AI đọc cả hội thoại → ĐƠN HIỆN TẠI<br/>tự chọn bước tiếp (≤6 vòng)"}
+    M -->|tra cứu| T1["tim_quan (code)<br/>lọc an toàn: chay, dị ứng, kiêng, ngân sách, km, giờ<br/>nhãn đúng món / gần giống · xếp: đúng món → ưu tiên → đánh giá → gần → rẻ<br/>không có → món thiếu, cách nới, đặt nhiều quán"]
+    M -->|tra cứu| T2["xem_menu (code)"]
+    T1 --> M
+    T2 --> M
+    M -->|đủ, có quán| D["de_xuat ≤3 quán + lời nhắn + câu hỏi"]
+    M -->|thiếu thông tin / món không có / cần người chọn| H["hoi_lai"]
+    M -->|không quán nào đủ| K["bao_khong_co + cách nới<br/>(không bao giờ nới chay, dị ứng)"]
+    M -->|đặt hộ, thanh toán, sức khoẻ| R["tu_choi"]
+    D --> C["CODE KIỂM: check_constraints từng quán · còn nhắc dị ứng / chay mà đơn thiếu → từ chối<br/>sai → trả lỗi cho AI sửa · giá, tổng in từ data"]
+    C -->|lỗi| M
+    C -->|đạt| O[Trả lời]
+    H --> O
+    K --> O
+    R --> O
 ```
 
 **Quy tắc xử lý (3 nhóm):**
@@ -59,9 +67,10 @@ flowchart TD
 - 🧠 **AI quyết:** hiểu sở thích ("ăn nhẹ", "món nóng", "không cay", "sang") · chọn món đúng món trước, gần giống sau · xếp hạng theo ưu tiên người dùng nói ra.
 - 💬 **Khi nào bot nói gì:** không nói số người → mặc định 1 suất · không có gì để chọn / dị ứng không rõ → hỏi lại · ngoài phạm vi → từ chối · món không quán nào bán → hỏi đổi món · không có đúng món trong quán đáp ứng được đơn → gợi ý gần giống **và hỏi** (đặt riêng món đó ở quán khác hay nhận món gần giống) · không quán nào đủ cả đơn → gợi ý đặt nhiều quán **và hỏi** · data không ghi (hành, độ cay) → nói rõ, nhắc hỏi quán · tin cụt (không ngân sách, không km) → vẫn gợi ý, kèm 1 câu hỏi thêm.
 
-- **Hình dạng:** [x] workflow cố định · [ ] một agent · [ ] nhiều agent
-  - **Lý do:** các bước luôn đi cùng một thứ tự (đọc yêu cầu → lọc → chọn → kiểm), không cần AI tự quyết bước tiếp theo. Workflow cố định giúp đặt được chỗ chặn bằng code **trước và sau** mỗi lần gọi AI.
-  - **Vì sao không chọn agent tự lặp:** 60 quán và khoảng 1.100 món. Nếu để agent tự gọi công cụ thì dễ tự nhẩm tiền, bỏ sót người trong nhóm, hoặc gọi công cụ lan man rất tốn token. Lọc bằng code trước rồi mới đưa khoảng 6 quán cho AI thì rẻ hơn và kiểm soát được. Nhiều agent lại càng không cần: không có hai vai nào thật sự khác nhau.
+- **Hình dạng:** [ ] workflow cố định · [x] một agent · [ ] nhiều agent
+  - **Lý do:** người dùng nhắn cụt, sửa đơn giữa chừng ("không phải hàu", "đổi sang phở"), hoặc nhờ gợi ý. Bản workflow cố định (lượt 1) phải viết một nhánh `if` cho mỗi tình huống "khi nào hỏi lại / khi nào gợi ý", trả lời máy móc và không hiểu được câu sửa đơn. Agent tự chọn bước: AI quyết hỏi lại hay tìm, tìm lại khi bỏ món thiếu, rồi chọn công cụ trả lời.
+  - **Giữ an toàn thế nào:** công cụ tra cứu chỉ trả quán / món đã lọc bằng code; công cụ trả lời `de_xuat` bị code kiểm (`check_constraints`) trước khi tới người dùng, sai thì trả lỗi cho AI sửa; tối đa 6 vòng, quá thì quay về luồng 4 bước. Nhiều agent vẫn không cần: không có hai vai nào thật sự khác nhau.
+  - **Đánh đổi:** 1–3 lần gọi model mỗi lượt (bản cũ cố định 2), ~3–9k token, kết quả dao động hơn → mỗi lần sửa prompt chạy lại bộ câu thử.
 - **AI dựa vào đâu** (khớp `codebase/tools.py`):
 
   | Công cụ | Input | Output | Tác động ra ngoài? |
@@ -70,7 +79,7 @@ flowchart TD
   | `get_menu` | `restaurant_id` | món chính `{id, ten, gia, loai, nhom, mo_ta, chay, co_nhac, thit, ghi_thanh_phan}` | Không, chỉ đọc |
   | `check_constraints` | phương án `{quan_id, chon[]}` · ràng buộc từng người · ngân sách · km · giờ | `{ok, vi_pham[], tong_tien}` | Không, chỉ tính. **Chạy bằng code, không phải AI** |
 
-  Hai lần gọi AI: **B1** đọc tin nhắn lộn xộn của cả nhóm thành ràng buộc từng người, **B4** hiểu sở thích bằng lời ("đồ có nước", "không muốn đồ chiên"), khớp vào tên món thật và **xếp hạng tối đa 3 quán** kèm điểm đánh đổi, vì ngoài đời cả nhóm thường so vài quán rồi mới chốt. Đây là việc bộ lọc của app không làm được.
+  AI gọi các công cụ trên qua 2 công cụ gộp `tim_quan` (search + get_menu + lọc + xếp) và `xem_menu`, rồi kết thúc lượt bằng `de_xuat` / `hoi_lai` / `bao_khong_co` / `tu_choi`. Bản cũ có hai lần gọi AI: **B1** đọc tin nhắn lộn xộn của cả nhóm thành ràng buộc từng người, **B4** hiểu sở thích bằng lời ("đồ có nước", "không muốn đồ chiên"), khớp vào tên món thật và **xếp hạng tối đa 3 quán** kèm điểm đánh đổi, vì ngoài đời cả nhóm thường so vài quán rồi mới chốt. Đây là việc bộ lọc của app không làm được.
 - **Mức tự động:** [x] AI gợi ý, người quyết · [ ] AI tự làm khi chắc, chuyển người khi không · [ ] AI tự làm
   - **Lý do:** AI chỉ gợi ý, người dùng tự quyết có đặt quán đó không. Gợi ý không hợp thì người dùng chọn lại, sửa rẻ. Những chỗ sai đắt (vượt ngân sách, quán không có thật, món có chất người đó dị ứng) do code chặn.
 - **Chỗ chặn rủi ro:** rủi ro lớn nhất là **gợi ý quán hoặc món không có thật, hoặc sai số tiền**, khiến cả nhóm đặt theo một thông tin sai. Phụ hơn là gợi ý món có chất người đó dị ứng. Chặn ở 4 lớp:
@@ -151,6 +160,7 @@ flowchart TD
 | Thời điểm | Đổi gì | Vì sao (trỏ về câu thử / lỗi / bằng chứng nào) |
 |---|---|---|
 | 28/11 sáng (sau lượt 1) | Luồng 6 bước → 4 bước; thêm món cụ thể (nhãn đúng món / gần giống), ngân sách riêng từng suất, ưu tiên rẻ / gần / đánh giá / sang, thứ tự xếp hạng cố định; bot hỏi lại khi không có đúng món hoặc không quán nào đủ cả đơn; gọi model tự thử lại khi quá 40 giây | Thử 30 câu thực tế ngoài bộ câu thử (`playground/`): "bún chả" ra bún chay, "rẻ nhất / gần nhất" không đúng, ngân sách riêng bị cộng gộp, "ốc với hàu" ra tokbokki, tin cụt bị hỏi lại số người. 20 câu thử chính thức vẫn 20/20 (lượt nháp) |
+| 28/11 chiều | Đổi hình dạng workflow 4 bước → một agent tự chọn bước (`codebase/agent_loop.py`, OpenAI Responses API có công cụ); giao diện gửi kèm lịch sử hội thoại; AI tự viết lời nhắn, code vẫn kiểm phương án và in giá từ data; luồng 4 bước giữ làm dự phòng (`AGENT_MODE=workflow`) | Thử tay trên giao diện: "ốc với hàu" → "không phải mình muốn hàu cơ mà" → "ốc thì sao" bot vẫn hỏi về hàu; "alo" → "có gợi ý gì hem" bot hỏi lặp một câu. 20 câu thử chính thức: 20/20 ở 2 lượt nháp liên tiếp (chưa phải lượt chính thức) |
 
 **Sau CP4 (đến 23:59 Thứ Bảy 28/11)** (sửa theo góp ý — không sửa chuẩn "đạt", câu thử, số bằng chứng, kết quả các lượt đã chạy)
 

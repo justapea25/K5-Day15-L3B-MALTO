@@ -8,7 +8,7 @@ API:
   GET  /             trang giao diện (codebase/static/index.html)
   GET  /api/info     model đang dùng (không trả API key)
   GET  /api/quan     dữ liệu quán (data/restaurants.json) để hiển thị
-  POST /api/answer   {"text": "..."} → {"output", "ket_qua", "thong_ke", "cac_buoc"}
+  POST /api/answer   {"text": "...", "history": [{"role": "user"|"bot", "text": "..."}]} → {"output", "ket_qua", "thong_ke", "cac_buoc"}
 Server một luồng (tracing của khung dùng biến toàn cục), chỉ nghe trên 127.0.0.1. Không ghi trace ra file.
 """
 import argparse
@@ -26,7 +26,7 @@ from agent import answer  # noqa: E402
 from tools import _data  # noqa: E402
 
 STATIC = os.path.join(HERE, "static")
-MAX_BODY = 20_000
+MAX_BODY = 60_000
 
 
 def _steps(events):
@@ -74,14 +74,16 @@ class Handler(BaseHTTPRequestHandler):
         if length <= 0 or length > MAX_BODY:
             return self._send(400, {"loi": "nội dung rỗng hoặc quá dài"})
         try:
-            text = str(json.loads(self.rfile.read(length).decode("utf-8")).get("text") or "").strip()
+            body = json.loads(self.rfile.read(length).decode("utf-8"))
+            text = str(body.get("text") or "").strip()
+            history = [h for h in (body.get("history") or []) if isinstance(h, dict)][-8:]
         except (ValueError, AttributeError):
             return self._send(400, {"loi": "body phải là JSON {\"text\": \"...\"}"})
         if not text:
             return self._send(400, {"loi": "chưa nhập yêu cầu"})
         tracing.begin("web")
         try:
-            result = answer(text)
+            result = answer(text, history)
         except Exception as e:  # lỗi gọi model: báo lên giao diện, server vẫn chạy
             _, events = tracing.end()
             return self._send(500, {"loi": "%s: %s" % (type(e).__name__, e), "cac_buoc": _steps(events)})

@@ -21,8 +21,10 @@ THỨ TỰ XẾP HẠNG QUÁN (sau khi đã qua điều kiện bắt buộc):
 Hợp đồng: answer(text) -> {"output": str, "ket_qua": dict}. Eval chỉ đọc "output".
 """
 import json
+import os
 import re
 
+import ai
 from ai import call_model
 from tools import search_restaurants, get_menu, check_constraints, dish_ok_for, known_codes, match_level, _data
 from tracing import note
@@ -31,6 +33,7 @@ MAX_PEOPLE = 15
 MAX_OPTIONS = 8      # số quán tối đa đưa cho model ở ③
 MAX_DISHES = 12      # số món tối đa mỗi suất mỗi quán đưa cho model
 TOP_K = 3            # số quán tối đa trả cho người dùng
+AGENT_MODE = (os.environ.get("AGENT_MODE") or "loop").strip().lower()  # loop = agent tự chọn bước · workflow = 4 bước
 
 CODES = known_codes()
 
@@ -55,6 +58,10 @@ Trả về DUY NHẤT một object JSON, không thêm chữ nào khác:
 }
 Mã loại món: %(loai)s. Mã dị ứng: %(di_ung)s. Mã thịt: %(thit)s.
 Quy tắc:
+- Có LỊCH SỬ hội thoại → đọc cả cuộc trò chuyện và xuất ra ĐƠN HIỆN TẠI sau khi áp dụng mọi chỉnh sửa.
+  Tin mới có thể là: bổ sung ("thêm 1 người", "tầm 200k") → gộp vào đơn cũ; sửa / phủ định ("không phải hàu",
+  "thôi bỏ hàu", "đổi sang phở") → bỏ / thay đúng phần đó; trả lời câu hỏi của trợ lý ("ốc thì sao", "ok đặt riêng")
+  → hiểu theo câu hỏi đó; yêu cầu mới hoàn toàn (không liên quan đơn cũ) → bỏ đơn cũ.
 - KHÔNG nói số người / số suất → mặc định 1 suất ("thèm bún chả quá" = 1 suất bún chả). KHÔNG hỏi lại vì thiếu số người.
 - Một người gọi nhiều món ("1 bún chả, 1 phở bò") → mỗi món một suất, "ten" = "Suất n · <món>".
 - "mon": tên món cụ thể người dùng nói. Đồng thời điền muon_loai theo loại của món đó:
@@ -392,9 +399,33 @@ FAKE_PARSE = {"y_dinh": "chon_quan", "so_nguoi": 3, "ngan_sach_tong": 200000, "k
 FAKE_BANNER = "[chế độ giả — chưa nối model, dùng yêu cầu mẫu: 3 người, 1 người muốn bún, 200k, trong 2km]"
 
 
-def answer(text: str) -> dict:
-    # ① [AI] hiểu đơn
-    reply = call_model(SYSTEM_PARSE, "Tin nhắn người dùng:\n<<<\n%s\n>>>" % text)
+def _with_history(text, history):
+    """Ghép lịch sử hội thoại (cũ → mới) + tin mới cho bước ①. history: [{"role": "user"|"bot", "text": str}]."""
+    if not history:
+        return "Tin nhắn người dùng:\n<<<\n%s\n>>>" % text
+    turns = ["%s: %s" % ("Người dùng" if h.get("role") == "user" else "Trợ lý", str(h.get("text") or "")[:500])
+             for h in history[-8:]]
+    return ("LỊCH SỬ hội thoại (cũ → mới):\n%s\n\nTIN NHẮN MỚI của người dùng:\n<<<\n%s\n>>>\n"
+            "Xuất ra ĐƠN HIỆN TẠI sau khi áp dụng tin mới." % ("\n".join(turns), text))
+
+
+def answer(text: str, history=None) -> dict:
+    """history (tuỳ chọn, giao diện chat gửi): các lượt trước để hiểu bổ sung / sửa đơn. Eval gọi answer(text)."""
+    if AGENT_MODE == "loop" and ai.MODEL_PROVIDER == "openai":
+        import agent_loop  # agent tự chọn bước (thử nghiệm) — xem codebase/agent_loop.py
+        try:
+            out = agent_loop.answer(text, history)
+        except Exception as e:  # lỗi gọi model có công cụ → về luồng 4 bước
+            note("agent tự chọn bước lỗi (%s: %s) → dùng luồng 4 bước" % (type(e).__name__, str(e)[:120]))
+            out = None
+        if out:
+            return out
+        note("→ dùng luồng 4 bước")
+    # ① [AI] hiểu đơn (cả lịch sử nếu có)
+    reply = call_model(SYSTEM_PARSE, _with_history(text, history))
+    if history:
+        note("① có lịch sử %d lượt" % len(history))
+        text = " ".join(str(h.get("text") or "") for h in history if h.get("role") == "user") + " " + text
     if reply["model"] == "fake":
         note("chế độ giả: dùng ràng buộc mẫu FAKE_PARSE, bỏ qua input")
         out = answer_from(dict(FAKE_PARSE), text="")
