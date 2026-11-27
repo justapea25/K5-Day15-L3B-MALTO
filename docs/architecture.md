@@ -30,7 +30,7 @@ Một người nhắn yêu cầu của cả nhóm bằng lời thường. Hệ t
                   │  fake)       │   └─────┬──────────────┘
                   └──────────────┘         │ đọc
                                    ┌───────▼───────────────┐
-                                   │ data/restaurants.json │  (dựng giả)
+                                   │ data/restaurants.json │  (dựng giả, seed)
                                    └───────────────────────┘
        codebase/tracing.py (khung): ghi mọi lần gọi model / công cụ / note → trace, token
 ```
@@ -108,7 +108,7 @@ Chưa có `MODEL_PROVIDER` trong `.env` thì `ai.py` trả câu giả. Khi đó 
 - Thẻ kết quả: quán, món từng người, tổng tiền, lý do, cảnh báo.
 - **Luồng 6 bước có tô màu:** xanh = đã chạy, đỏ = dừng ở đây, cam = B5 đã thay phương án của AI. Thêm trace chi tiết, dùng để thuyết minh khi demo.
 - Lưới quán có ảnh bìa, bấm vào quán để xem menu kèm ảnh món và nhãn "🌱 chay", "⚠ thành phần không rõ". Quán đang được gợi ý có nhãn riêng.
-- Ảnh quán và món là **ảnh minh hoạ do AI tạo** (`scripts/gen_images.py`, model `gpt-image-1-mini`), lưu ở `web/public/img/`. Không phải ảnh thật, giao diện ghi rõ điều này.
+- Ảnh trong `web/public/img/loai/` là **ảnh minh hoạ theo loại món** do AI tạo, không phải ảnh món của quán. Giao diện ghi rõ.
 - `/?q=…`: điền sẵn câu hỏi và chạy luôn.
 
 **Backend: `codebase/web.py`.** Server `http.server` của thư viện chuẩn, một luồng, chỉ nghe trên `127.0.0.1`. Gọi đúng `answer(text)` như CLI. Ở `/` có trang HTML dự phòng (`codebase/static/index.html`) cho máy không có Node.

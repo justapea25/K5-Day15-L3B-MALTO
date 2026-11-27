@@ -5,13 +5,12 @@ export type Loai = "goi_y" | "hoi_lai" | "khong_co" | "tu_choi";
 export type KetQua = {
   loai: Loai;
   che_do_gia?: boolean;
-  quan?: { id: string; ten: string; khoang_cach_km: number };
+  quan?: { id: string; ten: string; khoang_cach_km: number; danh_gia: number | null; gio_mo: string | null };
   mon?: { nguoi: string; mon_id: string; mon: string; gia: number; loai: string }[];
-  phi_ship?: number;
   tong_tien?: number;
   ngan_sach?: number | null;
   ly_do?: string;
-  luu_y?: string;
+  canh_bao?: string[];
   ai_bi_thay?: boolean;
   goi_y_noi?: string[];
 };
@@ -32,12 +31,24 @@ export type Mon = {
   ten: string;
   gia: number;
   loai: string;
+  nhom: string;
   mo_ta: string;
   chay: boolean | null;
-  di_ung: string[] | null;
-  thit: string[] | null;
+  co_nhac: string[];
+  thit: string[];
+  ghi_thanh_phan: boolean;
 };
 
-export type Quan = { id: string; ten: string; khoang_cach_km: number; phi_ship: number; mon: Mon[] };
+export type Quan = {
+  id: string;
+  ten: string;
+  am_thuc: string;
+  khoang_cach_km: number;
+  danh_gia: number | null;
+  gio_mo: string | null;
+  freeship: boolean;
+  khuyen_mai: string | null;
+  mon: Mon[];
+};
 
 export type DuLieu = { _ghi_chu: string; quan: Quan[] };

@@ -1,25 +1,25 @@
 > Đây là khung repo nộp bài. Điền mọi chỗ `____`, giữ nguyên tên các mục. **Mục 0 xoá đi sau khi tạo repo xong.**
 > Giờ, mốc, luật, rubric: xem `README.md`, `02-guide.md`, `03-rubric.md` trong repo đề (bộ đề BTC phát).
 
-# MALTO — Chọn quán cho nhóm có nhiều yêu cầu ăn uống
+# MALTO — Chọn quán cho nhóm mỗi người một ý
 
 **Thành viên, lớp, track:** xem [TEAMS.md](TEAMS.md). **Điền TEAMS.md đúng format**: khi chấm và đánh giá, BTC quét file này để ghép điểm cho từng người.
 
-**Lát cắt:** một người chọn quán cho nhóm 2–6 người, mỗi người một yêu cầu (ăn chay, dị ứng, kiêng thịt, muốn ăn gì, ngân sách, khoảng cách) · AI chọn một quán và một món cho từng người trong các phương án code đã lọc là an toàn · người đó nhận quán, món, tổng tiền, lý do, hoặc nghe nói thẳng "không có quán nào thoả". Thiết kế: [spec.md §4](spec.md) · kiến trúc code: [docs/architecture.md](docs/architecture.md).
+**Lát cắt:** một người chọn quán cho nhóm 2–6 người mỗi người một ý (muốn ăn gì, không ăn gì, ngân sách, khoảng cách, giờ ăn) · AI hiểu sở thích từng người và chọn một quán + một món cho từng người trong các phương án code đã lọc · người đó nhận quán, món, tổng tiền, lý do, hoặc nghe nói thẳng "không có quán nào hợp". Thiết kế: [spec.md §4](spec.md) · kiến trúc code: [docs/architecture.md](docs/architecture.md).
 
 ### Chạy bản chạy thử của nhóm
 
 | Việc | Lệnh |
 |---|---|
 | Nối model | `cp .env.example .env` rồi điền `MODEL_PROVIDER` (`openai` / `anthropic` / `ollama`), `MODEL_NAME`, `API_KEY`. Chưa điền thì chạy **chế độ giả** |
-| Chạy dòng lệnh | `python run.py`, gõ ví dụ: `Nhóm 3 người: Lan ăn chay, Hùng dị ứng tôm, Mai ăn gì cũng được. Tổng 200k.` |
+| Chạy dòng lệnh | `python run.py`, gõ ví dụ: `Nhóm 4 người: Lan muốn ăn gì có nước, Hùng thèm cơm, Mai không ăn đồ chiên, Nam ăn gì cũng được. Mỗi người tầm 70k, dưới 1km` |
 | Chạy giao diện web (Next.js, cần Node) | Cửa sổ 1: `python codebase/web.py` · cửa sổ 2: `cd web && npm install && npm run dev`, rồi mở http://localhost:3010. Chi tiết: [web/README.md](web/README.md) |
 | Giao diện dự phòng (không cần Node) | `python codebase/web.py`, rồi mở http://localhost:8010 |
 | Chạy bộ câu thử | `python run.py eval` |
 
-- **Dữ liệu quán là dựng giả** (`data/restaurants.json`, tên dựng, không phải quán thật). Mô tả: [data/DATA_CARD.md](data/DATA_CARD.md).
+- **Dữ liệu quán là dựng giả có seed** (`data/restaurants.json`, 40 quán, tên dựng, sinh bằng `scripts/gen_synthetic.py`) theo số liệu đo từ menu GrabFood thật. Mô tả: [data/DATA_CARD.md](data/DATA_CARD.md).
 - **Chế độ giả** (chưa nối model): bỏ qua tin nhắn, dùng một yêu cầu mẫu cố định để luồng chạy hết. Output ghi rõ `[chế độ giả …]`.
-- Khoảng cách là số cố định trong data, không tính theo vị trí thật.
+- Khoảng cách là số sinh giả, không tính theo vị trí thật. Không có phí ship.
 
 *Lát cắt = phần nhỏ nhất làm xong được trong hackathon: một người dùng · một việc · một quyết định AI · một kết quả.*
 
