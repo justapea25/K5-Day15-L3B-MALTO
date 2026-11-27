@@ -45,7 +45,7 @@ function QuanCard({ q, active, chosen, onClick }: { q: Quan; active: boolean; ch
         {chosen && <span className="shrink-0 rounded-full bg-ok px-2 py-0.5 text-[10px] font-semibold text-white">Đang gợi ý</span>}
       </div>
       <p className="mt-1 text-xs text-muted">
-        {q.am_thuc} · {q.khoang_cach_km} km{q.danh_gia ? ` · ★ ${q.danh_gia} (${q.so_danh_gia ?? 0} đánh giá)` : ""} · {q.mon.length} món
+        {q.am_thuc} · {q.khoang_cach_km} km{q.muc_gia ? ` · ${q.muc_gia}` : ""}{q.danh_gia ? ` · ★ ${q.danh_gia} (${q.so_danh_gia ?? 0} đánh giá)` : ""} · {q.mon.length} món
       </p>
       <div className="mt-2 flex flex-wrap gap-1">
         {veg > 0 && <span className="rounded bg-ok/15 px-1.5 text-[11px] font-medium text-ok">🌱 {veg} món chay</span>}

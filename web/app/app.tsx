@@ -4,14 +4,14 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { vnd } from "./lib";
 import QuanCover from "./quan-cover";
-import type { AnswerResponse, Buoc, KetQua, Loai, LuaChon } from "./types";
+import type { AnswerResponse, KetQua, Loai, LuaChon } from "./types";
 
 const EXAMPLES: [string, string][] = [
-  ["Mỗi người một ý", "Nhóm 4 người: Lan muốn ăn gì có nước, Hùng thèm cơm, Mai không ăn đồ chiên, Nam ăn gì cũng được. Mỗi người tầm 70k, dưới 1km"],
-  ["Có người ăn chay", "3 đứa trưa nay, 1 đứa ăn chay, 2 đứa muốn ăn phở, tổng 200k"],
-  ["Không quán nào", "2 người muốn ăn lẩu, tổng 100k, dưới 500m"],
-  ["Một người, nhiều món", "Mình đặt về văn phòng: 1 bún, 1 phở, 1 cơm chay, tổng 200k, dưới 1km"],
-];
+  ["Nhóm mỗi người một ý", "Nhóm 4 người: Lan muốn ăn gì có nước, Hùng thèm cơm, Mai không ăn đồ chiên, Nam ăn chay. Mỗi người tầm 70k, dưới 2km"],
+  ["Một mình, nhiều món", "Mình đặt về văn phòng: 1 bún, 1 phở, 1 cơm chay, tổng 200k, dưới 1km"],
+  ["Đồ Nhật cho 2 người", "2 người muốn ăn đồ Nhật, 1 người thích sushi, tổng 400k, đi xa được 5km"],
+  ["Ăn vặt buổi tối", "Tối nay 8h, 3 đứa muốn ăn vặt, tokbokki hoặc nem chua rán, mỗi đứa 50k"],
+]
 
 const LABEL: Record<Loai, string> = { goi_y: "Gợi ý", hoi_lai: "Hỏi lại", khong_co: "Không có", tu_choi: "Từ chối" };
 const BADGE: Record<Loai, string> = {
@@ -20,84 +20,6 @@ const BADGE: Record<Loai, string> = {
   khong_co: "bg-bad/15 text-bad",
   tu_choi: "bg-bad/15 text-bad",
 };
-// ---------- Luồng 6 bước (khớp codebase/agent.py) ----------
-
-const STEPS = [
-  { id: "B1", who: "AI", name: "Đọc yêu cầu", desc: "Tin nhắn → ràng buộc từng người" },
-  { id: "B2", who: "Code", name: "Chặn dị ứng mơ hồ", desc: "Nhắc dị ứng mà không rõ gì → hỏi lại" },
-  { id: "B3", who: "Code", name: "Lọc quán an toàn", desc: "Mọi người có món an toàn, trong ngân sách" },
-  { id: "B4", who: "AI", name: "Chọn quán + món", desc: "Chỉ trong các phương án đã lọc" },
-  { id: "B5", who: "Code", name: "Kiểm lại", desc: "check_constraints, sai thì thay" },
-  { id: "B6", who: "Code", name: "Soạn câu trả lời", desc: "Giá, tổng tiền lấy từ data" },
-] as const;
-
-type StepState = "done" | "stop" | "skip" | "warn";
-
-function stepStates(k: KetQua | null, buoc: Buoc[]): StepState[] {
-  const notes = buoc.filter((b) => b.loai === "note").map((b) => b.chi_tiet ?? "");
-  let stopAt = 5;
-  if (!k) stopAt = 0;
-  else if (k.loai === "khong_co") stopAt = 2;
-  else if (k.loai !== "goi_y") stopAt = notes.some((n) => n.startsWith("chặn")) ? 1 : 0;
-  return STEPS.map((_, i) => {
-    if (i > stopAt) return "skip";
-    if (i === 4 && k?.ai_bi_thay) return "warn";
-    return i === stopAt && k?.loai !== "goi_y" ? "stop" : "done";
-  });
-}
-
-const DOT: Record<StepState, string> = {
-  done: "bg-ok border-ok",
-  warn: "bg-warn border-warn",
-  stop: "bg-bad border-bad",
-  skip: "bg-transparent border-line",
-};
-
-function Pipeline({ data }: { data: AnswerResponse | null }) {
-  const states = data ? stepStates(data.ket_qua, data.cac_buoc) : STEPS.map(() => "skip" as StepState);
-  return (
-    <ol className="space-y-0">
-      {STEPS.map((s, i) => (
-        <li key={s.id} className="relative flex gap-3 pb-4 last:pb-0">
-          {i < STEPS.length - 1 && <span className="absolute left-[7px] top-5 h-full w-px bg-line" aria-hidden />}
-          <span className={`relative mt-1 h-[15px] w-[15px] shrink-0 rounded-full border-2 ${DOT[states[i]]}`} />
-          <div className={states[i] === "skip" ? "opacity-45" : ""}>
-            <div className="text-sm font-semibold">
-              {s.id} · {s.name}{" "}
-              <span className={`ml-1 rounded px-1.5 py-0.5 text-[11px] font-semibold ${s.who === "AI" ? "bg-accent/15 text-accent" : "bg-soft text-muted"}`}>
-                {s.who}
-              </span>
-            </div>
-            <div className="text-xs text-muted">
-              {states[i] === "warn" ? "AI chọn sai → đã thay bằng phương án code kiểm" : states[i] === "stop" ? "Dừng ở bước này" : s.desc}
-            </div>
-          </div>
-        </li>
-      ))}
-    </ol>
-  );
-}
-
-function Trace({ buoc }: { buoc: Buoc[] }) {
-  const color = { model: "text-accent", tool: "text-ok", note: "text-muted" } as const;
-  return (
-    <details className="mt-4 border-t border-line pt-3">
-      <summary className="cursor-pointer text-sm font-semibold">Trace chi tiết ({buoc.length} sự kiện)</summary>
-      <ol className="mt-2 space-y-1.5 text-xs">
-        {buoc.map((b, i) => (
-          <li key={i} className="grid grid-cols-[104px_minmax(0,1fr)] gap-2 border-b border-dashed border-line pb-1.5">
-            <span className={`font-semibold ${color[b.loai]}`}>{b.ten}</span>
-            <span className="break-words text-muted">
-              {b.chi_tiet}
-              {b.loi && <span className="text-bad"> ⚠ {b.loi}</span>}
-            </span>
-          </li>
-        ))}
-      </ol>
-    </details>
-  );
-}
-
 // ---------- Kết quả ----------
 
 function BudgetBar({ total, budget }: { total: number; budget: number }) {
@@ -123,10 +45,11 @@ function Suggestion({ k }: { k: KetQua }) {
           <QuanCover id={k.quan.id} icon="🍜" sizes="112px" />
         </div>
         <div className="min-w-0 py-1">
-        <p className="text-xs font-medium uppercase tracking-wider opacity-80">Gợi ý cho cả nhóm</p>
+        <p className="text-xs font-medium uppercase tracking-wider opacity-80">⭐ Quán hợp nhất với đơn của bạn</p>
         <h3 className="text-xl font-semibold leading-snug tracking-tight">{k.quan.ten}</h3>
         <div className="mt-2 flex flex-wrap gap-1.5 text-xs">
           <span className="rounded-full bg-black/15 px-2 py-0.5">📍 {k.quan.khoang_cach_km} km</span>
+          {k.quan.muc_gia ? <span className="rounded-full bg-black/15 px-2 py-0.5">{k.quan.muc_gia}</span> : null}
           {k.quan.danh_gia ? <span className="rounded-full bg-black/15 px-2 py-0.5">★ {k.quan.danh_gia}{k.quan.so_danh_gia ? ` (${k.quan.so_danh_gia})` : ""}</span> : null}
           <span className="rounded-full bg-black/15 px-2 py-0.5">🕒 {k.quan.gio_mo ?? "chưa rõ giờ mở"}</span>
           <Link href={`/quan?open=${k.quan.id}`} className="rounded-full bg-white/90 px-2.5 py-0.5 font-semibold text-accent hover:bg-white">
@@ -136,21 +59,28 @@ function Suggestion({ k }: { k: KetQua }) {
         </div>
       </div>
 
-      <ul className="mt-3 grid gap-2 sm:grid-cols-2">
-        {k.mon.map((m, i) => (
-          <li key={i} className="flex items-center gap-3 rounded-xl border border-line bg-panel p-2.5">
-            <div className="min-w-0">
-              <p className="truncate text-xs text-muted">{m.nguoi}</p>
-              <p className="truncate font-semibold" title={m.mon}>{m.mon}</p>
-              <p className="text-sm tabular-nums text-accent">{vnd(m.gia)}</p>
-            </div>
-          </li>
-        ))}
-      </ul>
+      <div className="mt-3 rounded-xl border border-line bg-panel">
+        <p className="flex items-center justify-between border-b border-line px-3 py-2 text-xs font-semibold text-muted">
+          <span>Yêu cầu trong đơn → món quán đáp ứng</span>
+          <span className="rounded-full bg-ok/15 px-2 py-0.5 text-ok">✓ đủ {k.mon.length}/{k.mon.length}</span>
+        </p>
+        <ul className="divide-y divide-line">
+          {k.mon.map((m, i) => (
+            <li key={i} className="flex items-center gap-3 px-3 py-2">
+              <span className="text-ok">✓</span>
+              <span className="min-w-0 flex-1">
+                <span className="block truncate text-xs text-muted">{m.nguoi}</span>
+                <span className="block truncate font-medium" title={m.mon}>{m.mon}</span>
+              </span>
+              <span className="shrink-0 text-sm font-semibold tabular-nums text-accent">{vnd(m.gia)}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
 
       <div className="mt-3 rounded-xl bg-soft px-4 py-3">
         <div className="flex items-baseline justify-between">
-          <span className="text-sm text-muted">Tổng tiền món (chưa gồm ship)</span>
+          <span className="text-sm text-muted">Tổng đơn (chưa gồm ship)</span>
           <span className="text-xl font-semibold tabular-nums">{vnd(k.tong_tien)}</span>
         </div>
         {k.ngan_sach ? <BudgetBar total={k.tong_tien ?? 0} budget={k.ngan_sach} /> : null}
@@ -177,7 +107,7 @@ function Alternatives({ options, budget }: { options: LuaChon[]; budget?: number
   if (options.length === 0) return null;
   return (
     <div className="mt-4">
-      <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted">Lựa chọn khác</p>
+      <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted">Quán khác cũng đáp ứng đơn</p>
       <div className="grid gap-2">
         {options.map((o, i) => (
           <details key={o.quan.id} className="group rounded-xl border border-line bg-panel">
@@ -192,7 +122,7 @@ function Alternatives({ options, budget }: { options: LuaChon[]; budget?: number
                   </span>
                 </span>
                 <span className="block text-xs text-muted">
-                  📍 {o.quan.khoang_cach_km} km{o.quan.danh_gia ? ` · ★ ${o.quan.danh_gia} (${o.quan.so_danh_gia ?? 0})` : ""} · {o.mon.map((m) => m.mon).join(", ")}
+                  ✓ đủ {o.mon.length}/{o.mon.length} yêu cầu · 📍 {o.quan.khoang_cach_km} km{o.quan.muc_gia ? ` · ${o.quan.muc_gia}` : ""}{o.quan.danh_gia ? ` · ★ ${o.quan.danh_gia} (${o.quan.so_danh_gia ?? 0})` : ""} · {o.mon.map((m) => m.mon).join(", ")}
                 </span>
                 {o.danh_doi && <span className="mt-1 block text-xs text-warn">↔ {o.danh_doi}</span>}
               </span>
@@ -260,7 +190,7 @@ function Typing() {
   );
 }
 
-function BotBubble({ m, selected, onSelect }: { m: Msg; selected: boolean; onSelect: () => void }) {
+function BotBubble({ m }: { m: Msg }) {
   const k = m.data?.ket_qua;
   const loai: Loai = k?.loai ?? "hoi_lai";
   const rich = k?.loai === "goi_y";
@@ -288,13 +218,7 @@ function BotBubble({ m, selected, onSelect }: { m: Msg; selected: boolean; onSel
         {m.data && (
           <div className="mt-1 flex flex-wrap items-center gap-2 pl-1 text-[11px] text-muted">
             <span className={`rounded-full px-2 py-0.5 font-semibold ${BADGE[loai]}`}>{LABEL[loai]}</span>
-            <span>
-              {m.data.thong_ke.model_calls} lần gọi AI · {m.data.thong_ke.tokens_in + m.data.thong_ke.tokens_out} token
-            </span>
             {m.merged && <span title={m.sent}>· đã ghép với yêu cầu trước</span>}
-            <button type="button" onClick={onSelect} className={`underline-offset-2 hover:underline ${selected ? "font-semibold text-accent" : ""}`}>
-              {selected ? "● đang xem luồng" : "Xem luồng xử lý"}
-            </button>
           </div>
         )}
       </div>
@@ -312,7 +236,7 @@ function UserBubble({ m }: { m: Msg }) {
   );
 }
 
-const EX_ICON = ["🍜", "🌱", "💸", "🧾"];
+const EX_ICON = ["👥", "🧾", "🍣", "🌙"];
 
 function Welcome({ onPick, disabled, empty }: { onPick: (t: string) => void; disabled: boolean; empty: boolean }) {
   if (!empty) {
@@ -330,10 +254,10 @@ function Welcome({ onPick, disabled, empty }: { onPick: (t: string) => void; dis
       <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-accent to-accent/60 text-3xl shadow-lg shadow-accent/20">
         🍜
       </div>
-      <h2 className="mt-4 text-2xl font-bold tracking-tight">Nhóm mỗi người một ý?</h2>
+      <h2 className="mt-4 text-2xl font-bold tracking-tight">Đơn có nhiều yêu cầu khác nhau?</h2>
       <p className="mt-2 max-w-md text-[15px] leading-relaxed text-muted">
-        Kể tự nhiên: ai muốn ăn gì, không ăn gì, ngân sách, đi xa được bao nhiêu. Mình chọn <b className="text-ink">một quán</b> hợp cả nhóm và{" "}
-        <b className="text-ink">món cho từng người</b>.
+        Một mình gọi nhiều món hay cả nhóm mỗi người một ý đều được. Kể tự nhiên món muốn ăn, ngân sách, khoảng cách — mình tìm{" "}
+        <b className="text-ink">quán đáp ứng đủ cả đơn</b> và gợi ý món cho từng yêu cầu.
       </p>
       <div className="mt-6 grid w-full gap-2.5 text-left sm:grid-cols-2">
         {EXAMPLES.map(([name, t], i) => (
@@ -364,14 +288,12 @@ export default function App() {
   const [msgs, setMsgs] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const [selected, setSelected] = useState<string | null>(null);
   const endRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const autoRan = useRef(false);
 
   const bots = msgs.filter((m) => m.role === "bot");
   const lastBot = bots[bots.length - 1];
-  const shown = msgs.find((m) => m.id === selected) ?? lastBot;
   const waitingAnswer = lastBot?.data?.ket_qua?.loai === "hoi_lai";
 
   async function send(raw: string) {
@@ -398,7 +320,6 @@ export default function App() {
       bot.error = `Không gọi được backend: ${e}`;
     } finally {
       setMsgs((ms) => [...ms, bot]);
-      setSelected(null);
       setLoading(false);
       inputRef.current?.focus();
     }
@@ -409,7 +330,6 @@ export default function App() {
       sessionStorage.removeItem(CHAT_KEY);
     } catch {}
     setMsgs([]);
-    setSelected(null);
     setInput("");
     inputRef.current?.focus();
   }
@@ -450,7 +370,7 @@ export default function App() {
 
   return (
     <>
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+      <div className="mx-auto max-w-3xl">
         {/* Khung chat */}
         <section className="flex h-[min(80vh,780px)] min-h-[520px] flex-col overflow-hidden rounded-2xl border border-line bg-panel">
           <div className="flex items-center justify-between gap-2 border-b border-line px-4 py-3">
@@ -477,7 +397,7 @@ export default function App() {
               m.role === "user" ? (
                 <UserBubble key={m.id} m={m} />
               ) : (
-                <BotBubble key={m.id} m={m} selected={shown?.id === m.id} onSelect={() => setSelected(m.id)} />
+                <BotBubble key={m.id} m={m} />
               ),
             )}
             {loading && <Typing />}
@@ -521,23 +441,6 @@ export default function App() {
           </form>
         </section>
 
-        {/* Luồng xử lý của tin đang chọn */}
-        <section className="rounded-2xl border border-line bg-panel p-5 lg:sticky lg:top-4 lg:self-start">
-          <h2 className="mb-1 text-xs font-semibold uppercase tracking-wider text-muted">Luồng xử lý</h2>
-          <p className="mb-4 truncate text-xs text-muted" title={shown?.sent}>
-            {shown?.sent ? `Cho tin: “${shown.sent.replace(/\n/g, " · ")}”` : "Gửi một tin để xem AI và code xử lý thế nào."}
-          </p>
-          <Pipeline data={shown?.data ?? null} />
-          {shown?.data && (
-            <>
-              <p className="mt-4 text-xs text-muted">
-                Gọi model {shown.data.thong_ke.model_calls} lần · công cụ {shown.data.thong_ke.tool_calls} lần · token vào{" "}
-                {shown.data.thong_ke.tokens_in} / ra {shown.data.thong_ke.tokens_out}
-              </p>
-              <Trace buoc={shown.data.cac_buoc} />
-            </>
-          )}
-        </section>
       </div>
 
     </>
