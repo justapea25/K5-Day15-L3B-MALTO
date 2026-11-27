@@ -1,15 +1,19 @@
 # Đào data — cách đếm và kết quả
 
-> Nguồn: menu quán trên GrabFood do nhóm (Thu) crawl. Script: `evidence/count_menu.py`. Data crawl **không commit** (quán thật); repo chỉ giữ số đã tổng hợp và vài ví dụ ngắn.
+> Nguồn: menu quán trên GrabFood do nhóm (Thu) crawl. Script: `evidence/count_menu.py` (pain chính + phần phụ), `evidence/count.py` (số bổ sung). Data crawl **không commit** (quán thật); repo chỉ giữ số đã tổng hợp và vài ví dụ ngắn.
 
 ## 1. Cách đếm — viết TRƯỚC khi chạy
 
 - **Data dùng:** `restaurants.csv` (258 quán) + `menu_items.csv` (11.322 món) crawl từ trang quán công khai trên GrabFood, khu vực quanh Vinhomes Ocean Park (Gia Lâm, Hà Nội). Ngày crawl: 2026-11-27 (một lần, ~08:40 sáng) · cách lấy danh sách quán: trang danh sách GrabFood VN với vị trí giao hàng đặt tại VinUni, rồi mở từng quán đọc menu và khuyến mãi · không cần đăng nhập, không dùng API nội bộ
-- **Đếm gì · trên tập nào · lọc gì:** đếm trên **mọi món, mọi quán đã crawl**, không lọc:
+- **Pain chính** — *người chọn quán phải tự lục nhiều quán, menu dài, mới tìm ra quán có đủ các món cả đơn cần*. Đếm trên **quán đồ ăn** (`main_type = food`, bỏ quán đồ uống), mọi dòng menu của các quán đó:
+  - A. Số món mỗi menu (trung vị, trung bình, lớn nhất) — mẫu số: **184 quán đồ ăn**
+  - B. Quán có ≥ 30 món · C. Quán có ≥ 50 món — mẫu số: **184 quán đồ ăn**
+  - *Ghi chú trung thực:* nhóm 1–3 dưới đây được định nghĩa trước lượt đếm đầu (khi trọng tâm còn là ăn chay / dị ứng); A–C được định nghĩa và đếm **bổ sung sau khi đổi trọng tâm** sang "đơn nhiều yêu cầu" (xem canvas, dòng "Đã đổi gì so với CP1").
+- **Phần phụ (ăn chay, dị ứng)** — đếm trên **mọi món, mọi quán đã crawl**, không lọc:
   1. Món không có mô tả (cột `description` rỗng) — mẫu số: **mọi món** (11.322)
   2. Món có chữ "dị ứng" trong mô tả — mẫu số: **mọi món** (11.322)
   3. Quán có ≥1 món mà tên hoặc nhóm món có chữ "chay" — mẫu số: **mọi quán** (258)
-- **Script:** `python evidence/count_menu.py <thư mục CSV>`
+- **Script:** `python evidence/count_menu.py <thư mục CSV>` (A–C và 1–3) · `python evidence/count.py <thư mục CSV>` (số bổ sung)
 
 ## 2. Đọc trước, đếm sau
 
@@ -20,6 +24,17 @@
 - Hơn nửa số quán không ghi giờ mở cửa lúc crawl.
 
 ## 3. Kết quả
+
+**Pain chính — tìm quán đủ món cho cả đơn phải tự lục rất nhiều**
+
+| Đếm gì | x / N | % | Ghi chú |
+|---|---|---|---|
+| Quán đồ ăn trong khu vực | 184 quán · 7.608 món | | phải tự xem từng quán |
+| Số món mỗi menu | trung vị **33** · trung bình 41 · nhiều nhất 200 | | lẫn món chính, đồ uống, topping |
+| Quán có ≥ 30 món | 101 / 184 | **55%** | hơn nửa số quán có menu từ 30 món trở lên |
+| Quán có ≥ 50 món | 58 / 184 | 32% | |
+
+**Phần phụ — ăn chay, dị ứng**
 
 | Đếm gì | x / N | % | Ghi chú |
 |---|---|---|---|
@@ -35,7 +50,7 @@ Số bổ sung đếm bằng `evidence/count.py` (mẫu số: 246 quán có menu
 | Quán có voucher còn hạn | 86 / 246 | 35% | 100 khuyến mãi, 0 cái hết hạn |
 | Quán có giảm phí giao | 16 / 246 | 7% | |
 | Quán giao nhanh (ETA ≤ 20 phút) | 11 / 246 | 4% | ETA ước tính của Grab |
-| Món qua được bộ lọc chay | 2.882 / 11.322 | 25% | có mô tả và không chứa từ khoá thịt/cá; xấp xỉ |
+| Món qua được bộ lọc chay | 2.882 / 11.322 | 25% | có mô tả và không chứa từ khoá thịt/cá (danh sách trong `evidence/count.py`); xấp xỉ |
 
 ## 4. ≥5 ví dụ cụ thể (tên món trên menu công khai, không có mô tả)
 
@@ -52,6 +67,7 @@ Ví dụ món chính, không mô tả: "Bò Húc Thái" (`5-C763NRAVVYBCR2#034`)
 ## 5. Giới hạn của data
 
 - Chỉ một khu vực, một app, tại một thời điểm. Không đại diện cho mọi quán.
+- Độ dài menu đếm theo số dòng món, gồm cả đồ uống và topping trong quán đồ ăn — phản ánh khối lượng phải đọc, không phải số món chính.
 - Đếm "chay" theo chữ trong tên món, nên có thể sót món chay không ghi chữ "chay".
 - Data cho biết **menu ghi gì**, không cho biết người chọn quán có thật sự gặp khó hay không, và **vì sao**.
 - → Kiểm lại bằng khảo sát ≥20 người và phỏng vấn 3 người hay đứng ra chọn quán cho nhóm (Linh): chọn quán mất bao lâu, có ai không ăn được món của quán đã chọn không.

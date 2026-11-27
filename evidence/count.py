@@ -1,13 +1,13 @@
 """Đếm số liệu cho evidence/data-mining.md.
 
-Chạy:  python evidence/count.py   (ở thư mục gốc repo; cần 3 CSV trong data/grab/)
+Chạy:  python evidence/count.py [thư mục CSV]   (mặc định data/grab/; cần restaurants.csv, menu_items.csv, promotions.csv)
 """
 import csv
 import sys
 from pathlib import Path
 
 sys.stdout.reconfigure(encoding="utf-8")
-D = Path(__file__).resolve().parent.parent / "data" / "grab"
+D = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(__file__).resolve().parent.parent / "data" / "grab"
 
 
 def load(name):
@@ -38,18 +38,25 @@ line("món không có mô tả", sum(i["has_description"] != "True" for i in ite
 line("món không có giá dùng được", sum(not i["price_vnd"] for i in items), m)
 line("món đang giảm giá", sum(bool(i["discount_pct"]) for i in items), m)
 
-# Quán đủ "lọc chay": tối thiểu 1 món có mô tả và không có từ khoá thịt/cá (xấp xỉ, xem MEAT_KEYWORDS trong codebase/tools.py)
-try:
-    sys.path.insert(0, str(D.parent.parent / "codebase"))
-    from tools import MEAT_KEYWORDS
-    def veg_ok(i):
-        t = (i["item_name"] + " " + i["description"]).lower()
-        return i["has_description"] == "True" and not any(k in t for k in MEAT_KEYWORDS)
-    line("món qua được bộ lọc chay", sum(veg_ok(i) for i in items), m, "MEAT_KEYWORDS trong tools.py")
-    by = {}
-    for i in items:
-        by.setdefault(i["restaurant_id"], []).append(veg_ok(i))
-    ok = sum(1 for r in searchable if any(by.get(r["restaurant_id"], [])))
-    line("quán có ≥1 món qua bộ lọc chay", ok, n)
-except Exception as e:
-    print("bỏ qua phần lọc chay:", e)
+# Quán đủ "lọc chay": tối thiểu 1 món có mô tả và không có từ khoá thịt/cá (xấp xỉ).
+# Danh sách từ khoá để ngay trong script (trước đây import từ codebase/tools.py bản cũ) → chạy lại được.
+MEAT_KEYWORDS = [
+    "thịt", "bò", "gà", "heo", "lợn", "vịt", "ngan", "dê", "cừu", "sườn", "ba chỉ", "ba rọi", "nạc", "giò", "chả",
+    "nem", "xúc xích", "lạp xưởng", "jambon", "patê", "gan", "lòng", "tiết", "dồi", "thăn", "bắp bò", "gầu",
+    "cá", "tôm", "mực", "cua", "ghẹ", "ốc", "hến", "nghêu", "sò", "hàu", "hải sản", "tép", "ruốc", "bạch tuộc",
+    "bít tết", "steak", "bacon", "ham", "pepperoni", "salami", "chicken", "beef", "pork", "shrimp", "sausage",
+    "salmon", "tuna", "sashimi", "kebab", "gyros", "nuggets", "nugget",
+]
+
+
+def veg_ok(i):
+    t = (i["item_name"] + " " + i["description"]).lower()
+    return i["has_description"] == "True" and not any(k in t for k in MEAT_KEYWORDS)
+
+
+line("món qua được bộ lọc chay", sum(veg_ok(i) for i in items), m, "MEAT_KEYWORDS trong script này")
+by = {}
+for i in items:
+    by.setdefault(i["restaurant_id"], []).append(veg_ok(i))
+ok = sum(1 for r in searchable if any(by.get(r["restaurant_id"], [])))
+line("quán có ≥1 món qua bộ lọc chay", ok, n)
