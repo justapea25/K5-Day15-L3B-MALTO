@@ -68,22 +68,30 @@ def call_model(system: str, user: str) -> dict:
             "tokens_in": int(r["tokens_in"]), "tokens_out": int(r["tokens_out"])}
 
 
-def post_json(url, headers, body, timeout=60):
-    """Gửi POST JSON, trả về JSON phản hồi. Chỉ dùng thư viện chuẩn (urllib)."""
+def post_json(url, headers, body, timeout=40, retries=1):
+    """Gửi POST JSON, trả về JSON phản hồi. Chỉ dùng thư viện chuẩn (urllib).
+    Mạng / model chậm quá `timeout` giây → thử lại `retries` lần rồi mới báo lỗi."""
     req = urllib.request.Request(
         url, data=json.dumps(body).encode("utf-8"), method="POST",
         headers=dict({"Content-Type": "application/json"}, **headers))
-    try:
-        with urllib.request.urlopen(req, timeout=timeout) as r:
-            data = json.loads(r.read().decode("utf-8"))
-    except urllib.error.HTTPError as e:
-        raise RuntimeError("HTTP %d: %s" % (e.code, e.read().decode("utf-8", "replace")[:300]))
+    for attempt in range(retries + 1):
+        try:
+            with urllib.request.urlopen(req, timeout=timeout) as r:
+                data = json.loads(r.read().decode("utf-8"))
+            break
+        except urllib.error.HTTPError as e:
+            raise RuntimeError("HTTP %d: %s" % (e.code, e.read().decode("utf-8", "replace")[:300]))
+        except (TimeoutError, urllib.error.URLError) as e:
+            if attempt == retries:
+                raise RuntimeError("Gọi model quá %ds (đã thử %d lần): %s" % (timeout, retries + 1, e))
     if SHOW_RAW:
         print(json.dumps(data, ensure_ascii=False, indent=2)[:3000])
     return data
 
 
 URL_OPENAI = "https://api.openai.com/v1/chat/completions"
+URL_RESPONSES = "https://api.openai.com/v1/responses"
+REASONING_EFFORT = (os.environ.get("REASONING_EFFORT") or "low").strip()  # agent tự chọn bước: low cho nhanh
 URL_CLAUDE = "https://api.anthropic.com/v1/messages"
 URL_OLLAMA = "http://localhost:11434/api/chat"
 
@@ -95,6 +103,29 @@ def call_openai(system, user):
     u = data["usage"]
     return {"text": data["choices"][0]["message"]["content"],
             "tokens_in": u["prompt_tokens"], "tokens_out": u["completion_tokens"]}
+
+
+@model_call
+def call_model_tools(system: str, items: list, tools: list, previous_id=None) -> dict:
+    """Gọi model CÓ CÔNG CỤ (function calling) qua OpenAI Responses API — cho agent tự chọn bước (agent_loop.py).
+    items: input của lượt này (tin nhắn, hoặc kết quả công cụ {"type": "function_call_output", ...}).
+    previous_id: id phản hồi trước để nối hội thoại (model giữ cả phần suy luận). Model BẮT BUỘC gọi ≥1 công cụ.
+    Trả 4 khoá như call_model + "id" (id phản hồi) + "calls" [{call_id, name, arguments}]. Chỉ có nhánh OpenAI."""
+    if MODEL_PROVIDER != "openai":
+        raise NotImplementedError("call_model_tools mới viết cho MODEL_PROVIDER=openai")
+    body = {"model": MODEL_NAME, "instructions": system, "input": items, "tools": tools,
+            "tool_choice": "required", "reasoning": {"effort": REASONING_EFFORT}}
+    if previous_id:
+        body["previous_response_id"] = previous_id
+    data = post_json(URL_RESPONSES, {"Authorization": "Bearer " + API_KEY}, body, timeout=120)
+    calls = [{"call_id": o["call_id"], "name": o["name"], "arguments": o.get("arguments") or "{}"}
+             for o in data.get("output", []) if o.get("type") == "function_call"]
+    text = "".join(c.get("text", "") for o in data.get("output", []) if o.get("type") == "message"
+                   for c in o.get("content", []) if c.get("type") == "output_text")
+    text = text or "; ".join("%s(%s)" % (c["name"], c["arguments"][:200]) for c in calls)
+    u = data["usage"]
+    return {"text": text, "model": MODEL_NAME, "tokens_in": int(u["input_tokens"]),
+            "tokens_out": int(u["output_tokens"]), "id": data["id"], "calls": calls}
 
 
 def call_claude(system, user):
@@ -109,6 +140,6 @@ def call_claude(system, user):
 
 def call_ollama(system, user):
     messages = ([{"role": "system", "content": system}] if system else []) + [{"role": "user", "content": user}]
-    data = post_json(URL_OLLAMA, {}, {"model": MODEL_NAME, "messages": messages, "stream": False}, timeout=300)
+    data = post_json(URL_OLLAMA, {}, {"model": MODEL_NAME, "messages": messages, "stream": False}, timeout=300, retries=0)
     return {"text": data["message"]["content"],
             "tokens_in": data.get("prompt_eval_count", 0), "tokens_out": data.get("eval_count", 0)}

@@ -40,6 +40,12 @@ function Suggestion({ k }: { k: KetQua }) {
   if (!k.quan || !k.mon) return null;
   return (
     <>
+      {k.loi_nhan && <p className="mb-3 whitespace-pre-line text-[15px] leading-relaxed">{k.loi_nhan}</p>}
+      {(k.cau_hoi ?? []).map((q, i) => (
+        <p key={i} className="mb-3 rounded-xl border border-accent/40 bg-accent/10 px-3 py-2 text-[15px] leading-relaxed">
+          ❓ {q}
+        </p>
+      ))}
       <div className="flex gap-3 rounded-xl bg-gradient-to-br from-accent to-accent/70 p-3 text-accent-ink">
         <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-black/10 sm:h-28 sm:w-28">
           <QuanCover id={k.quan.id} icon="🍜" sizes="112px" />
@@ -94,6 +100,7 @@ function Suggestion({ k }: { k: KetQua }) {
         </p>
       )}
       <Alternatives options={(k.lua_chon ?? []).slice(1)} budget={k.ngan_sach} />
+      {k.hoi_them && <p className="mt-3 text-sm text-muted">💬 {k.hoi_them}</p>}
       {(k.canh_bao ?? []).map((w, i) => (
         <p key={i} className="mt-2 rounded-lg border-l-[3px] border-warn bg-soft px-3 py-2 text-sm">
           {w}
@@ -218,7 +225,7 @@ function BotBubble({ m }: { m: Msg }) {
         {m.data && (
           <div className="mt-1 flex flex-wrap items-center gap-2 pl-1 text-[11px] text-muted">
             <span className={`rounded-full px-2 py-0.5 font-semibold ${BADGE[loai]}`}>{LABEL[loai]}</span>
-            {m.merged && <span title={m.sent}>· đã ghép với yêu cầu trước</span>}
+            {m.merged && <span title={m.sent}>· có nhớ ngữ cảnh trước</span>}
           </div>
         )}
       </div>
@@ -294,24 +301,27 @@ export default function App() {
 
   const bots = msgs.filter((m) => m.role === "bot");
   const lastBot = bots[bots.length - 1];
-  const waitingAnswer = lastBot?.data?.ket_qua?.loai === "hoi_lai";
+  const lkw = lastBot?.data?.ket_qua;
+  const waitingAnswer = Boolean(lkw && (lkw.loai === "hoi_lai" || lkw.loai === "khong_co" || (lkw.cau_hoi?.length ?? 0) > 0 || lkw.hoi_them));
 
   async function send(raw: string) {
     const t = raw.trim();
     if (!t || loading) return;
-    // Bot vừa hỏi lại → ghép câu bổ sung với yêu cầu trước (backend xử lý mỗi tin độc lập)
-    const prev = lastBot?.data?.ket_qua?.loai === "hoi_lai" ? lastBot.sent : undefined;
-    const sent = prev ? `${prev}\nBổ sung: ${t}` : t;
+    // Gửi kèm lịch sử hội thoại thật (vài lượt gần nhất) để bot hiểu bổ sung / sửa đơn ("không phải hàu", "ốc thì sao")
+    const history = msgs.slice(-8).map((m) =>
+      m.role === "user" ? { role: "user", text: m.text } : { role: "bot", text: (m.data?.output ?? m.error ?? "").slice(0, 400) },
+    );
+    const sent = t;
     const userMsg: Msg = { id: newId(), role: "user", text: t };
     setMsgs((ms) => [...ms, userMsg]);
     setInput("");
     setLoading(true);
-    const bot: Msg = { id: newId(), role: "bot", text: "", sent, merged: Boolean(prev) };
+    const bot: Msg = { id: newId(), role: "bot", text: "", sent, merged: history.length > 0 };
     try {
       const r = await fetch("/api/answer", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: sent }),
+        body: JSON.stringify({ text: sent, history }),
       });
       const body = await r.json().catch(() => ({}));
       if (r.ok) bot.data = body as AnswerResponse;
@@ -412,7 +422,7 @@ export default function App() {
             className="border-t border-line p-3"
           >
             {waitingAnswer && !loading && (
-              <p className="mb-2 text-xs text-muted">↩ Trả lời câu hỏi của trợ lý, mình sẽ ghép với yêu cầu trước.</p>
+              <p className="mb-2 text-xs text-muted">↩ Trả lời / sửa đơn thoải mái (vd “không phải hàu”, “thêm 1 người”) — mình nhớ ngữ cảnh. Hỏi chuyện khác thì bấm “Cuộc trò chuyện mới”.</p>
             )}
             <div className="flex items-end gap-2 rounded-xl border border-line bg-bg px-3 py-2 focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/25">
               <textarea

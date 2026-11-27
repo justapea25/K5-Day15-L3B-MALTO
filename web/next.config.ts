@@ -6,6 +6,8 @@ const BACKEND_URL = process.env.BACKEND_URL ?? "http://127.0.0.1:8010";
 
 const nextConfig: NextConfig = {
   cacheComponents: true,
+  // Agent gọi model 2 lần, có lúc chậm → cho proxy /api chờ tối đa 180 giây (mặc định 30 giây → lỗi 500)
+  experimental: { proxyTimeout: 180000 },
   partialPrefetching: true,
   turbopack: {
     rules: {

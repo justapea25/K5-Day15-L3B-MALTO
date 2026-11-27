@@ -6,7 +6,7 @@
 
 Một người nhắn yêu cầu của cả nhóm bằng lời thường. Hệ thống trả về **tối đa 3 quán xếp hạng**, mỗi quán kèm **một món cho từng người**, lý do và điểm đánh đổi, hoặc nói thẳng "không có quán nào thoả", hoặc hỏi lại.
 
-**Hình dạng: workflow cố định.** Có 2 lần gọi AI, mọi bước còn lại là code. AI không tự chọn bước tiếp theo, không tự gọi công cụ.
+**Hình dạng: một agent tự chọn bước** (`codebase/agent_loop.py`, từ 28/11 chiều). AI đọc cả hội thoại, tự gọi công cụ tra cứu rồi kết thúc lượt bằng một công cụ trả lời. Code lọc an toàn trong công cụ và kiểm phương án trước khi trả ra. Luồng 4 bước cũ (`codebase/agent.py`, mục 2b) giữ làm dự phòng: agent lỗi / quá 6 vòng, hoặc `AGENT_MODE=workflow`.
 
 ```
    ┌──────────────── giao diện ─────────────────┐
@@ -16,9 +16,9 @@ Một người nhắn yêu cầu của cả nhóm bằng lời thường. Hệ t
    │  (codebase/app.py)       (API + trang dự phòng)
    └──────────────┬───────────────┬─────────────┘
                   └───────┬───────┘
-                          │ answer(text)
+                          │ answer(text, history)
                          ┌──────────▼──────────┐
-                         │  codebase/agent.py  │  luồng B1 → B6
+                         │ agent.py → agent_loop.py │  agent tự chọn bước
                          └───┬─────────────┬───┘
                  call_model  │             │  công cụ (@tool)
                   ┌──────────▼───┐   ┌─────▼──────────────┐
@@ -35,7 +35,21 @@ Một người nhắn yêu cầu của cả nhóm bằng lời thường. Hệ t
        codebase/tracing.py (khung): ghi mọi lần gọi model / công cụ / note → trace, token
 ```
 
-## 2. Luồng xử lý một tin nhắn
+## 2. Luồng xử lý một tin nhắn (agent tự chọn bước)
+
+`agent.answer(text, history)` → `agent_loop.answer`: gửi tin mới + ≤8 lượt trước cho model (`ai.call_model_tools`, OpenAI Responses API, `tool_choice=required`, `reasoning.effort=low`). Mỗi vòng model gọi một hay vài công cụ; tối đa 6 vòng.
+
+| Công cụ của model | Loại | Code làm gì |
+|---|---|---|
+| `tim_quan(suat[], ngan_sach…, km, gio, uu_tien, ten_quan)` | tra cứu | `_clean_person` bỏ mã bịa → `_options` lọc an toàn + xếp → trả ≤6 quán, ≤8 món / suất kèm nhãn `dung_mon` / `gan_giong`; thêm `khong_co_trong_data`, `dung_mon_o_quan_khac`, hoặc `goi_y_noi` + `dat_nhieu_quan` khi không có quán. Lưu đơn này làm căn cứ kiểm |
+| `xem_menu(quan_id)` | tra cứu | menu một quán |
+| `de_xuat(lua_chon[], loi_nhan, cau_hoi)` | trả lời | còn nhắc dị ứng / ăn chay mà đơn thiếu → từ chối; `_resolve` + `check_constraints` từng quán; suất chọn món gần giống trong khi quán có đúng món → đổi sang đúng món; không phương án nào đạt → trả lỗi cho model sửa. Đạt → `_render` in giá, tổng từ data; `loi_nhan` của model đứng đầu |
+| `hoi_lai(cau_hoi)` · `bao_khong_co(loi_nhan)` · `tu_choi(ly_do)` | trả lời | in lời của model (`bao_khong_co` luôn mở đầu "Không có quán…", `tu_choi` thêm câu phạm vi) |
+
+Mỗi bước ghi `note("vòng n: model gọi …")` vào trace.
+
+## 2b. Luồng 4 bước cũ (dự phòng)
+
 
 | Bước | Ai làm | Làm gì | Ra gì |
 |---|---|---|---|

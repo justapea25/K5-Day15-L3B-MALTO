@@ -16,6 +16,7 @@ Quy tắc trong code (không để model quyết):
 import json
 import os
 import re
+import unicodedata
 
 from tracing import tool, TOOLS  # noqa: F401
 
@@ -59,9 +60,23 @@ def open_at(q, hhmm):
     return False
 
 
+def norm(text):
+    """Chữ thường, bỏ dấu, bỏ ký tự lạ — để "bun cha" khớp "Bún chả". Không phải công cụ."""
+    t = unicodedata.normalize("NFD", (text or "").lower()).replace("đ", "d")
+    t = "".join(c for c in t if unicodedata.category(c) != "Mn")
+    return re.sub(r"[^a-z0-9 ]+", " ", t).split()
+
+
+def match_level(dish, want):
+    """Mức khớp món với món cụ thể người dùng nói: 2 = đúng món (mọi chữ của "want" có trong tên món), 0 = không.
+    Không phải công cụ — code dùng để gắn nhãn "đúng món" / "gần giống"."""
+    w = norm(want)
+    return 2 if w and all(x in norm(dish["ten"]) for x in w) else 0
+
+
 def dish_ok_for(dish, person):
     """True nếu món hợp với ràng buộc CỨNG của một người. Code thuần, không gọi AI.
-    person: {"chay": bool, "di_ung": [mã], "kieng": [mã thịt], "muon_loai": [mã loại]}"""
+    person: {"chay": bool, "di_ung": [mã], "kieng": [mã thịt], "muon_loai": [mã loại], "ngan_sach_rieng": VND, "mon": tên}"""
     if person.get("chay") and dish.get("chay") is not True:
         return False
     if set(person.get("di_ung") or []) & set(dish.get("co_nhac") or []):
@@ -71,6 +86,11 @@ def dish_ok_for(dish, person):
     wants = set(person.get("muon_loai") or [])
     if wants and dish.get("loai") not in wants:
         return False
+    cap = person.get("ngan_sach_rieng")
+    if cap and dish["gia"] > cap:           # ngân sách riêng của suất này
+        return False
+    if person.get("mon") and not wants and match_level(dish, person["mon"]) < 2:
+        return False                         # nói món cụ thể mà không rõ loại → chỉ nhận đúng món
     return True
 
 
