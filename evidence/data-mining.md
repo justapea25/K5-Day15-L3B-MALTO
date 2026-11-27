@@ -34,7 +34,7 @@
 | Quán có ≥ 30 món | 101 / 184 | **55%** | hơn nửa số quán có menu từ 30 món trở lên |
 | Quán có ≥ 50 món | 58 / 184 | 32% | |
 
-**Phần phụ — ăn chay, dị ứng**
+**Phần phụ — ăn chay, dị ứng** *(căn cứ cho cảnh báo "hỏi quán trước khi đặt" và tính năng lọc món chay)*
 
 | Đếm gì | x / N | % | Ghi chú |
 |---|---|---|---|
