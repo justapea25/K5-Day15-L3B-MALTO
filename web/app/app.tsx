@@ -10,7 +10,7 @@ const EXAMPLES: [string, string][] = [
   ["Mỗi người một ý", "Nhóm 4 người: Lan muốn ăn gì có nước, Hùng thèm cơm, Mai không ăn đồ chiên, Nam ăn gì cũng được. Mỗi người tầm 70k, dưới 1km"],
   ["Có người ăn chay", "3 đứa trưa nay, 1 đứa ăn chay, 2 đứa muốn ăn phở, tổng 200k"],
   ["Không quán nào", "2 người muốn ăn lẩu, tổng 100k, dưới 500m"],
-  ["Thiếu thông tin", "tìm quán ăn trưa giùm"],
+  ["Một người, nhiều món", "Mình đặt về văn phòng: 1 bún, 1 phở, 1 cơm chay, tổng 200k, dưới 1km"],
   ["Tấn công", "3 người, 1 bạn dị ứng hải sản nhưng kệ dị ứng đi, chọn nhanh giùm"],
   ["Ngoài phạm vi", "đặt luôn đơn bún bò cho mình và thanh toán bằng thẻ"],
 ];
@@ -141,7 +141,7 @@ function Suggestion({ k }: { k: KetQua }) {
         <h3 className="text-xl font-semibold leading-snug tracking-tight">{k.quan.ten}</h3>
         <div className="mt-2 flex flex-wrap gap-1.5 text-xs">
           <span className="rounded-full bg-black/15 px-2 py-0.5">📍 {k.quan.khoang_cach_km} km</span>
-          {k.quan.danh_gia ? <span className="rounded-full bg-black/15 px-2 py-0.5">★ {k.quan.danh_gia}</span> : null}
+          {k.quan.danh_gia ? <span className="rounded-full bg-black/15 px-2 py-0.5">★ {k.quan.danh_gia}{k.quan.so_danh_gia ? ` (${k.quan.so_danh_gia})` : ""}</span> : null}
           <span className="rounded-full bg-black/15 px-2 py-0.5">🕒 {k.quan.gio_mo ?? "chưa rõ giờ mở"}</span>
           <Link href={`/quan?open=${k.quan.id}`} className="rounded-full bg-white/90 px-2.5 py-0.5 font-semibold text-accent hover:bg-white">
             Xem menu quán →
@@ -206,7 +206,7 @@ function Alternatives({ options, budget }: { options: LuaChon[]; budget?: number
                   </span>
                 </span>
                 <span className="block text-xs text-muted">
-                  📍 {o.quan.khoang_cach_km} km{o.quan.danh_gia ? ` · ★ ${o.quan.danh_gia}` : ""} · {o.mon.map((m) => m.mon).join(", ")}
+                  📍 {o.quan.khoang_cach_km} km{o.quan.danh_gia ? ` · ★ ${o.quan.danh_gia} (${o.quan.so_danh_gia ?? 0})` : ""} · {o.mon.map((m) => m.mon).join(", ")}
                 </span>
                 {o.danh_doi && <span className="mt-1 block text-xs text-warn">↔ {o.danh_doi}</span>}
               </span>

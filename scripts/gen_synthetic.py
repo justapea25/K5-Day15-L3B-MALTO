@@ -126,6 +126,14 @@ def main():
                     "danh_gia": round(tri(rng, *STATS["danh_gia"]), 1) if rng.random() < STATS["ti_le_co_danh_gia"] else None,
                     "gio_mo": rng.choice(HOURS) if rng.random() < STATS["ti_le_co_gio_mo"] * 2 else None,
                     "freeship": rng.random() < 0.1, "khuyen_mai": None, "mon": mons})
+    # Bổ sung đánh giá + giờ mở cửa cho MỌI quán (data thật chỉ 25/60 quán có sao, 7/60 ghi giờ) — dùng RNG riêng để không đổi các trường khác
+    rng2 = random.Random(a.seed + 1)
+    for q in out:
+        if q["danh_gia"] is None:
+            q["danh_gia"] = round(tri(rng2, *STATS["danh_gia"]), 1)
+        q["so_danh_gia"] = int(tri(rng2, 15, 120, 900))
+        if q["gio_mo"] is None:  # data thật chỉ ~12% quán ghi giờ; bổ sung cho mọi quán, có quán chỉ bán tối
+            q["gio_mo"] = rng2.choices(HOURS + ["16:30-23:00", "17:00-22:30"], [3, 3, 3, 3, 1, 1])[0]
     out.sort(key=lambda q: q["khoang_cach_km"])
     for i, q in enumerate(out, 1):  # đánh lại mã theo khoảng cách
         old = q["id"]

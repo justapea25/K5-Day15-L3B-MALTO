@@ -32,8 +32,8 @@
    "khu_vuc": null,
    "am_thuc": "Cơm",
    "khoang_cach_km": 0.3,
-   "danh_gia": null,
-   "gio_mo": null,
+   "danh_gia": 4.2,
+   "gio_mo": "10:00-14:00 17:00-22:00",
    "freeship": false,
    "khuyen_mai": null,
    "mon": [
@@ -394,7 +394,8 @@
      ],
      "ghi_thanh_phan": true
     }
-   ]
+   ],
+   "so_danh_gia": 319
   },
   {
    "id": "Q02",
@@ -402,7 +403,7 @@
    "khu_vuc": null,
    "am_thuc": "Cơm, Bún, Món Việt",
    "khoang_cach_km": 0.3,
-   "danh_gia": null,
+   "danh_gia": 4.2,
    "gio_mo": "10:00-14:00 17:00-22:00",
    "freeship": false,
    "khuyen_mai": null,
@@ -811,7 +812,8 @@
      ],
      "ghi_thanh_phan": true
     }
-   ]
+   ],
+   "so_danh_gia": 365
   },
   {
    "id": "Q03",
@@ -820,7 +822,7 @@
    "am_thuc": "Cơm",
    "khoang_cach_km": 0.4,
    "danh_gia": 4.3,
-   "gio_mo": null,
+   "gio_mo": "09:00-22:00",
    "freeship": false,
    "khuyen_mai": null,
    "mon": [
@@ -1338,7 +1340,8 @@
      "thit": [],
      "ghi_thanh_phan": true
     }
-   ]
+   ],
+   "so_danh_gia": 290
   },
   {
    "id": "Q04",
@@ -1346,7 +1349,7 @@
    "khu_vuc": null,
    "am_thuc": "Bún",
    "khoang_cach_km": 0.4,
-   "danh_gia": null,
+   "danh_gia": 4.1,
    "gio_mo": "06:00-14:00 17:00-21:30",
    "freeship": false,
    "khuyen_mai": null,
@@ -1737,7 +1740,8 @@
      ],
      "ghi_thanh_phan": true
     }
-   ]
+   ],
+   "so_danh_gia": 699
   },
   {
    "id": "Q05",
@@ -1745,7 +1749,7 @@
    "khu_vuc": null,
    "am_thuc": "Cơm, Bún, Món Việt",
    "khoang_cach_km": 0.4,
-   "danh_gia": null,
+   "danh_gia": 4.5,
    "gio_mo": "06:00-14:00 17:00-21:30",
    "freeship": false,
    "khuyen_mai": null,
@@ -2116,7 +2120,8 @@
      ],
      "ghi_thanh_phan": true
     }
-   ]
+   ],
+   "so_danh_gia": 202
   },
   {
    "id": "Q06",
@@ -2620,7 +2625,8 @@
      ],
      "ghi_thanh_phan": true
     }
-   ]
+   ],
+   "so_danh_gia": 692
   },
   {
    "id": "Q07",
@@ -2628,8 +2634,8 @@
    "khu_vuc": null,
    "am_thuc": "Món chay",
    "khoang_cach_km": 0.5,
-   "danh_gia": null,
-   "gio_mo": null,
+   "danh_gia": 4.2,
+   "gio_mo": "17:00-22:30",
    "freeship": true,
    "khuyen_mai": null,
    "mon": [
@@ -2999,7 +3005,8 @@
      "thit": [],
      "ghi_thanh_phan": true
     }
-   ]
+   ],
+   "so_danh_gia": 377
   },
   {
    "id": "Q08",
@@ -3008,7 +3015,7 @@
    "am_thuc": "Món chay",
    "khoang_cach_km": 0.5,
    "danh_gia": 4.4,
-   "gio_mo": null,
+   "gio_mo": "17:00-22:30",
    "freeship": false,
    "khuyen_mai": null,
    "mon": [
@@ -3504,7 +3511,8 @@
      "thit": [],
      "ghi_thanh_phan": true
     }
-   ]
+   ],
+   "so_danh_gia": 76
   },
   {
    "id": "Q09",
@@ -3512,8 +3520,8 @@
    "khu_vuc": null,
    "am_thuc": "Mì Miến",
    "khoang_cach_km": 0.5,
-   "danh_gia": null,
-   "gio_mo": null,
+   "danh_gia": 4.1,
+   "gio_mo": "17:00-22:30",
    "freeship": false,
    "khuyen_mai": null,
    "mon": [
@@ -3967,7 +3975,8 @@
      ],
      "ghi_thanh_phan": true
     }
-   ]
+   ],
+   "so_danh_gia": 159
   },
   {
    "id": "Q10",
@@ -3975,8 +3984,8 @@
    "khu_vuc": null,
    "am_thuc": "Cơm, Bún, Món Việt",
    "khoang_cach_km": 0.6,
-   "danh_gia": null,
-   "gio_mo": null,
+   "danh_gia": 4.3,
+   "gio_mo": "10:00-14:00 17:00-22:00",
    "freeship": false,
    "khuyen_mai": null,
    "mon": [
@@ -4466,7 +4475,8 @@
      ],
      "ghi_thanh_phan": false
     }
-   ]
+   ],
+   "so_danh_gia": 580
   },
   {
    "id": "Q11",
@@ -4475,7 +4485,7 @@
    "am_thuc": "Cơm, Bún, Món Việt",
    "khoang_cach_km": 0.6,
    "danh_gia": 4.3,
-   "gio_mo": null,
+   "gio_mo": "10:00-14:00 17:00-22:00",
    "freeship": false,
    "khuyen_mai": null,
    "mon": [
@@ -4905,7 +4915,8 @@
      "thit": [],
      "ghi_thanh_phan": true
     }
-   ]
+   ],
+   "so_danh_gia": 108
   },
   {
    "id": "Q12",
@@ -4914,7 +4925,7 @@
    "am_thuc": "Cơm",
    "khoang_cach_km": 0.6,
    "danh_gia": 4.4,
-   "gio_mo": null,
+   "gio_mo": "06:00-14:00 17:00-21:30",
    "freeship": false,
    "khuyen_mai": null,
    "mon": [
@@ -5373,7 +5384,8 @@
      ],
      "ghi_thanh_phan": true
     }
-   ]
+   ],
+   "so_danh_gia": 228
   },
   {
    "id": "Q13",
@@ -5381,8 +5393,8 @@
    "khu_vuc": null,
    "am_thuc": "Cơm",
    "khoang_cach_km": 0.7,
-   "danh_gia": null,
-   "gio_mo": null,
+   "danh_gia": 4.4,
+   "gio_mo": "06:00-14:00 17:00-21:30",
    "freeship": false,
    "khuyen_mai": null,
    "mon": [
@@ -5786,7 +5798,8 @@
      "thit": [],
      "ghi_thanh_phan": true
     }
-   ]
+   ],
+   "so_danh_gia": 244
   },
   {
    "id": "Q14",
@@ -5794,8 +5807,8 @@
    "khu_vuc": null,
    "am_thuc": "Bún",
    "khoang_cach_km": 0.8,
-   "danh_gia": null,
-   "gio_mo": null,
+   "danh_gia": 4.2,
+   "gio_mo": "10:00-14:00 17:00-22:00",
    "freeship": false,
    "khuyen_mai": null,
    "mon": [
@@ -6239,7 +6252,8 @@
      "thit": [],
      "ghi_thanh_phan": true
     }
-   ]
+   ],
+   "so_danh_gia": 584
   },
   {
    "id": "Q15",
@@ -6247,8 +6261,8 @@
    "khu_vuc": null,
    "am_thuc": "Phở",
    "khoang_cach_km": 0.8,
-   "danh_gia": null,
-   "gio_mo": null,
+   "danh_gia": 4.1,
+   "gio_mo": "07:00-21:00",
    "freeship": false,
    "khuyen_mai": null,
    "mon": [
@@ -6737,7 +6751,8 @@
      ],
      "ghi_thanh_phan": false
     }
-   ]
+   ],
+   "so_danh_gia": 368
   },
   {
    "id": "Q16",
@@ -6745,8 +6760,8 @@
    "khu_vuc": null,
    "am_thuc": "Lẩu",
    "khoang_cach_km": 0.8,
-   "danh_gia": null,
-   "gio_mo": null,
+   "danh_gia": 4.6,
+   "gio_mo": "06:00-14:00 17:00-21:30",
    "freeship": false,
    "khuyen_mai": null,
    "mon": [
@@ -7168,7 +7183,8 @@
      ],
      "ghi_thanh_phan": true
     }
-   ]
+   ],
+   "so_danh_gia": 772
   },
   {
    "id": "Q17",
@@ -7177,7 +7193,7 @@
    "am_thuc": "Cơm, Bún, Món Việt",
    "khoang_cach_km": 0.9,
    "danh_gia": 4.5,
-   "gio_mo": null,
+   "gio_mo": "10:00-14:00 17:00-22:00",
    "freeship": false,
    "khuyen_mai": null,
    "mon": [
@@ -7613,7 +7629,8 @@
      ],
      "ghi_thanh_phan": true
     }
-   ]
+   ],
+   "so_danh_gia": 57
   },
   {
    "id": "Q18",
@@ -7621,7 +7638,7 @@
    "khu_vuc": null,
    "am_thuc": "Mì Miến",
    "khoang_cach_km": 0.9,
-   "danh_gia": null,
+   "danh_gia": 4.5,
    "gio_mo": "07:00-21:00",
    "freeship": false,
    "khuyen_mai": null,
@@ -8057,7 +8074,8 @@
      "thit": [],
      "ghi_thanh_phan": false
     }
-   ]
+   ],
+   "so_danh_gia": 311
   },
   {
    "id": "Q19",
@@ -8065,8 +8083,8 @@
    "khu_vuc": null,
    "am_thuc": "Món chay",
    "khoang_cach_km": 0.9,
-   "danh_gia": null,
-   "gio_mo": null,
+   "danh_gia": 4.3,
+   "gio_mo": "10:00-14:00 17:00-22:00",
    "freeship": false,
    "khuyen_mai": null,
    "mon": [
@@ -8450,7 +8468,8 @@
      "thit": [],
      "ghi_thanh_phan": true
     }
-   ]
+   ],
+   "so_danh_gia": 433
   },
   {
    "id": "Q20",
@@ -8459,7 +8478,7 @@
    "am_thuc": "Bún",
    "khoang_cach_km": 1.0,
    "danh_gia": 4.6,
-   "gio_mo": null,
+   "gio_mo": "17:00-22:30",
    "freeship": false,
    "khuyen_mai": null,
    "mon": [
@@ -8998,7 +9017,8 @@
      ],
      "ghi_thanh_phan": true
     }
-   ]
+   ],
+   "so_danh_gia": 471
   },
   {
    "id": "Q21",
@@ -9006,8 +9026,8 @@
    "khu_vuc": null,
    "am_thuc": "Cơm",
    "khoang_cach_km": 1.0,
-   "danh_gia": null,
-   "gio_mo": null,
+   "danh_gia": 4.6,
+   "gio_mo": "09:00-22:00",
    "freeship": false,
    "khuyen_mai": null,
    "mon": [
@@ -9403,7 +9423,8 @@
      ],
      "ghi_thanh_phan": false
     }
-   ]
+   ],
+   "so_danh_gia": 248
   },
   {
    "id": "Q22",
@@ -9411,8 +9432,8 @@
    "khu_vuc": null,
    "am_thuc": "Món chay",
    "khoang_cach_km": 1.1,
-   "danh_gia": null,
-   "gio_mo": null,
+   "danh_gia": 4.4,
+   "gio_mo": "06:00-14:00 17:00-21:30",
    "freeship": true,
    "khuyen_mai": null,
    "mon": [
@@ -9746,7 +9767,8 @@
      "thit": [],
      "ghi_thanh_phan": false
     }
-   ]
+   ],
+   "so_danh_gia": 445
   },
   {
    "id": "Q23",
@@ -9754,8 +9776,8 @@
    "khu_vuc": null,
    "am_thuc": "Bún",
    "khoang_cach_km": 1.2,
-   "danh_gia": null,
-   "gio_mo": null,
+   "danh_gia": 4.6,
+   "gio_mo": "07:00-21:00",
    "freeship": false,
    "khuyen_mai": null,
    "mon": [
@@ -10197,7 +10219,8 @@
      ],
      "ghi_thanh_phan": true
     }
-   ]
+   ],
+   "so_danh_gia": 547
   },
   {
    "id": "Q24",
@@ -10206,7 +10229,7 @@
    "am_thuc": "Cơm",
    "khoang_cach_km": 1.2,
    "danh_gia": 4.7,
-   "gio_mo": null,
+   "gio_mo": "10:00-14:00 17:00-22:00",
    "freeship": false,
    "khuyen_mai": null,
    "mon": [
@@ -10748,7 +10771,8 @@
      ],
      "ghi_thanh_phan": false
     }
-   ]
+   ],
+   "so_danh_gia": 622
   },
   {
    "id": "Q25",
@@ -10756,8 +10780,8 @@
    "khu_vuc": null,
    "am_thuc": "Món chay",
    "khoang_cach_km": 1.2,
-   "danh_gia": null,
-   "gio_mo": null,
+   "danh_gia": 4.5,
+   "gio_mo": "09:00-22:00",
    "freeship": false,
    "khuyen_mai": null,
    "mon": [
@@ -11029,7 +11053,8 @@
      "thit": [],
      "ghi_thanh_phan": false
     }
-   ]
+   ],
+   "so_danh_gia": 724
   },
   {
    "id": "Q26",
@@ -11037,8 +11062,8 @@
    "khu_vuc": null,
    "am_thuc": "Cơm",
    "khoang_cach_km": 1.2,
-   "danh_gia": null,
-   "gio_mo": null,
+   "danh_gia": 4.4,
+   "gio_mo": "06:00-14:00 17:00-21:30",
    "freeship": false,
    "khuyen_mai": null,
    "mon": [
@@ -11496,7 +11521,8 @@
      ],
      "ghi_thanh_phan": true
     }
-   ]
+   ],
+   "so_danh_gia": 103
   },
   {
    "id": "Q27",
@@ -11504,8 +11530,8 @@
    "khu_vuc": null,
    "am_thuc": "Lẩu",
    "khoang_cach_km": 1.2,
-   "danh_gia": null,
-   "gio_mo": null,
+   "danh_gia": 4.1,
+   "gio_mo": "06:00-14:00 17:00-21:30",
    "freeship": false,
    "khuyen_mai": null,
    "mon": [
@@ -11976,7 +12002,8 @@
      ],
      "ghi_thanh_phan": true
     }
-   ]
+   ],
+   "so_danh_gia": 418
   },
   {
    "id": "Q28",
@@ -11984,8 +12011,8 @@
    "khu_vuc": null,
    "am_thuc": "Bún",
    "khoang_cach_km": 1.2,
-   "danh_gia": null,
-   "gio_mo": null,
+   "danh_gia": 4.5,
+   "gio_mo": "10:00-14:00 17:00-22:00",
    "freeship": false,
    "khuyen_mai": null,
    "mon": [
@@ -12455,7 +12482,8 @@
      ],
      "ghi_thanh_phan": true
     }
-   ]
+   ],
+   "so_danh_gia": 115
   },
   {
    "id": "Q29",
@@ -12463,8 +12491,8 @@
    "khu_vuc": null,
    "am_thuc": "Bún",
    "khoang_cach_km": 1.2,
-   "danh_gia": null,
-   "gio_mo": null,
+   "danh_gia": 4.3,
+   "gio_mo": "06:00-14:00 17:00-21:30",
    "freeship": false,
    "khuyen_mai": null,
    "mon": [
@@ -12886,7 +12914,8 @@
      "thit": [],
      "ghi_thanh_phan": false
     }
-   ]
+   ],
+   "so_danh_gia": 74
   },
   {
    "id": "Q30",
@@ -12895,7 +12924,7 @@
    "am_thuc": "Món chay",
    "khoang_cach_km": 1.2,
    "danh_gia": 4.6,
-   "gio_mo": null,
+   "gio_mo": "09:00-22:00",
    "freeship": true,
    "khuyen_mai": null,
    "mon": [
@@ -13253,7 +13282,8 @@
      "thit": [],
      "ghi_thanh_phan": true
     }
-   ]
+   ],
+   "so_danh_gia": 447
   },
   {
    "id": "Q31",
@@ -13261,7 +13291,7 @@
    "khu_vuc": null,
    "am_thuc": "Bún",
    "khoang_cach_km": 1.3,
-   "danh_gia": null,
+   "danh_gia": 4.6,
    "gio_mo": "06:00-14:00 17:00-21:30",
    "freeship": false,
    "khuyen_mai": null,
@@ -13746,7 +13776,8 @@
      ],
      "ghi_thanh_phan": true
     }
-   ]
+   ],
+   "so_danh_gia": 511
   },
   {
    "id": "Q32",
@@ -13754,8 +13785,8 @@
    "khu_vuc": null,
    "am_thuc": "Cơm",
    "khoang_cach_km": 1.4,
-   "danh_gia": null,
-   "gio_mo": null,
+   "danh_gia": 4.5,
+   "gio_mo": "06:00-14:00 17:00-21:30",
    "freeship": false,
    "khuyen_mai": null,
    "mon": [
@@ -14176,7 +14207,8 @@
      ],
      "ghi_thanh_phan": true
     }
-   ]
+   ],
+   "so_danh_gia": 274
   },
   {
    "id": "Q33",
@@ -14184,8 +14216,8 @@
    "khu_vuc": null,
    "am_thuc": "Phở",
    "khoang_cach_km": 1.5,
-   "danh_gia": null,
-   "gio_mo": null,
+   "danh_gia": 4.5,
+   "gio_mo": "10:00-14:00 17:00-22:00",
    "freeship": false,
    "khuyen_mai": null,
    "mon": [
@@ -14618,7 +14650,8 @@
      ],
      "ghi_thanh_phan": true
     }
-   ]
+   ],
+   "so_danh_gia": 372
   },
   {
    "id": "Q34",
@@ -14627,7 +14660,7 @@
    "am_thuc": "Bánh Mì",
    "khoang_cach_km": 1.8,
    "danh_gia": 4.3,
-   "gio_mo": null,
+   "gio_mo": "07:00-21:00",
    "freeship": false,
    "khuyen_mai": null,
    "mon": [
@@ -15060,7 +15093,8 @@
      ],
      "ghi_thanh_phan": true
     }
-   ]
+   ],
+   "so_danh_gia": 654
   },
   {
    "id": "Q35",
@@ -15068,8 +15102,8 @@
    "khu_vuc": null,
    "am_thuc": "Mì Miến",
    "khoang_cach_km": 2.0,
-   "danh_gia": null,
-   "gio_mo": null,
+   "danh_gia": 4.1,
+   "gio_mo": "06:00-14:00 17:00-21:30",
    "freeship": false,
    "khuyen_mai": null,
    "mon": [
@@ -15542,7 +15576,8 @@
      ],
      "ghi_thanh_phan": true
     }
-   ]
+   ],
+   "so_danh_gia": 442
   },
   {
    "id": "Q36",
@@ -15550,8 +15585,8 @@
    "khu_vuc": null,
    "am_thuc": "Bún",
    "khoang_cach_km": 2.1,
-   "danh_gia": null,
-   "gio_mo": null,
+   "danh_gia": 4.5,
+   "gio_mo": "07:00-21:00",
    "freeship": false,
    "khuyen_mai": null,
    "mon": [
@@ -16002,7 +16037,8 @@
      ],
      "ghi_thanh_phan": true
     }
-   ]
+   ],
+   "so_danh_gia": 635
   },
   {
    "id": "Q37",
@@ -16010,8 +16046,8 @@
    "khu_vuc": null,
    "am_thuc": "Cơm",
    "khoang_cach_km": 2.2,
-   "danh_gia": null,
-   "gio_mo": null,
+   "danh_gia": 4.5,
+   "gio_mo": "10:00-14:00 17:00-22:00",
    "freeship": false,
    "khuyen_mai": null,
    "mon": [
@@ -16323,7 +16359,8 @@
      "thit": [],
      "ghi_thanh_phan": true
     }
-   ]
+   ],
+   "so_danh_gia": 285
   },
   {
    "id": "Q38",
@@ -16332,7 +16369,7 @@
    "am_thuc": "Lẩu",
    "khoang_cach_km": 2.2,
    "danh_gia": 4.7,
-   "gio_mo": null,
+   "gio_mo": "09:00-22:00",
    "freeship": false,
    "khuyen_mai": null,
    "mon": [
@@ -16794,7 +16831,8 @@
      ],
      "ghi_thanh_phan": true
     }
-   ]
+   ],
+   "so_danh_gia": 684
   },
   {
    "id": "Q39",
@@ -16802,8 +16840,8 @@
    "khu_vuc": null,
    "am_thuc": "Mì Miến",
    "khoang_cach_km": 2.2,
-   "danh_gia": null,
-   "gio_mo": null,
+   "danh_gia": 4.6,
+   "gio_mo": "07:00-21:00",
    "freeship": false,
    "khuyen_mai": null,
    "mon": [
@@ -17315,7 +17353,8 @@
      ],
      "ghi_thanh_phan": true
     }
-   ]
+   ],
+   "so_danh_gia": 618
   },
   {
    "id": "Q40",
@@ -17323,8 +17362,8 @@
    "khu_vuc": null,
    "am_thuc": "Mì Miến",
    "khoang_cach_km": 2.4,
-   "danh_gia": null,
-   "gio_mo": null,
+   "danh_gia": 4.4,
+   "gio_mo": "10:00-14:00 17:00-22:00",
    "freeship": false,
    "khuyen_mai": null,
    "mon": [
@@ -17689,7 +17728,8 @@
      ],
      "ghi_thanh_phan": true
     }
-   ]
+   ],
+   "so_danh_gia": 117
   }
  ]
 }
