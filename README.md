@@ -7,6 +7,8 @@
 
 **Lát cắt:** một người chọn quán cho nhóm 2–6 người mỗi người một ý (muốn ăn gì, không ăn gì, ngân sách, khoảng cách, giờ ăn) · AI hiểu sở thích từng người và chọn một quán + một món cho từng người trong các phương án code đã lọc · người đó nhận quán, món, tổng tiền, lý do, hoặc nghe nói thẳng "không có quán nào hợp". Thiết kế: [spec.md §4](spec.md) · kiến trúc code: [docs/architecture.md](docs/architecture.md).
 
+**Video demo** (bản chạy thử gọi AI thật, gpt-6-luna): [Google Drive](https://drive.google.com/file/d/1sK8cVuoR0K28B8FwQlnSAuYPvdI6hyiU/view?usp=sharing)
+
 ### Chạy bản chạy thử của nhóm
 
 | Việc | Lệnh |
