@@ -24,7 +24,7 @@ export default function Nav() {
   return (
     <>
       <header className="sticky top-0 z-20 border-b border-line/70 bg-bg/75 backdrop-blur-md">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3">
           <Link href="/" className="flex items-center gap-2.5">
             <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-accent to-accent/60 text-lg shadow-sm">🍜</span>
             <span className="leading-tight">
@@ -60,7 +60,7 @@ export default function Nav() {
       </header>
 
       {down && (
-        <p className="mx-auto mt-4 max-w-6xl rounded-lg border border-bad/40 bg-bad/10 px-4 py-3 text-sm text-bad">
+        <p className="mx-auto mt-4 max-w-7xl rounded-lg border border-bad/40 bg-bad/10 px-4 py-3 text-sm text-bad">
           Không kết nối được backend. Chạy <code className="font-mono">python codebase/web.py</code> ở thư mục gốc repo rồi tải lại trang.
         </p>
       )}

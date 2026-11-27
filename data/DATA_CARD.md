@@ -7,9 +7,9 @@
 | | |
 |---|---|
 | Dùng để làm gì | Nguồn cho công cụ `search_restaurants`, `get_menu`, `check_constraints` (`codebase/tools.py`) · nền cho bộ câu thử |
-| Từ đâu | **Nhóm tự sinh** bằng `scripts/gen_synthetic.py`, seed 42. Tên quán là tên dựng, món ghép từ mẫu tên món phổ biến |
+| Từ đâu | **Nhóm tự sinh** bằng `scripts/gen_synthetic.py` (+ `scripts/diverse_shops.py`), seed 42. 30 quán Việt (bún, phở, cơm, chay, mì, bánh mì, lẩu; đã bỏ bớt 10 quán trùng kiểu) + 30 quán thuộc 18 kiểu như trên Grab (Nhật, Hàn, Hoa, Thái, Đài Loan, Ấn, gà rán, pizza, hải sản, lẩu nướng, cháo, xôi, bánh cuốn, healthy, ăn vặt, cơm văn phòng, miền Trung, miền Nam). Tên quán là **tên dựng** ghép theo kiểu đặt tên thật trên Grab (tên chủ + món + toà / khu, viết hoa thường lộn xộn); món theo mẫu tên món phổ biến, khoảng giá theo mặt bằng giá trên Grab *(tự ước tính)* |
 | Cách sinh | Giá theo loại món, số món mỗi quán, khoảng cách, đánh giá, tỉ lệ món có mô tả, tỉ lệ quán ghi giờ mở cửa lấy theo **phân bố đo từ Dataset 2** (bảng `STATS` trong script). Riêng món chay được **tăng** (có 6 quán chay) để bộ câu thử có ca ăn chay. **Khác data thật:** data thật chỉ 25/60 quán có sao và 7/60 ghi giờ mở cửa; bản giả bổ sung sao, số lượt đánh giá và giờ mở cửa cho mọi quán (sinh bằng RNG riêng, seed + 1, không đổi các trường khác) để giao diện và bước lọc giờ dùng được. Nhãn `loai`, `chay`, `co_nhac`, `thit` gắn bằng cùng bộ từ khoá với `scripts/build_data.py`, chỉ dựa trên phần quán "ghi" (tên + mô tả) |
-| Số dòng | 40 quán · 1.207 món · 66% món có mô tả · 219 món chay · mọi quán có đánh giá (sao + số lượt) và giờ mở cửa |
+| Số dòng | 60 quán · 1.142 món · 66% món có mô tả · 164 món chay · mọi quán có đánh giá (sao + số lượt) và giờ mở cửa · loại món: bun, pho, com, mi, banh_mi, lau, chao, xoi, sushi, ga_ran, pizza, nuong, an_vat, khac |
 | Chạy lại | `python scripts/gen_synthetic.py --seed 42` ra đúng file đang commit |
 | Nhãn | `synthetic` — **không phải quán thật, không phải bằng chứng pain** |
 | Giới hạn | Không có phí ship · khoảng cách là số sinh, không theo vị trí người dùng · món ghép từ mẫu nên ít đa dạng hơn menu thật · không có khuyến mãi |

@@ -3,7 +3,7 @@
 export type Loai = "goi_y" | "hoi_lai" | "khong_co" | "tu_choi";
 
 export type LuaChon = {
-  quan: { id: string; ten: string; khoang_cach_km: number; danh_gia: number | null; so_danh_gia?: number; gio_mo: string | null };
+  quan: { id: string; ten: string; khoang_cach_km: number; danh_gia: number | null; so_danh_gia?: number; muc_gia?: string; gio_mo: string | null };
   mon: { nguoi: string; mon_id: string; mon: string; gia: number; loai: string }[];
   tong_tien: number;
   ly_do: string;
@@ -14,7 +14,7 @@ export type KetQua = {
   lua_chon?: LuaChon[];
   loai: Loai;
   che_do_gia?: boolean;
-  quan?: { id: string; ten: string; khoang_cach_km: number; danh_gia: number | null; so_danh_gia?: number; gio_mo: string | null };
+  quan?: { id: string; ten: string; khoang_cach_km: number; danh_gia: number | null; so_danh_gia?: number; muc_gia?: string; gio_mo: string | null };
   mon?: { nguoi: string; mon_id: string; mon: string; gia: number; loai: string }[];
   tong_tien?: number;
   ngan_sach?: number | null;
@@ -55,6 +55,7 @@ export type Quan = {
   khoang_cach_km: number;
   danh_gia: number | null;
   so_danh_gia?: number;
+  muc_gia?: string;
   gio_mo: string | null;
   freeship: boolean;
   khuyen_mai: string | null;

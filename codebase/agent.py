@@ -47,8 +47,11 @@ Quy tắc:
   Nếu một người đặt nhiều món khác nhau ("mình gọi 1 bún, 1 phở, 1 cơm chay") thì mỗi món là một phần tử,
   "ten" ghi ngắn món đó (vd "Suất 1 · bún"), muon_loai / chay theo đúng món đó.
 - Phần không nêu gì thì so_thich rỗng, chay=false, các danh sách rỗng.
-- muon_loai CHỈ điền khi người đó nói rõ loại món: bún → "bun", phở → "pho", cơm / xôi → "com", mì / miến / hủ tiếu → "mi",
-  bánh mì / burger → "banh_mi", lẩu → "lau". Ý mơ hồ ("đồ có nước", "ăn nhẹ", "không muốn đồ chiên", "healthy")
+- muon_loai CHỈ điền khi người đó nói rõ loại món: bún → "bun", phở → "pho", cơm → "com", xôi → "xoi",
+  mì / miến / hủ tiếu / ramen / mỳ Ý → "mi", bánh mì / burger → "banh_mi", lẩu → "lau", cháo / súp → "chao",
+  sushi / sashimi → "sushi", gà rán → "ga_ran", pizza → "pizza", đồ nướng / BBQ → "nuong",
+  ăn vặt (tokbokki, nem chua rán, bánh tráng trộn…) → "an_vat".
+  Ý theo ẩm thực hoặc mơ hồ ("đồ Nhật", "đồ Hàn", "đồ có nước", "ăn nhẹ", "không muốn đồ chiên", "healthy")
   thì để muon_loai rỗng và ghi vào so_thich.
 - Dị ứng: tôm, cua, mực, ốc, hải sản → "hai_san" · lạc, đậu phộng → "dau_phong" · sữa, phô mai → "sua" · trứng → "trung"
   · đậu phụ, đậu nành → "dau_nanh". "không ăn bò" → kieng ["bo"]; "không ăn thịt lợn / heo" → kieng ["heo"].
@@ -237,7 +240,8 @@ def _option(opt, plan, people, check):
               "gia": menu[picks[i]]["gia"], "loai": menu[picks[i]]["loai"]}
              for i, p in enumerate(people, 1)]
     return {"quan": {"id": opt["id"], "ten": opt["ten"], "khoang_cach_km": opt["khoang_cach_km"],
-                     "danh_gia": opt.get("danh_gia"), "so_danh_gia": opt.get("so_danh_gia"), "gio_mo": opt.get("gio_mo")},
+                     "danh_gia": opt.get("danh_gia"), "so_danh_gia": opt.get("so_danh_gia"), "muc_gia": opt.get("muc_gia"),
+                     "gio_mo": opt.get("gio_mo")},
             "mon": items, "tong_tien": check["tong_tien"],
             "ly_do": str(plan.get("ly_do") or "").strip(), "danh_doi": str(plan.get("danh_doi") or "").strip()}
 

@@ -15,6 +15,8 @@ const nextConfig: NextConfig = {
       },
     },
   },
+  // Ảnh quán web/public/img/quan; search khớp IMG_VERSION trong app/quan-cover.tsx
+  images: { localPatterns: [{ pathname: "/img/**", search: "?v=2" }] },
   rewrites() {
     return [{ source: "/api/:path*", destination: `${BACKEND_URL}/api/:path*` }];
   },

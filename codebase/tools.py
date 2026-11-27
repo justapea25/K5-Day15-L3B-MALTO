@@ -92,7 +92,8 @@ def search_restaurants(max_distance_km=None, name=None, at_time=None) -> list:
         if is_open is False:
             continue
         out.append({"id": q["id"], "ten": q["ten"], "khoang_cach_km": q["khoang_cach_km"],
-                    "danh_gia": q.get("danh_gia"), "so_danh_gia": q.get("so_danh_gia"), "gio_mo": q.get("gio_mo"), "mo_cua": is_open})
+                    "danh_gia": q.get("danh_gia"), "so_danh_gia": q.get("so_danh_gia"), "muc_gia": q.get("muc_gia"),
+                    "gio_mo": q.get("gio_mo"), "mo_cua": is_open})
     return out
 
 
