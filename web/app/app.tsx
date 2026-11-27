@@ -8,7 +8,7 @@ import type { AnswerResponse, KetQua, Loai, LuaChon } from "./types";
 
 const EXAMPLES: [string, string][] = [
   ["Nhóm mỗi người một ý", "Nhóm 4 người: Lan muốn ăn gì có nước, Hùng thèm cơm, Mai không ăn đồ chiên, Nam ăn chay. Mỗi người tầm 70k, dưới 2km"],
-  ["Một mình, nhiều món", "Mình đặt về văn phòng: 1 bún, 1 phở, 1 cơm chay, tổng 200k, dưới 1km"],
+  ["Một mình, nhiều món", "Mình đặt về văn phòng: 1 bún, 1 phở, 1 cơm chay, tổng 250k, dưới 2km"],
   ["Đồ Nhật cho 2 người", "2 người muốn ăn đồ Nhật, 1 người thích sushi, tổng 400k, đi xa được 5km"],
   ["Ăn vặt buổi tối", "Tối nay 8h, 3 đứa muốn ăn vặt, tokbokki hoặc nem chua rán, mỗi đứa 50k"],
 ]
@@ -254,10 +254,10 @@ function Welcome({ onPick, disabled, empty }: { onPick: (t: string) => void; dis
       <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-accent to-accent/60 text-3xl shadow-lg shadow-accent/20">
         🍜
       </div>
-      <h2 className="mt-4 text-2xl font-bold tracking-tight">Đơn có nhiều yêu cầu khác nhau?</h2>
+      <h2 className="mt-4 text-2xl font-bold tracking-tight">Hôm nay ăn gì đây?</h2>
       <p className="mt-2 max-w-md text-[15px] leading-relaxed text-muted">
-        Một mình gọi nhiều món hay cả nhóm mỗi người một ý đều được. Kể tự nhiên món muốn ăn, ngân sách, khoảng cách — mình tìm{" "}
-        <b className="text-ink">quán đáp ứng đủ cả đơn</b> và gợi ý món cho từng yêu cầu.
+        Cứ kể như đang nhắn cho bạn: ai muốn ăn gì, ai kiêng gì, tầm bao nhiêu tiền, đi xa được không. Mình lọc ra vài quán{" "}
+        <b className="text-ink">chiều được cả đơn</b>, kèm món gợi ý cho từng yêu cầu.
       </p>
       <div className="mt-6 grid w-full gap-2.5 text-left sm:grid-cols-2">
         {EXAMPLES.map(([name, t], i) => (
