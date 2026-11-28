@@ -18,3 +18,5 @@ Người thu: nhóm MALTO · Cách thu: phỏng vấn, ngày 27/11/2026
 | U8 | Người đặt đồ ăn | Phỏng vấn · 27/11 | 2 người, 1 đứa ăn bún chả 1 đứa ăn phở, tổng 120k, dưới 1km | B28 |
 | U9 | Người đặt đồ ăn | Phỏng vấn · 27/11 | phở với bún bò ở đây thường giá khoảng bao nhiêu 1 tô | B29 |
 | U10 | Người đặt đồ ăn | Phỏng vấn · 27/11 | 4 đứa, ngân sách 50k 1 đứa, ăn bún hay phở gì cũng được, đi xa chút cũng ok miễn rẻ | B30 |
+
+Xác nhận: Thu đã đọc 10 câu U1–U10 và xác nhận là lời người dùng thật, giữ `source = nguoi_dung` cho B21–B30 (28/11/2026).
