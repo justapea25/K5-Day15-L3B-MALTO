@@ -57,7 +57,7 @@ function Suggestion({ k, feedbackDone, onFeedback, onOpenShop }: { k: KetQua; fe
             </button>
           )}
         </div>
-        <CastImg k="point" alt="Kogoro chỉ vào kết quả" className="anim-mascot h-[88px] w-[100px] shrink-0 object-contain" />
+        <CastImg k="point" alt="Thám tử chỉ vào kết quả" className="anim-mascot h-[88px] w-[100px] shrink-0 object-contain" />
       </div>
       {k.loi_nhan && <p className="mb-3 whitespace-pre-line text-[15px] leading-relaxed">{k.loi_nhan}</p>}
       {(k.cau_hoi ?? []).map((q, i) => (
