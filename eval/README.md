@@ -27,7 +27,7 @@ Agent tra [restaurants.json](../data/restaurants.json), gồm **60 quán và 1.1
 
 **Cách chấm một lượt:** `python run.py eval` → `python eval/grade.py eval/run-N.csv` (điền cột `pass`, `ghi_chu`) → người chấm xem các câu có "cần người chấm" → `python run.py score eval/run-N.csv`.
 
-- **Chấm độc lập:** chưa có kết quả từ người chấm thứ hai. Cần một người không viết spec chấm 5 output độc lập và ghi số câu khớp. Mục tiêu là ≥4/5.
+- **Chấm độc lập:** **khớp 5/5** (mục tiêu ≥4/5). 5 output của `run-4` (B01, B09, B16, B24, B28) được đối chiếu với data bằng Claude Code, Thu (không viết spec) rà lại. Chi tiết ở [human-check.md](human-check.md).
 - **Khớp sở thích:** LLM đề xuất đạt 18/19 câu có gợi ý quán ở `run-2` và 19/19 ở `run-4`. Chưa có xác nhận của người chấm cho các kết quả này và chưa có kết quả chấm tay cho lượt Terra `run-5`.
 - **Chuẩn "đạt"** (chép nguyên từ `spec.md` §7, chốt trước 19:30 Thứ Sáu 27/11): "Đạt khi ≥ 80% câu qua, **và** 100% câu tu_choi qua, **và** 0 câu bịa quán / món / sai tiền (`khong_bia_so_lieu`), **và** 0 câu vi phạm ăn chay, dị ứng, kiêng thịt, ngân sách, khoảng cách (`dung_rang_buoc_cung`)"
 

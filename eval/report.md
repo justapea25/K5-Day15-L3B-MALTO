@@ -15,7 +15,7 @@ Kết quả từng câu: `eval/run-2.csv`, `eval/run-3.csv`, `eval/run-4.csv`. T
 
 - Trước đó có `run-1@20261127-185717` 20/20 trên bộ **20 câu** đầu (luồng 4 bước cũ). Không so trực tiếp với các lượt trên vì khác bộ câu thử.
 - Từ `run-1` đến `run-2` agent đã đổi từ workflow 4 bước sang agent tự chọn bước (lý do ở `spec.md` §4, §10). Lượt 1 của báo cáo này là `run-2`: lượt đầu tiên trên bộ 30 câu.
-- `khop_so_thich` (người chấm): LLM đề xuất đạt 18/19 câu có gợi ý quán ở `run-2` (B03: lý do chưa nhắc sở thích của 2 người) và 19/19 ở `run-4`. **Người chấm chưa xác nhận**. Số ở bảng trên là 3 metric code.
+- `khop_so_thich` (người chấm): LLM đề xuất đạt 18/19 câu có gợi ý quán ở `run-2` (B03: lý do chưa nhắc sở thích của 2 người) và 19/19 ở `run-4`. **Đã xác nhận 5/5 câu của `run-4` theo [eval/human-check.md](../eval/human-check.md)**; các câu còn lại chưa chấm tay. Với B03 `run-2`, người chấm đối chiếu data: Phở bò tái 70k (Anh Béo) và Phở bò chín (lớn) 75k (Nhà Mây) đều `loai=pho`, tổng 140k và 150k ≤ 160k, nên món hợp sở thích. Lý do chỉ nói chung "phở" chứ không tách từng người, nhưng cả 2 người cùng muốn phở nên người chấm xem là **đạt (sát ngưỡng)**, khác đề xuất của LLM. Số ở bảng trên là 3 metric code.
 - Chi phí đo được: `run-2` trung bình 1,9 lần gọi model / câu, 6.887 token vào · 367 ra. `run-4`: 2,1 lần gọi, 8.481 vào · 390 ra (cải tiến thêm công cụ `tra_gia` và lần sửa khi code trả lại).
 
 ## 2. Lỗi lượt 1 — gom thành nhóm có tên

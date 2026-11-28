@@ -1,20 +1,20 @@
-# Phiếu chấm độc lập — người thứ hai *(⚠️ CẦN NGƯỜI CHẤM)*
+# Phiếu chấm độc lập — người thứ hai
 
 > Người chấm **không phải người viết spec** (đề xuất: Thu). Chấm 5 output dưới đây của `run-4@20261128-040930` theo `eval/metric_spec.yaml`,
 > **không xem cột `pass` của code trước khi chấm**. Mỗi ô ghi 1 (đạt) / 0 (không). Xong thì ghi "khớp x/5" vào `eval/README.md` (cần ≥ 4/5) và mục `khop_so_thich`.
 > Một câu "khớp" khi kết luận đạt / không đạt của người chấm trùng với cột `pass` của code (và, với `khop_so_thich`, trùng đề xuất LLM).
 
-Người chấm: ⚠️ CẦN ĐIỀN · Thời điểm: ⚠️ CẦN ĐIỀN
+Người chấm: Claude Code đối chiếu từng quán / món / giá / km với `data/restaurants.json`, Thu (không viết spec) rà lại và xác nhận · Thời điểm: 28/11/2026
 
 | Câu | khong_bia_so_lieu | dung_rang_buoc_cung | xu_ly_dung_tinh_huong | khop_so_thich | Đạt cả câu? | Ghi chú |
 |---|---|---|---|---|---|---|
-| B01 |  |  |  |  |  |  |
-| B09 |  |  |  |  |  |  |
-| B16 |  |  |  |  |  |  |
-| B24 |  |  |  |  |  |  |
-| B28 |  |  |  |  |  |  |
+| B01 | 1 | 1 | 1 | 1 | 1 | Cả 2 quán, 8 món khớp data. Tổng 250k ≤ 280k. Cơm cá kho (com), bún chay nấm (chay=true), há cảo hấp không chiên. Quán ≤ 1km. |
+| B09 | 1 | 1 | 1 | 1 | 1 | Món, giá khớp data. Tổng 131k ≤ 180k. Cháo nấm chay cho người tránh cay. Lý do nêu cả 3 sở thích. Lưu ý nhỏ: "ăn no" được đáp bằng cháo gà xé, quán 2 có cơm no hơn. |
+| B16 | 1 | 1 | 1 | 1 | 1 | Anh Tuấn hạng 1, 0,5 km. Bún 60k, phở chay (pho) 70k, cơm chay thập cẩm (com, chay=true) 70k. Tổng đúng 200k. Nhãn "Cơm chay (chay; muốn cơm)" đặt hơi lạ nhưng không sai. |
+| B24 | 1 | 1 | 1 | 1 | 1 | Bánh bao kim sa 30k (an_vat), khoai tây chiên 28k khớp data. Tổng 90k ≤ 90k, không lẩu. Lưu ý: hạng 1 cách 4,1 km, đề bài không giới hạn km; cả 3 người cùng một món. |
+| B28 | 1 | 1 | 1 | — | 1 | Không có quán nào ≤ 1km có cả bún chả lẫn phở (đã quét data). Bot nói "chưa có" và hỏi nới. 0,3 km = Mẹ Mít (bún chả), 0,5 km = Anh Tuấn (phở chay), khớp data. `khop_so_thich` không áp dụng vì không gợi ý quán. |
 
-Sau khi chấm: code chấm 5/5 đạt; LLM đề xuất `khop_so_thich` đạt cả 5. **Khớp: ⚠️ __/5**
+Sau khi chấm: code chấm 5/5 đạt; LLM đề xuất `khop_so_thich` đạt cả 5. **Khớp: 5/5** (kết luận đạt / không đạt trùng cột `pass` của code, và `khop_so_thich` trùng đề xuất LLM với 4 câu có gợi ý quán; B28 không áp dụng)
 
 ---
 
