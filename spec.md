@@ -348,10 +348,11 @@ flowchart TD
 - Kết quả: lượt 1 **20/20 (100%)** (thuong 7/7 · kho 8/8 · tu_choi 5/5; model gpt-6-luna; chấm bằng `eval/grade.py`, `khop_so_thich` LLM đề xuất 11/11, người xác nhận) · trên bộ 30 câu (thêm B21–B30): lượt 1 `run-2@20261128-040127` **29/30 (97%) — chưa đạt chuẩn** (B29 bịa khoảng giá) → một cải tiến → lượt 2 `run-4@20261128-040930` **30/30 (100%) — đạt chuẩn** (lượt giữa `run-3` 29/30, B26 tệ đi do chính cải tiến, đã sửa) → chi tiết `eval/report.md`, hồ sơ `eval/README.md`
 
 ## §8. Chi phí khi dùng thật *(guide 4.2)*
-- Persona + giá: `cost/personas.yaml` · lượt mô phỏng: `cost/simulate-__.csv` (__ phiên)
-- Chi phí / task thành công: __ (model __) · __ (model __)
-- Chi phí / tháng ở quy mô thật: thấp __ · cơ sở __ · cao __ → chi tiết `cost/cost-estimate.md`
-- So với impact / người / tháng (§2): đáng làm không, vì sao:
+- **Mô phỏng thực qua API:** `gpt-6-luna` ở lượt `simulate-1@20261128-084547` và `gpt-6.1-terra` ở lượt `simulate-2@20261128-091535`. Mỗi lượt chạy cùng **50 phiên và 71 lượt hỏi**, seed `42`, 0 phiên báo lỗi. [Cấu hình](cost/personas.yaml) · [Tóm tắt Luna](cost/simulate-1-summary.md) · [Tóm tắt Terra](cost/simulate-2-summary.md)
+- **Chi phí / task thành công:** khoảng **$0.0017** với Luna và **$0.0144** với Terra. Dùng tỉ lệ đạt **30/30** của từng model trên cùng bộ câu thử, với cùng 3 metric chấm bằng code. [Lượt 2 của Luna](eval/run-4.csv) (`run-4@20261128-040930`) · [Lượt đối chiếu Terra](eval/run-5.csv) (`run-5@20261128-093233`). Metric `khop_so_thich` còn chờ người chấm.
+- **Chi phí Luna / tháng** theo quy mô thử nghiệm tự ước tính: thấp **$0.3184 / 100 người** · cơ sở **$0.9552 / 300 người** · cao **$1.59 / 500 người**. Chi phí bình quân ở kịch bản cơ sở khoảng **$0.0032 / người / tháng**. [Báo cáo chi phí](cost/cost-estimate.md)
+- **Chi phí Terra theo token đo riêng:** **$0.0144 / phiên** và **$2.80 · $8.39 · $13.99 / tháng** cho 100 · 300 · 500 người. Chi phí bình quân ở kịch bản cơ sở khoảng **$0.0280 / người / tháng**. [Báo cáo chi phí](cost/cost-estimate.md)
+- **So với impact (§2):** P1 dành khoảng 60 phút/tháng cho toàn bộ quy trình đặt nhóm. Chi phí Luna phù hợp để thử ở quy mô nhỏ. Cần đo thời gian chọn quán trước và sau khi dùng MALTO để xác định thời gian tiết kiệm được.
 
 ## §9. Rủi ro & an toàn
 - **Dữ liệu:** quán và món là dữ liệu dựng giả có seed (`data/restaurants.json`); data crawl GrabFood chỉ để đo số liệu bằng chứng, không commit, không đưa vào model. Không thu tên, số điện thoại, địa chỉ hay vị trí thật của người dùng; tin nhắn chỉ gửi tới OpenAI API (gói trả phí) để xử lý lượt đó, máy chủ không lưu hội thoại (giao diện giữ ≤ 8 lượt trong `sessionStorage` của trình duyệt). Trích dẫn khảo sát, phỏng vấn trong `evidence/` đã bỏ tên, chỉ ghi mã (R004, P1). Không commit `.env` hay API key.
@@ -380,6 +381,7 @@ flowchart TD
 | 28/11 sáng | Thêm 10 câu thử B21–B30 (câu hỏi người dùng: hỏi quán có món, hỏi giá, rẻ nhất, gần nhất, ngân sách nhỏ) + luật chấm tương ứng trong `eval/grade.py` (không sửa luật B01–B20). Lượt 30 câu trước cải tiến: `run-2@20261128-040127` 29/30 | Bộ câu thử cần ≥1/3 câu từ người dùng (rubric R4). Expected B26/B28/B30 viết theo data trước khi chạy (B30: tô bún / phở rẻ nhất 51.000đ > 50k nên phải là "không có quán") |
 | 28/11 sáng | Một cải tiến (sau `run-2`): người dùng nói "rẻ nhất / gần nhất / đánh giá cao nhất" → code bắt quán đứng đầu theo đúng tiêu chí đó và so đúng giá trị (không làm tròn); thêm công cụ `tra_gia` (khoảng giá một món); code kiểm mọi số tiền trong lời của model, số không có trong kết quả công cụ → trả lại cho model sửa | Câu trượt ở lượt nháp / `run-2`: B23 (model đảo tô 55k lên trên tô 51k rẻ nhất), B27 (model bỏ quán phở gần nhất vì chỉ có phở chay), B29 (bot tự đoán khoảng giá sai: data phở 65–95k, bún bò 51–85k) |
 | 28/11 sáng | Sửa cải tiến trên (sau `run-3`): khi sắp thẻ quán theo "rẻ / gần / đánh giá", quán có nhiều suất đúng món vẫn đứng trước; lời nhắc model có ngoại lệ "quán đứng đầu không có món cụ thể → tìm lại với đúng món" | `run-3@20261128-040507` 29/30: B26 trượt do chính cải tiến — hỏi cơm tấm ≤ 500 m, code ép quán gần nhất (chỉ có cơm chiên) lên đầu |
+| 28/11 sáng | Chạy mô phỏng chi phí Luna và Terra qua API trên cùng 50 phiên, chấm lượt đối chiếu Terra `run-5` và cập nhật §8 | So sánh chi phí theo token thực đo và tỉ lệ đạt chấm bằng code của từng model. Bằng chứng: `cost/simulate-1.csv`, `cost/simulate-2.csv`, `eval/run-4.csv` và `eval/run-5.csv`. |
 
 **Sau CP4 (đến 23:59 Thứ Bảy 28/11)** (sửa theo góp ý — không sửa chuẩn "đạt", câu thử, số bằng chứng, kết quả các lượt đã chạy)
 
