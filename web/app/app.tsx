@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { CastImg } from "./cast";
 import { vnd } from "./lib";
 import QuanCover from "./quan-cover";
+import Funnel from "./funnel";
 import ShopPanel from "./shop-panel";
 import type { Quan } from "./types";
 import type { AnswerResponse, KetQua, Loai, LuaChon } from "./types";
@@ -43,8 +44,8 @@ function Suggestion({ k, feedbackDone, onFeedback, onOpenShop }: { k: KetQua; fe
   return (
     <>
       <div className="mb-2 flex items-start gap-3">
-        <div className="min-w-0 flex-1">
-          <p className="anim-stamp mb-2 text-[11px] font-extrabold uppercase tracking-[0.1em] text-brand">Kết luận điều tra</p>
+        <div className="flex min-w-0 flex-1 flex-col items-start">
+          <p className="anim-stamp mb-2 text-[11px] font-extrabold uppercase tracking-[0.1em] text-brand">MealMate chọn quán này</p>
           {onFeedback && (
             <button
               type="button"
@@ -56,7 +57,7 @@ function Suggestion({ k, feedbackDone, onFeedback, onOpenShop }: { k: KetQua; fe
             </button>
           )}
         </div>
-        <CastImg k="point" alt="Thám tử chỉ vào kết quả" className="anim-mascot h-[88px] w-[100px] shrink-0 object-contain" />
+        <CastImg k="point" alt="Kogoro chỉ vào kết quả" className="anim-mascot h-[88px] w-[100px] shrink-0 object-contain" />
       </div>
       {k.loi_nhan && <p className="mb-3 whitespace-pre-line text-[15px] leading-relaxed">{k.loi_nhan}</p>}
       {(k.cau_hoi ?? []).map((q, i) => (
@@ -224,7 +225,7 @@ function Typing() {
         <div className="flex items-center gap-3">
           <CastImg k="think" alt="" className="anim-wobble h-16 w-16 shrink-0 object-contain" />
           <div>
-            <p className="text-sm font-semibold">Thám tử đang điều tra…</p>
+            <p className="text-sm font-semibold">MealMate đang tìm quán…</p>
             <span className="mt-1 flex gap-1" aria-label="Đang trả lời">
               {[0, 150, 300].map((d) => (
                 <span key={d} className="h-2 w-2 animate-bounce rounded-full bg-accent" style={{ animationDelay: `${d}ms` }} />
@@ -235,7 +236,7 @@ function Typing() {
         {slow && (
           <div className="mt-2 flex items-center gap-2 text-xs font-semibold text-brand">
             <CastImg k="duo" alt="" className="h-[60px] w-[72px] shrink-0 object-contain" />
-            <span>Có người đang làm phiền, chờ thám tử một chút nhé!</span>
+            <span>Có người đang làm phiền, chờ MealMate một chút nhé!</span>
           </div>
         )}
       </div>
@@ -279,6 +280,9 @@ function BotBubble({ m, onFeedback, onOpenShop }: { m: Msg; onFeedback?: () => v
             </>
           )}
         </div>
+        {m.data?.phan_tich && (k?.loai === "goi_y" || k?.loai === "khong_co") && (
+          <Funnel pt={m.data.phan_tich} chosenId={k?.loai === "goi_y" ? k.quan?.id : undefined} altIds={(k?.lua_chon ?? []).slice(1).map((o) => o.quan.id)} />
+        )}
         {m.data && (
           <div className="mt-1 flex flex-wrap items-center gap-2 pl-1 text-[11px] text-muted">
             <span className={`border border-ink px-2 py-0.5 font-semibold ${BADGE[loai]}`}>{LABEL[loai]}</span>
@@ -322,13 +326,13 @@ function Welcome({ onPick, disabled, empty }: { onPick: (t: string) => void; dis
         className="anim-float h-28 w-auto object-contain"
         fallback={<div className="flex h-16 w-16 items-center justify-center border-2 border-ink bg-brand text-3xl">🕵️</div>}
       />
-      <p className="mt-4 text-[11px] font-extrabold uppercase tracking-[0.1em] text-brand">Hồ sơ mới · Thám tử ẩm thực</p>
-      <h2 className="anim-drop mt-1 text-2xl font-bold tracking-tight">Vụ án ăn gì hôm nay?</h2>
+      <p className="mt-4 text-[11px] font-extrabold uppercase tracking-[0.1em] text-brand">MealMate · Bạn cùng bàn ăn</p>
+      <h2 className="anim-drop mt-1 text-2xl font-bold tracking-tight">Hôm nay cả nhóm ăn gì?</h2>
       <p className="mt-2 max-w-md text-[15px] leading-relaxed text-muted">
         Cứ kể như đang nhắn cho bạn: ai muốn ăn gì, ai kiêng gì, tầm bao nhiêu tiền, đi xa được không. Mình lọc ra vài quán{" "}
         <b className="text-ink">chiều được cả đơn</b>, kèm món gợi ý cho từng yêu cầu.
       </p>
-      <p className="mt-6 w-full text-left text-[11px] font-extrabold uppercase tracking-[0.1em] text-brand">Chọn một vụ án mẫu</p>
+      <p className="mt-6 w-full text-left text-[11px] font-extrabold uppercase tracking-[0.1em] text-brand">Chọn một tình huống mẫu</p>
       <div className="mt-2 grid w-full gap-2.5 text-left sm:grid-cols-2">
         {EXAMPLES.map(([name, t], i) => (
           <button
@@ -470,8 +474,8 @@ export default function App() {
             <div className="flex items-center gap-3">
               <Avatar />
               <div>
-                <p className="text-sm font-bold uppercase leading-tight tracking-[0.08em]">Hồ sơ vụ án ẩm thực</p>
-                <p className="text-xs opacity-85">{loading ? "đang điều tra…" : "Chỉ gợi ý từ danh sách quán có sẵn"}</p>
+                <p className="text-sm font-bold uppercase leading-tight tracking-[0.08em]">MealMate · Chọn quán cho nhóm</p>
+                <p className="text-xs opacity-85">{loading ? "đang tìm quán…" : "Chỉ gợi ý từ danh sách quán có sẵn"}</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
