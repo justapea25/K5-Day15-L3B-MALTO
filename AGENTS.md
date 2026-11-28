@@ -40,6 +40,6 @@ Khung chỉ dùng thư viện chuẩn của Python. Thêm thư viện thì ghi v
 
 ## Quy ước của nhóm
 
-- Ngôn ngữ trả lời người dùng: __
-- Phong cách code / đặt tên: __
-- Ai duyệt thay đổi do agent tạo trước khi commit: __
+- Ngôn ngữ trả lời người dùng: tiếng Việt (bot, tài liệu, commit message).
+- Phong cách code / đặt tên: Python chỉ thư viện chuẩn; hàm, biến snake_case, tên miền bài toán bằng tiếng Việt không dấu (`tim_quan`, `ngan_sach_tong`); giao diện Next.js + TypeScript trong `web/`.
+- Ai duyệt thay đổi do agent tạo trước khi commit: Minh (đội trưởng) xem diff + chạy bộ câu thử; mỗi người đẩy lên nhánh riêng, gộp vào `main` qua Minh.

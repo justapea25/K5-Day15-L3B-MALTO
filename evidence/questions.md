@@ -9,7 +9,7 @@
 - Ngày thu thập: 27/11/2026.
 - Thời điểm có phản hồi đầu tiên: 16:59.
 - Thời điểm có phản hồi cuối cùng: 18:25.
-- Kênh phát hành: [Bổ sung các kênh thực tế đã gửi link khảo sát].
+- Kênh phát hành: ⚠️ CẦN ĐIỀN (Linh) — các kênh thực tế đã gửi link khảo sát.
 
 Lưu ý: Thời gian trên là thời điểm phản hồi đầu tiên và cuối cùng trong dữ liệu xuất từ Google Forms, không phải thời điểm chính xác mở và đóng biểu mẫu.
 
