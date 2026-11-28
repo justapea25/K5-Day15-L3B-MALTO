@@ -21,8 +21,8 @@ export default function Nav() {
             <span aria-hidden className="logo-mark grid h-12 w-12 place-items-center border-2 border-ink bg-brand text-2xl font-black text-brand-ink">M</span>
             <span className="flex flex-col leading-tight">
               <span className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-brand">MALTO · Track D</span>
-              <span className="text-[15px] font-bold tracking-wide">VĂN PHÒNG THÁM TỬ ẨM THỰC</span>
-              <span className="mt-0.5 text-[11px] text-muted">Nhận mọi vụ án ăn uống</span>
+              <span className="text-[15px] font-bold tracking-wide">MEALMATE</span>
+              <span className="mt-0.5 text-[11px] text-muted">Chọn quán cho cả nhóm, mỗi người một món</span>
             </span>
           </Link>
         </div>

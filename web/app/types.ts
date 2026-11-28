@@ -31,8 +31,19 @@ export type Buoc = { loai: "model" | "tool" | "note"; ten: string; chi_tiet?: st
 
 export type ThongKe = { model_calls: number; tool_calls: number; tokens_in: number; tokens_out: number; models: string[] };
 
+// Phễu lọc backend ghi lại: quan[id] = bậc (0 loại ở khoảng cách/giờ/tên · 1 có suất hết món an toàn · 2 vượt ngân sách · 3 còn lại)
+export type PhanTich = {
+  tong: number;
+  max_km: number | null;
+  ngan_sach: number | null;
+  so_nguoi: number;
+  quan: Record<string, number>;
+  buoc: number[];
+};
+
 export type AnswerResponse = {
   output: string;
+  phan_tich?: PhanTich | null;
   ket_qua: KetQua | null;
   thong_ke: ThongKe;
   cac_buoc: Buoc[];

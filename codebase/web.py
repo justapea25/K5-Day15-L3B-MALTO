@@ -22,6 +22,7 @@ sys.path.insert(0, HERE)
 
 import ai  # noqa: E402
 import tracing  # noqa: E402
+import agent as _agent  # noqa: E402
 from agent import answer  # noqa: E402
 from tools import _data  # noqa: E402
 
@@ -81,6 +82,7 @@ class Handler(BaseHTTPRequestHandler):
             return self._send(400, {"loi": "body phải là JSON {\"text\": \"...\"}"})
         if not text:
             return self._send(400, {"loi": "chưa nhập yêu cầu"})
+        _agent.FUNNEL.clear()
         tracing.begin("web")
         try:
             result = answer(text, history)
@@ -89,7 +91,8 @@ class Handler(BaseHTTPRequestHandler):
             return self._send(500, {"loi": "%s: %s" % (type(e).__name__, e), "cac_buoc": _steps(events)})
         summary, events = tracing.end()
         return self._send(200, {"output": result.get("output", ""), "ket_qua": result.get("ket_qua"),
-                                "thong_ke": summary, "cac_buoc": _steps(events)})
+                                "thong_ke": summary, "cac_buoc": _steps(events),
+                                "phan_tich": dict(_agent.FUNNEL) or None})
 
     def log_message(self, fmt, *args):
         sys.stderr.write("[web] %s\n" % (fmt % args))

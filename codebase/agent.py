@@ -197,10 +197,20 @@ def _rank_key(o, uu_tien):
     return (-o["dung_mon"], prio, rate_b, km_b, price_b)
 
 
-def _options(people, budget, max_km, name=None, at_time=None, uu_tien=""):
-    """Quán mà mỗi suất có ≥1 món an toàn. Trả (khả thi đã xếp hạng, chỉ vướng ngân sách)."""
+# Phễu lọc của lần tìm quán chính gần nhất (chỉ để giao diện web vẽ lại quá trình; không ảnh hưởng kết quả).
+# Mỗi quán có "bậc": 0 = loại ở bước khoảng cách / giờ mở / tên, 1 = có suất không còn món an toàn,
+# 2 = vượt ngân sách, 3 = còn lại sau mọi bước. web.py xoá dict này trước mỗi yêu cầu.
+FUNNEL = {}
+
+
+def _options(people, budget, max_km, name=None, at_time=None, uu_tien="", ghi=True):
+    """Quán mà mỗi suất có ≥1 món an toàn. Trả (khả thi đã xếp hạng, chỉ vướng ngân sách).
+    ghi=False: lần thử nới ràng buộc để gợi ý, không ghi đè phễu."""
     feasible, over_budget = [], []
-    for q in search_restaurants(max_km, name, at_time):
+    near = search_restaurants(max_km, name, at_time)
+    bac = {q["id"]: 0 for q in _data()["quan"]}
+    for q in near:
+        bac[q["id"]] = 1
         menu = get_menu(q["id"])
         per_person = [[m for m in menu if dish_ok_for(m, p)] for p in people]
         if any(not dishes for dishes in per_person):
@@ -209,34 +219,40 @@ def _options(people, budget, max_km, name=None, at_time=None, uu_tien=""):
         dung = sum(1 for p, d in zip(people, per_person) if p["mon"] and any(_khop(m, p) == "dung_mon" for m in d))
         opt = dict(q, mon_theo_nguoi=per_person, tong_re_nhat=cheapest, dung_mon=dung,
                    muc_gia=next((x.get("muc_gia") for x in _data()["quan"] if x["id"] == q["id"]), None))
+        bac[q["id"]] = 2 if (budget is not None and cheapest > budget) else 3
         (feasible if budget is None or cheapest <= budget else over_budget).append(opt)
     feasible.sort(key=lambda o: _rank_key(o, uu_tien))
     over_budget.sort(key=lambda o: o["tong_re_nhat"])
+    if ghi:
+        n_safe = sum(1 for v in bac.values() if v >= 2)
+        FUNNEL.clear()
+        FUNNEL.update(tong=len(bac), max_km=max_km, ngan_sach=budget, so_nguoi=len(people), quan=bac,
+                      buoc=[len(bac), len(near), n_safe, len(feasible)])
     return feasible, over_budget
 
 
 def _relax_hint(people, budget, max_km, name, at_time):
     """Không quán nào thoả: thử nới từng ràng buộc MỀM. Không bao giờ nới chay / dị ứng."""
     hints = []
-    _, over = _options(people, budget, max_km, name, at_time)
+    _, over = _options(people, budget, max_km, name, at_time, ghi=False)
     if over:
         hints.append("tăng ngân sách lên khoảng %s (quán %s)" % (_vnd(over[0]["tong_re_nhat"]), over[0]["ten"]))
     if max_km is not None:
-        far, _ = _options(people, budget, None, name, at_time)
+        far, _ = _options(people, budget, None, name, at_time, ghi=False)
         if far:
             hints.append("đi xa hơn, tới %.1f km (quán %s)" % (far[0]["khoang_cach_km"], far[0]["ten"]))
     if any(p["muon_loai"] or p["mon"] for p in people):
         loose = [dict(p, muon_loai=[], mon="") for p in people]
-        alt, _ = _options(loose, budget, max_km, name, at_time)
+        alt, _ = _options(loose, budget, max_km, name, at_time, ghi=False)
         if alt:
             hints.append("bỏ yêu cầu món cụ thể — khi đó có quán %s" % alt[0]["ten"])
     if any(p["ngan_sach_rieng"] for p in people):
         loose = [dict(p, ngan_sach_rieng=None) for p in people]
-        alt, _ = _options(loose, budget, max_km, name, at_time)
+        alt, _ = _options(loose, budget, max_km, name, at_time, ghi=False)
         if alt:
             hints.append("nới ngân sách riêng của từng người — khi đó có quán %s" % alt[0]["ten"])
     if at_time:
-        alt, _ = _options(people, budget, max_km, name, None)
+        alt, _ = _options(people, budget, max_km, name, None, ghi=False)
         if alt:
             hints.append("đổi giờ ăn — quán %s hợp nhưng giờ đó không mở" % alt[0]["ten"])
     return hints

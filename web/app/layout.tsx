@@ -6,7 +6,7 @@ import Nav from "./nav";
 const font = Be_Vietnam_Pro({ subsets: ["vietnamese", "latin"], weight: ["400", "500", "600", "700"], variable: "--font-bvp", display: "swap" });
 
 export const metadata: Metadata = {
-  title: "Chọn quán cho nhóm · MALTO",
+  title: "MealMate · Chọn quán cho nhóm",
   description: "Bản chạy thử: AI chọn một quán và một món cho từng người trong nhóm, theo ăn chay, dị ứng, ngân sách.",
 };
 
