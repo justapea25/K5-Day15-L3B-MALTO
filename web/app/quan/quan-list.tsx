@@ -6,14 +6,14 @@ import { READ, vnd } from "../lib";
 import type { DuLieu, Mon, Quan } from "../types";
 
 
-function Tags({ m }: { m: Mon }) {
+export function Tags({ m }: { m: Mon }) {
   return (
     <span className="flex flex-wrap gap-1">
-      {m.chay === true && <span className="rounded bg-ok/15 px-1.5 text-[11px] font-medium text-ok">🌱 chay</span>}
+      {m.chay === true && <span className=" bg-ok/15 px-1.5 text-[11px] font-medium text-ok">🌱 chay</span>}
       {m.co_nhac.length > 0 && (
-        <span className="rounded bg-soft px-1.5 text-[11px] text-muted">có {m.co_nhac.map((c) => READ[c] ?? c).join(", ")}</span>
+        <span className=" bg-soft px-1.5 text-[11px] text-muted">có {m.co_nhac.map((c) => READ[c] ?? c).join(", ")}</span>
       )}
-      {!m.ghi_thanh_phan && <span className="rounded bg-warn/15 px-1.5 text-[11px] text-warn">không ghi mô tả</span>}
+      {!m.ghi_thanh_phan && <span className=" bg-warn/15 px-1.5 text-[11px] text-warn">không ghi mô tả</span>}
     </span>
   );
 }
@@ -21,8 +21,8 @@ function Tags({ m }: { m: Mon }) {
 // Loại quán (để chọn biểu tượng khi quán chưa có ảnh). Ảnh quán: web/public/img/quan/<id>.webp (gpt-image-2)
 // quán chay: không dùng ảnh (ảnh có sẵn đều có thịt) → biểu tượng
 const COVER: [RegExp, string][] = [[/chay/i, ""], [/^bếp/i, "com"], [/phở/i, "pho"], [/bún/i, "bun"], [/cơm/i, "com"], [/bánh mì/i, "banh_mi"], [/lẩu/i, "lau"]];
-const coverOf = (q: Quan) => COVER.find(([re]) => re.test(q.ten) || re.test(q.am_thuc))?.[1] || undefined;
-const iconOf = (q: Quan) => (/chay/i.test(q.am_thuc) ? "🌱" : /mì|miến/i.test(q.am_thuc) ? "🍜" : "🍽️");
+export const coverOf = (q: Quan) => COVER.find(([re]) => re.test(q.ten) || re.test(q.am_thuc))?.[1] || undefined;
+export const iconOf = (q: Quan) => (/chay/i.test(q.am_thuc) ? "🌱" : /mì|miến/i.test(q.am_thuc) ? "🍜" : "🍽️");
 
 function QuanCard({ q, active, chosen, onClick }: { q: Quan; active: boolean; chosen: boolean; onClick: () => void }) {
   const veg = q.mon.filter((m) => m.chay === true).length;
@@ -31,8 +31,8 @@ function QuanCard({ q, active, chosen, onClick }: { q: Quan; active: boolean; ch
       type="button"
       onClick={onClick}
       aria-pressed={active}
-      className={`group overflow-hidden rounded-xl border bg-panel text-left transition hover:-translate-y-0.5 hover:shadow-md ${
-        active ? "border-accent ring-2 ring-accent/30" : "border-line hover:border-accent/60"
+      className={`group overflow-hidden border-2 bg-panel text-left transition hover:-translate-y-0.5 shadow-[4px_4px_0_#242434] hover:shadow-[6px_6px_0_#242434] ${
+        active ? "border-brand ring-2 ring-brand/30" : "border-ink"
       }`}
     >
       <div className="relative h-32 overflow-hidden bg-soft">
@@ -42,15 +42,15 @@ function QuanCard({ q, active, chosen, onClick }: { q: Quan; active: boolean; ch
       <div className="p-3">
       <div className="flex items-start justify-between gap-2">
         <p className="line-clamp-2 font-semibold leading-snug">{q.ten}</p>
-        {chosen && <span className="shrink-0 rounded-full bg-ok px-2 py-0.5 text-[10px] font-semibold text-white">Đang gợi ý</span>}
+        {chosen && <span className="shrink-0 border border-ink bg-ok px-2 py-0.5 text-[10px] font-semibold text-white">Đang gợi ý</span>}
       </div>
       <p className="mt-1 text-xs text-muted">
         {q.am_thuc} · {q.khoang_cach_km} km{q.muc_gia ? ` · ${q.muc_gia}` : ""}{q.danh_gia ? ` · ★ ${q.danh_gia} (${q.so_danh_gia ?? 0} đánh giá)` : ""} · {q.mon.length} món
       </p>
       <div className="mt-2 flex flex-wrap gap-1">
-        {veg > 0 && <span className="rounded bg-ok/15 px-1.5 text-[11px] font-medium text-ok">🌱 {veg} món chay</span>}
-        {q.freeship && <span className="rounded bg-accent/15 px-1.5 text-[11px] text-accent">freeship</span>}
-        {q.gio_mo && <span className="rounded bg-soft px-1.5 text-[11px] text-muted">🕒 {q.gio_mo}</span>}
+        {veg > 0 && <span className=" bg-ok/15 px-1.5 text-[11px] font-medium text-ok">🌱 {veg} món chay</span>}
+        {q.freeship && <span className=" bg-accent/15 px-1.5 text-[11px] text-accent">freeship</span>}
+        {q.gio_mo && <span className=" bg-soft px-1.5 text-[11px] text-muted">🕒 {q.gio_mo}</span>}
       </div>
       </div>
     </button>
@@ -97,7 +97,7 @@ export default function QuanList() {
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder="Tìm quán hoặc món (vd: bún, phở, chay)…"
-        className="mb-3 w-full rounded-lg border border-line bg-bg px-3 py-2 text-sm outline-none focus:border-accent"
+        className="mb-3 w-full border-2 border-ink bg-panel px-3 py-2 text-sm outline-none focus:border-brand focus:ring-2 focus:ring-brand/25"
       />
       <p className="mb-3 text-xs text-muted">{list.length} quán</p>
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -106,7 +106,7 @@ export default function QuanList() {
         ))}
       </div>
       {sel && (
-        <div ref={menuRef} className="mt-4 scroll-mt-4 rounded-xl border border-line bg-bg/60 p-4">
+        <div ref={menuRef} className="mt-4 scroll-mt-4 border border-line bg-bg/60 p-4">
           <div className="mb-3 flex items-baseline justify-between gap-2">
             <h3 className="text-lg font-semibold">Menu · {sel.ten}</h3>
             <button type="button" onClick={() => setOpen(null)} className="text-sm text-muted hover:text-ink">

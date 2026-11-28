@@ -4,7 +4,7 @@ export const metadata = { title: "Danh sách quán · MALTO" };
 
 export default function Page() {
   return (
-    <section className="rounded-2xl border border-line bg-panel p-5">
+    <section className=" border-2 border-ink bg-panel p-5 shadow-[6px_6px_0_#242434]">
       <div className="mb-1 flex flex-wrap items-baseline justify-between gap-2">
         <h2 className="text-lg font-semibold">Các quán trong dữ liệu</h2>
         <p className="text-xs text-muted">Bấm vào quán để xem menu</p>
