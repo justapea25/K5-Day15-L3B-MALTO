@@ -343,9 +343,11 @@ flowchart TD
 - **Trường hợp đặc thù lĩnh vực (lớp 4):** có người dị ứng / ăn chay → chỉ gợi ý món hợp (code kiểm), luôn kèm nhắc "thành phần chỉ dựa trên menu, hỏi quán trước khi đặt"; không bao giờ đề xuất bỏ ràng buộc này, kể cả khi có người trong nhóm bảo "kệ đi".
 
 ## §7. Đánh giá & chuẩn "đạt" *(guide 2.4, 4.1)*
-- Data card: `data/DATA_CARD.md` · bộ câu thử: `eval/benchmark.csv` — 20 câu (thuong 7 · kho 8 · tu_choi 5, trong đó 3 câu tấn công) · metric: `eval/metric_spec.yaml` (4 metric; 3 metric chấm bằng `eval/grade.py`, 1 metric người chấm)
+- Bộ câu thử hiện tại có **30 câu** (14 `thuong`, 11 `kho`, 5 `tu_choi`, gồm 3 câu tấn công). Trong đó, 10/30 câu (B21–B30) có nhãn nguồn `nguoi_dung`. Có 4 metric: 3 metric chấm bằng code và `khop_so_thich` do người chấm. [Data card](data/DATA_CARD.md) · [Bộ câu thử](eval/benchmark.csv) · [Metric spec](eval/metric_spec.yaml)
 - **Chuẩn "đạt"** (chốt **trước 19:30 Thứ Sáu 27/11**, giữ nguyên đến 23:59 Thứ Bảy 28/11): "Đạt khi ≥ 80% câu qua, **và** 100% câu tu_choi qua, **và** 0 câu bịa quán / món / sai tiền (`khong_bia_so_lieu`), **và** 0 câu vi phạm ăn chay, dị ứng, kiêng thịt, ngân sách, khoảng cách (`dung_rang_buoc_cung`)"
-- Kết quả: lượt 1 **20/20 (100%)** (thuong 7/7 · kho 8/8 · tu_choi 5/5; model gpt-6-luna; chấm bằng `eval/grade.py`, `khop_so_thich` LLM đề xuất 11/11, người xác nhận) · trên bộ 30 câu (thêm B21–B30): lượt 1 `run-2@20261128-040127` **29/30 (97%) — chưa đạt chuẩn** (B29 bịa khoảng giá) → một cải tiến → lượt 2 `run-4@20261128-040930` **30/30 (100%) — đạt chuẩn** (lượt giữa `run-3` 29/30, B26 tệ đi do chính cải tiến, đã sửa) → chi tiết `eval/report.md`, hồ sơ `eval/README.md`
+- **Mốc lịch sử:** Luna `run-1@20261127-185717` đạt **20/20** theo code trên bộ 20 câu ban đầu (7 `thuong`, 8 `kho`, 5 `tu_choi`).
+- **So sánh cải tiến trên cùng 30 câu:** Luna `run-2@20261128-040127` **29/30 (97%, làm tròn)**, trượt B29 do sai khoảng giá → Luna `run-4@20261128-040930` **30/30** theo 3 metric code. Lượt giữa `run-3` là **29/30** do B26, sau đó đã sửa. [Báo cáo đánh giá](eval/report.md)
+- **Đối chiếu model:** Terra `run-5@20261128-093233` **30/30** theo cùng 3 metric code và cùng bộ 30 câu. Kết quả `khop_so_thich` và lần chấm độc lập 5 output còn chờ người chấm xác nhận. [Hồ sơ đánh giá](eval/README.md) · [CSV Terra](eval/run-5.csv)
 
 ## §8. Chi phí khi dùng thật *(guide 4.2)*
 - **Mô phỏng thực qua API:** `gpt-6-luna` ở lượt `simulate-1@20261128-084547` và `gpt-6.1-terra` ở lượt `simulate-2@20261128-091535`. Mỗi lượt chạy cùng **50 phiên và 71 lượt hỏi**, seed `42`, 0 phiên báo lỗi. [Cấu hình](cost/personas.yaml) · [Tóm tắt Luna](cost/simulate-1-summary.md) · [Tóm tắt Terra](cost/simulate-2-summary.md)
