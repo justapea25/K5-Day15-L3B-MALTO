@@ -53,4 +53,7 @@ Lượt 1 chính thức chỉ trượt 1 câu. Bảng dưới gộp thêm các c
 - **Grader dò chuỗi:** `must_not` không hiểu câu phủ định (bot viết "mình không gợi ý bỏ yêu cầu ăn chay" vẫn bị coi là vi phạm ở lượt nháp). Đang tránh bằng prompt, chưa sửa grader.
 - **`khop_so_thich` chưa có người xác nhận**; người thứ hai chấm thử 5 output chưa làm.
 - **Data dựng giả** (60 quán); số câu từ người dùng thật mới 10/30.
+- **Góp ý ở buổi demo (28/11), chưa làm:**
+  - *Ý mơ hồ cần hỏi lại kỹ hơn:* "muốn ăn gì mát mát" — hiện bot tự hiểu thành sở thích rồi gợi ý luôn (kèm 1 câu hỏi), có thể đoán sai ý (món lạnh? món thanh nhẹ? đồ uống?). Hướng sửa: khi sở thích là từ cảm tính mà data không có nhãn tương ứng, bot hỏi 1 câu có 2–3 lựa chọn cụ thể trước khi tìm; thêm câu thử cho kiểu này (`kho`).
+  - *Cá nhân hoá:* gợi ý theo món người dùng hay gọi / không thích. Cần lưu hồ sơ sở thích có đồng ý của người dùng (hiện không lưu gì giữa các phiên, xem `spec.md` §9) và đo lại xem có chọn nhanh hơn không.
 - **Nếu có thêm 1 tuần:** chạy mỗi lượt 3 lần và báo % qua trung bình + độ lệch; thêm 10 câu hội thoại nhiều lượt (eval truyền `history`); sửa grader hiểu phủ định; thử với data quán thật và người đặt nhóm thật.

@@ -389,4 +389,4 @@ flowchart TD
 
 | Thời điểm | Đổi gì | Vì sao |
 |---|---|---|
-|  |  |  |
+| 28/11 sau demo | Không đổi code, bộ câu thử hay kết quả. Ghi góp ý vào `eval/report.md` §4 làm việc tiếp theo: (1) với yêu cầu mơ hồ kiểu "muốn ăn gì mát mát", bot nên hỏi lại cho rõ (mát là món lạnh, món thanh nhẹ hay đồ uống?) trước khi gợi ý, thay vì tự đoán; (2) cá nhân hoá theo sở thích người dùng (nhớ món hay gọi, món không thích qua các lần dùng) | Góp ý ở buổi demo 28/11. Hiện bot đưa ý mơ hồ vào `so_thich` rồi gợi ý luôn kèm 1 câu hỏi, chưa hỏi rõ trước; hệ thống không lưu gì về người dùng giữa các phiên (§9) nên chưa cá nhân hoá được |
